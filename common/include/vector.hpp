@@ -5,13 +5,12 @@
 
 namespace render {
 
-  class vector {
+  class Vector {
   public:
-    vector(double cx, double cy, double cz) : x{cx}, y{cy}, z{cz} {}
+    Vector(double cx, double cy, double cz) : x{cx}, y{cy}, z{cz} { }
 
     [[nodiscard]] double magnitude() const;
 
-    //...
   private:
     double x, y, z;
   };

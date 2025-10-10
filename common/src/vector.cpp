@@ -4,10 +4,10 @@
 
 namespace render {
 
-  double vector::magnitude() const {
+  double Vector::magnitude() const {
     return std::sqrt(x * x + y * y + z * z);
   }
 
   //...
 
-} // namespace render
+}  // namespace render

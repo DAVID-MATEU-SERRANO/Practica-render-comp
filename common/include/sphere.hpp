@@ -1,15 +1,13 @@
-#ifndef RENDER_CYLINDER_HPP
-#define RENDER_CYLINDER_HPP
-
-#include <vector.hpp>
+#ifndef RENDER_SPHERE_HPP
+#define RENDER_SPHERE_HPP
 
 namespace render {
 
-  class Cylinder {
+  class Sphere {
   public:
-    Cylinder(double cords_x, double cords_y, double cords_z, double radius, Vector vec)
-        : cords_x{cords_x}, cords_y{cords_y}, cords_z{cords_z}, radius{radius}, vector{vec} {
-      // Introducir validaciones si es necesario
+    Sphere(double cords_x, double cords_y, double cords_z, double radius)
+        : cords_x{cords_x}, cords_y{cords_y}, cords_z{cords_z}, radius{radius} {
+      // Introducir validaciones si es necesario, Falta incluir atributo que sea material
     }
 
     // [[nodiscard]] sirve para si haces operaciones y no se usan se eliminen (de momento las
@@ -18,14 +16,12 @@ namespace render {
     [[nodiscard]] double get_cords_y() const;
     [[nodiscard]] double get_cords_z() const;
     [[nodiscard]] double get_radius() const;
-    [[nodiscard]] double get_height() const;
 
   private:
     double cords_x;
     double cords_y;
     double cords_z;
     double radius;
-    Vector vector;
   };
 
 }  // namespace render

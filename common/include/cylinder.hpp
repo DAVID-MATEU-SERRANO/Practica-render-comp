@@ -1,14 +1,23 @@
 #ifndef RENDER_CYLINDER_HPP
 #define RENDER_CYLINDER_HPP
 
+#include <matte.hpp>
+#include <metal.hpp>
+#include <refractive.hpp>
+#include <utility>
+#include <variant>
 #include <vector.hpp>
 
 namespace render {
 
+  using t_material = std::variant<Matte, Metal, Refractive>;
+
   class Cylinder {
   public:
-    Cylinder(double cords_x, double cords_y, double cords_z, double radius, Vector vec)
-        : cords_x{cords_x}, cords_y{cords_y}, cords_z{cords_z}, radius{radius}, vector{vec} {
+    Cylinder(double cords_x, double cords_y, double cords_z, double radius, Vector vec,
+             t_material material)
+        : cords_x{cords_x}, cords_y{cords_y}, cords_z{cords_z}, radius{radius}, vector{vec},
+          material(std::move(material)) {
       // Introducir validaciones si es necesario
     }
 
@@ -26,6 +35,7 @@ namespace render {
     double cords_z;
     double radius;
     Vector vector;
+    t_material material;
   };
 
 }  // namespace render

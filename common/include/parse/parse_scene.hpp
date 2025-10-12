@@ -6,10 +6,12 @@ class Scene;  // Al parecer esto se llamna forward declaration y avisa al compil
 
 namespace parse {
 
-  void scene_from_file(std::string const & path,
-                       Scene & out);  // Lee fichero y carga datos en un objeto Scene
+  void parse_scene_stream(std::string const & path,
+                          Scene & out);  // Lee fichero y carga datos en un objeto Scene
 
-  void scene_from_string(std::string_view text,
-                         Scene & out);  // Lee string y carga datos en un objeto Scene
+  void parse_scene_stream(std::string_view text,
+                          Scene & out);  // Lee string y carga datos en un objeto Scene
+
+  void parse_scene_stream(std::istream & in, Scene & out);
 
 }  // namespace parse

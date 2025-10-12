@@ -1,0 +1,10 @@
+# ======= MATERIALES =======
+matte: rojo 1 0 0
+metal: acero 0.8 0.8 0.8 0.2
+refractive: vidrio 1.5
+matte: azul 0 0 1
+
+# ======= OBJETOS =======
+sphere: 0 0 -1 0.5 rojo
+cylinder: 0 -0.5 -1 0 1 0 0.3 acero
+cylinder: 0 -0.5 -1 0 1 0 0.3 azul

@@ -3,18 +3,14 @@
 
 #include <cctype>
 #include <cstddef>
-#include <fstream>
-#include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-// =================================Helpers horribles====================================
-
+// ================================ Helpers ================================
 namespace {
 
-  // Quitar espacios al inicio y final
   inline std::string trim(std::string const & s) {
     size_t i = 0, j = s.size();
     while (i < j and std::isspace(static_cast<unsigned char>(s[i])) != 0) {
@@ -26,14 +22,12 @@ namespace {
     return s.substr(i, j - i);
   }
 
-  // Manejo de errores
-  [[noreturn]] inline void parse_error(size_t line, std::string const & msg) {
+  [[noreturn]] inline void parse_error(std::size_t line, std::string const & msg) {
     std::ostringstream oss;
     oss << "Error de parseo en linea " << line << ": " << msg;
     throw std::runtime_error(oss.str());
   }
 
-  // Separar linea por espacios en blanco
   inline std::vector<std::string> split_ws(std::string const & s) {
     std::istringstream iss(s);
     std::vector<std::string> out;
@@ -44,115 +38,182 @@ namespace {
     return out;
   }
 
-}  // namespace
-
-//===========================LOGICA DEL PARSER (LETS GO MODO SALVAJE)===========================
-
-void parse_scene_stream(std::istream & in, Scene & scene) {
-  enum class State { Top, InMaterial };
-  State st = State::Top;
-
-  std::string line;
-  size_t lineno = 0;
-
-  // buffers para datos de materiales
-
-  std::string name;
-  float r = 1.F, g = 1.F, b = 1.F;
-  float rough = 0.5F;
-
-  auto reset_material = [&]() {
-    name.clear();
-    r     = 1.F;
-    g     = 1.F;
-    b     = 1.F;
-    rough = 0.5F;
-  };
-
-  // LEER LINEA POR LINEA (MATEU SI LEES ESTO ERES UN GENIO)
-
-  while (std::getline(in, line)) {
-    ++lineno;
-
-    // eliminar comentarios
-    if (auto p = line.find('#'); p != std::string::npos) {
-      line.erase(p);
-    }
-    line = trim(line);
-    if (line.empty()) {
-      continue;
-    }
-
-    // Fuera de bloque
-
-    if (st == State::Top) {
-      if (line == "material") {
-        st = State::InMaterial;
-
-        reset_material();
-        continue;
-      }
-      parse_error(lineno, "Comando inesperado fuera de bloque" + line + "");
-    }
-
-    // Dentro de bloque material
-    else
-    {
-      if (line == "}") {
-        if (name.empty()) {
-          parse_error(lineno, "Material sin nombre");
-        }
-
-        Material m;
-        m.name      = name;
-        m.color     = {r, g, b};
-        m.roughness = rough;
-
-        // Guardar material en la escena
-        scene.add_material(m);
-
-        st = State::Top;
-        continue;
-      }
-
-      // Esperamos key value
-      auto eq = line.find('=');
-      if (eq == std::string::npos) {
-        parse_error(lineno, "Esperando key=value, got: " + line + "");
-
-        std::string key = trim(line.substr(0, eq));
-        std::string val = trim(line.substr(eq + 1));
-
-        if (key == "name") {
-          if (val.empty()) {
-            parse_error(lineno, "Nombre de material vacio");
-          }
-          name = val;
-        } else if (key == "color") {
-          auto t = split_ws(val);
-          if (t.size() != 3) {
-            parse_error(lineno, "Esperando 3 valores para color, got: " + val + "");
-          }
-          try {
-            r = std::stof(t[0]);
-            g = std::stof(t[1]);
-            b = std::stof(t[2]);
-          } catch (...) {
-            parse_error(lineno, "Error al convertir color a float: " + val + "");
-          }
-        } else if (key == "roughness") {
-          try {
-            rough = std::stof(val);
-          } catch (...) {
-            parse_error(lineno, "Error al convertir roughness a float: " + val + "");
-          }
-          if (rough < 0.F or rough > 1.F) {
-            parse_error(lineno, "Roughness fuera de rango [0,1]: " + val + "");
-          }
-        } else {
-          parse_error(lineno, "Key desconocida en material: " + key + "");
-        }
-      }
+  inline double to_double(std::string const & s, std::size_t lineno, char const * what) {
+    try {
+      return std::stod(s);
+    } catch (...) {
+      parse_error(lineno,
+                  std::string("No se pudo convertir a número (") + what + "): \"" + s + "\"");
     }
   }
-}
+
+  inline void expect_token_count(std::vector<std::string> const & t, std::size_t n,
+                                 std::size_t lineno, std::string const & label) {
+    if (t.size() != n) {
+      std::ostringstream oss;
+      oss << label << " espera " << n << " argumentos, got " << t.size();
+      parse_error(lineno, oss.str());
+    }
+  }
+
+  inline void validate_rgb(double r, double g, double b, std::size_t lineno) {
+    auto in01 = [](double x) { return x >= 0.0 and x <= 1.0; };
+    if (!in01(r) or !in01(g) or !in01(b)) {
+      parse_error(lineno, "Color fuera de rango [0,1]");
+    }
+  }
+
+  inline void validate_axis_nonzero(double x, double y, double z, std::size_t lineno) {
+    if (x == 0.0 and y == 0.0 and z == 0.0) {
+      parse_error(lineno, "Eje del cilindro no puede ser (0,0,0)");
+    }
+  }
+
+  // ============================ Parsers por etiqueta ============================
+
+  void parse_matte_line(std::vector<std::string> const & t, Scene & scene, std::size_t lineno) {
+    // matte: <name> r g b
+    expect_token_count(t, 4, lineno, "matte");
+    Material m;
+    m.type   = "matte";
+    m.name   = t[0];
+    double r = to_double(t[1], lineno, "r");
+    double g = to_double(t[2], lineno, "g");
+    double b = to_double(t[3], lineno, "b");
+    validate_rgb(r, g, b, lineno);
+    m.color = {r, g, b};
+    scene.add_material(m);
+  }
+
+  void parse_metal_line(std::vector<std::string> const & t, Scene & scene, std::size_t lineno) {
+    // metal: <name> r g b roughness
+    expect_token_count(t, 5, lineno, "metal");
+    Material m;
+    m.type       = "metal";
+    m.name       = t[0];
+    double r     = to_double(t[1], lineno, "r");
+    double g     = to_double(t[2], lineno, "g");
+    double b     = to_double(t[3], lineno, "b");
+    double rough = to_double(t[4], lineno, "roughness");
+    validate_rgb(r, g, b, lineno);
+    if (rough < 0.0 or rough > 1.0) {
+      parse_error(lineno, "Roughness fuera de rango [0,1]");
+    }
+    m.color     = {r, g, b};
+    m.roughness = rough;
+    scene.add_material(m);
+  }
+
+  void parse_refractive_line(std::vector<std::string> const & t, Scene & scene,
+                             std::size_t lineno) {
+    // refractive: <name> ior
+    expect_token_count(t, 2, lineno, "refractive");
+    Material m;
+    m.type     = "refractive";
+    m.name     = t[0];
+    double ior = to_double(t[1], lineno, "ior");
+    if (ior <= 1.0) {
+      parse_error(lineno, "Indice de refraccion (ior) debe ser > 1.0");
+    }
+    m.refractive_index = ior;
+    scene.add_material(m);
+  }
+
+  void parse_sphere_line(std::vector<std::string> const & t, Scene & scene, std::size_t lineno) {
+    // sphere: cx cy cz radius material_name
+    expect_token_count(t, 5, lineno, "sphere");
+    Sphere s;
+    s.type   = "sphere";
+    s.center = {to_double(t[0], lineno, "cx"), to_double(t[1], lineno, "cy"),
+                to_double(t[2], lineno, "cz")};
+    s.radius = to_double(t[3], lineno, "radius");
+    if (s.radius <= 0.0) {
+      parse_error(lineno, "Radio de esfera debe ser > 0");
+    }
+    s.material_name = t[4];
+
+    // Verificar que el material exista
+    if (scene.material_index.find(s.material_name) == scene.material_index.end()) {
+      parse_error(lineno, "Material no encontrado: \"" + s.material_name + "\"");
+    }
+    scene.add_sphere(s);
+  }
+
+  void parse_cylinder_line(std::vector<std::string> const & t, Scene & scene, std::size_t lineno) {
+    // cylinder: bx by bz ax ay az radius material_name
+    expect_token_count(t, 8, lineno, "cylinder");
+    Cylinder c;
+    c.type   = "cylinder";
+    c.base   = {to_double(t[0], lineno, "bx"), to_double(t[1], lineno, "by"),
+                to_double(t[2], lineno, "bz")};
+    c.axis   = {to_double(t[3], lineno, "ax"), to_double(t[4], lineno, "ay"),
+                to_double(t[5], lineno, "az")};
+    c.radius = to_double(t[6], lineno, "radius");
+    if (c.radius <= 0.0) {
+      parse_error(lineno, "Radio de cilindro debe ser > 0");
+    }
+    validate_axis_nonzero(c.axis[0], c.axis[1], c.axis[2], lineno);
+    c.material_name = t[7];
+
+    if (scene.material_index.find(c.material_name) == scene.material_index.end()) {
+      parse_error(lineno, "Material no encontrado: \"" + c.material_name + "\"");
+    }
+    scene.add_cylinder(c);
+  }
+
+  // ============================ parse_scene_stream ============================
+
+  void dispatch_scene_entity(std::string const & tag, std::vector<std::string> const & tokens,
+                             Scene & scene, std::size_t lineno) {
+    if (tag == "matte") {
+      parse_matte_line(tokens, scene, lineno);
+    } else if (tag == "metal") {
+      parse_metal_line(tokens, scene, lineno);
+    } else if (tag == "refractive") {
+      parse_refractive_line(tokens, scene, lineno);
+    } else if (tag == "sphere") {
+      parse_sphere_line(tokens, scene, lineno);
+    } else if (tag == "cylinder") {
+      parse_cylinder_line(tokens, scene, lineno);
+    } else {
+      parse_error(lineno, "Unknown scene entity: " + tag);
+    }
+  }
+
+}  // namespace
+
+namespace parse {
+
+  void parse_scene_stream(std::istream & in, Scene & scene) {
+    std::string line;
+    std::size_t lineno = 0;
+
+    while (std::getline(in, line)) {
+      ++lineno;
+
+      // comentarios
+      if (auto p = line.find('#'); p != std::string::npos) {
+        line.erase(p);
+      }
+
+      line = trim(line);
+
+      if (line.empty()) {
+        continue;
+      }
+
+      // etiqueta: matte|metal|refractive|sphere|cylinder
+      auto colon = line.find(':');
+      if (colon == std::string::npos) {
+        parse_error(lineno, "Etiqueta esperada con ':', got: \"" + line + "\"");
+      }
+
+      std::string tag  = trim(line.substr(0, colon));
+      std::string args = trim(line.substr(colon + 1));
+      auto tokens      = split_ws(args);
+
+      dispatch_scene_entity(tag, tokens, scene, lineno);
+    }
+  }
+
+}  // namespace parse

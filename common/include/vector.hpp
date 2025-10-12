@@ -10,6 +10,13 @@ namespace render {
     Vector(double cx, double cy, double cz) : x{cx}, y{cy}, z{cz} { }
 
     [[nodiscard]] double magnitude() const;
+    [[nodiscard]] Vector normalized() const;
+    [[nodiscard]] Vector add(Vector const & other) const;
+    [[nodiscard]] Vector scaled(double scalar) const;
+
+    [[nodiscard]] double get_x() const;
+    [[nodiscard]] double get_y() const;
+    [[nodiscard]] double get_z() const;
 
   private:
     double x, y, z;

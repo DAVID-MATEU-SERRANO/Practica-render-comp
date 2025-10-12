@@ -20,8 +20,12 @@ namespace render {
     return {x + other.x, y + other.y, z + other.z};
   }
 
-  Vector Vector::scaled(double scalar) const {
+  Vector Vector::dot(double scalar) const {
     return {x * scalar, y * scalar, z * scalar};
+  }
+
+  Vector Vector::cross(Vector const & other) const {
+    return {y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x};
   }
 
   double Vector::get_x() const {

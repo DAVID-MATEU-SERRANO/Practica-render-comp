@@ -12,7 +12,8 @@ namespace render {
     [[nodiscard]] double magnitude() const;
     [[nodiscard]] Vector normalized() const;
     [[nodiscard]] Vector add(Vector const & other) const;
-    [[nodiscard]] Vector scaled(double scalar) const;
+    [[nodiscard]] Vector dot(double scalar) const;
+    [[nodiscard]] Vector cross(Vector const & other) const;
 
     [[nodiscard]] double get_x() const;
     [[nodiscard]] double get_y() const;

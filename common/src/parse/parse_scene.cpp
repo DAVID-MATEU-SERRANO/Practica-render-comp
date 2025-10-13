@@ -24,7 +24,7 @@ namespace {
 
   [[noreturn]] inline void parse_error(std::size_t line, std::string const & msg) {
     std::ostringstream oss;
-    oss << "Error de parseo en linea " << line << ": " << msg;
+    oss << "Parsing error in line " << line << ": " << msg;
     throw std::runtime_error(oss.str());
   }
 
@@ -43,7 +43,7 @@ namespace {
       return std::stod(s);
     } catch (...) {
       parse_error(lineno,
-                  std::string("No se pudo convertir a número (") + what + "): \"" + s + "\"");
+                  std::string("Cannot be converted to number (") + what + "): \"" + s + "\"");
     }
   }
 
@@ -51,7 +51,7 @@ namespace {
                                  std::size_t lineno, std::string const & label) {
     if (t.size() != n) {
       std::ostringstream oss;
-      oss << label << " espera " << n << " argumentos, got " << t.size();
+      oss << label << " waiting " << n << " arguments, got " << t.size();
       parse_error(lineno, oss.str());
     }
   }
@@ -59,13 +59,13 @@ namespace {
   inline void validate_rgb(double r, double g, double b, std::size_t lineno) {
     auto in01 = [](double x) { return x >= 0.0 and x <= 1.0; };
     if (!in01(r) or !in01(g) or !in01(b)) {
-      parse_error(lineno, "Color fuera de rango [0,1]");
+      parse_error(lineno, "Color out of range [0,1]");
     }
   }
 
   inline void validate_axis_nonzero(double x, double y, double z, std::size_t lineno) {
     if (x == 0.0 and y == 0.0 and z == 0.0) {
-      parse_error(lineno, "Eje del cilindro no puede ser (0,0,0)");
+      parse_error(lineno, "Cylinder's edge cannot be (0,0,0)");
     }
   }
 
@@ -97,7 +97,7 @@ namespace {
     double rough = to_double(t[4], lineno, "roughness");
     validate_rgb(r, g, b, lineno);
     if (rough < 0.0 or rough > 1.0) {
-      parse_error(lineno, "Roughness fuera de rango [0,1]");
+      parse_error(lineno, "Roughness out of range [0,1]");
     }
     m.color     = {r, g, b};
     m.roughness = rough;
@@ -113,7 +113,7 @@ namespace {
     m.name     = t[0];
     double ior = to_double(t[1], lineno, "ior");
     if (ior <= 1.0) {
-      parse_error(lineno, "Indice de refraccion (ior) debe ser > 1.0");
+      parse_error(lineno, "Refraction index (ior) must be > 1.0");
     }
     m.refractive_index = ior;
     scene.add_material(m);
@@ -128,13 +128,13 @@ namespace {
                 to_double(t[2], lineno, "cz")};
     s.radius = to_double(t[3], lineno, "radius");
     if (s.radius <= 0.0) {
-      parse_error(lineno, "Radio de esfera debe ser > 0");
+      parse_error(lineno, "Sphere radius must be > 0");
     }
     s.material_name = t[4];
 
     // Verificar que el material exista
     if (scene.material_index.find(s.material_name) == scene.material_index.end()) {
-      parse_error(lineno, "Material no encontrado: \"" + s.material_name + "\"");
+      parse_error(lineno, "Material not found: \"" + s.material_name + "\"");
     }
     scene.add_sphere(s);
   }
@@ -156,7 +156,7 @@ namespace {
     c.material_name = t[7];
 
     if (scene.material_index.find(c.material_name) == scene.material_index.end()) {
-      parse_error(lineno, "Material no encontrado: \"" + c.material_name + "\"");
+      parse_error(lineno, "Material not found: \"" + c.material_name + "\"");
     }
     scene.add_cylinder(c);
   }
@@ -205,7 +205,7 @@ namespace parse {
       // etiqueta: matte|metal|refractive|sphere|cylinder
       auto colon = line.find(':');
       if (colon == std::string::npos) {
-        parse_error(lineno, "Etiqueta esperada con ':', got: \"" + line + "\"");
+        parse_error(lineno, "Espected tag with ':', got: \"" + line + "\"");
       }
 
       std::string tag  = trim(line.substr(0, colon));

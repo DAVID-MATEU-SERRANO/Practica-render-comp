@@ -14,10 +14,8 @@ namespace render {
 
   class Cylinder {
   public:
-    Cylinder(double cords_x, double cords_y, double cords_z, double radius, Vector vec,
-             t_material material)
-        : cords_x{cords_x}, cords_y{cords_y}, cords_z{cords_z}, radius{radius}, vector{vec},
-          material(std::move(material)) {
+    Cylinder(Vector vec_center, double radius, Vector vec, t_material material)
+        : vec_center{vec_center}, radius{radius}, vec_edge{vec}, material(std::move(material)) {
       // Introducir validaciones si es necesario
     }
 
@@ -30,11 +28,9 @@ namespace render {
     [[nodiscard]] double get_height() const;
 
   private:
-    double cords_x;
-    double cords_y;
-    double cords_z;
+    Vector vec_center;
     double radius;
-    Vector vector;
+    Vector vec_edge;
     t_material material;
   };
 

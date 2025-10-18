@@ -59,6 +59,8 @@ struct Cylinder : public Object {
   double radius = 1.0;                        // Radio del cilindro
 };
 
+// Estructura para almacenar la informacion de la escena completa
+
 struct Scene {
   std::vector<Material> materials;  // Vector de materiales
   std::vector<Sphere> spheres;      // Vector de esferas

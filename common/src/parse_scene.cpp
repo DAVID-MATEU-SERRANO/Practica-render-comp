@@ -1,8 +1,9 @@
-#include "../../include/parse/parse_scene.hpp"
-#include "../../include/parse/scene.hpp"
+#include "../include/parse_scene.hpp"
+#include "../include/scene.hpp"
 
 #include <cctype>
 #include <cstddef>
+#include <istream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -31,7 +32,7 @@ namespace {
   // (unsigned) que se usa para tamaños y conteos, conviene usar size_t
 
   // Ah y el inline es para que el compilador lo ponga en el lugar donde se llama, para evitar la
-  // sobrecarga de la llamada a función y mejorar el rendimiento en funciones pequeñas, por que los
+  // sobrecarga de la llamada a función y mejorar el rendimiento en funciones pequeñas, porque los
   // helpers estos los voy a usar mucho
 
   [[noreturn]] inline void parse_error(

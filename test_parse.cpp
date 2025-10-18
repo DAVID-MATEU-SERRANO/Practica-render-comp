@@ -1,5 +1,5 @@
-#include "common/include/parse/parse_scene.hpp"
-#include "common/include/parse/scene.hpp"
+#include "common/include/parse_scene.hpp"
+#include "common/include/scene.hpp"
 #include <fstream>
 #include <iostream>
 

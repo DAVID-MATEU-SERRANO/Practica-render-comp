@@ -72,7 +72,7 @@ struct Scene {
   // FUNCIONES PARA AGREGAR MATERIALES Y OBJETOS A LA ESCENA
   // Agregar material a la escena (verificar que no exista otro material con el mismo nombre)
   void add_material(Material const & m) {
-    if (material_index.find(m.name) != material_index.end()) {
+    if (material_index.contains(m.name)) {
       throw std::runtime_error("Error: Material with name '" + m.name + "' already exists.");
     }
     material_index[m.name] = materials.size();

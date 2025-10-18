@@ -64,4 +64,15 @@ struct Config {
     return static_cast<int>(
         std::round(image_width * double(aspect_ratio_height) / double(aspect_ratio_width)));
   }
+
+  // Validacion de parametros
+  [[nodiscard]] bool is_valid() const {
+    return aspect_ratio_width > 0 and
+           aspect_ratio_height > 0 and
+           image_width > 0 and
+           fov_deg > 0.0 and
+           samples_per_pixel > 0 and
+           max_depth > 0 and
+           gamma > 0.0;
+  }
 };

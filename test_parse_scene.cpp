@@ -12,7 +12,7 @@ int main() {
 
   Scene s;
   try {
-    parse::parse_scene_stream(in, s);
+    parse ::parse_scene_stream(in, s);
     std::cout << "OK\n";
     std::cout << "Materiales: " << s.materials.size() << "\n";
     std::cout << "Esferas:    " << s.spheres.size() << "\n";

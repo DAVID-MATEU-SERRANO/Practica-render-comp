@@ -1,5 +1,6 @@
 #include <array>
 #include <cctype>
+#include <cstdint>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -147,6 +148,16 @@ namespace parse::util {
       line = line.erase(pos);
     }
     return trim(line);
+  }
+
+  inline uint64_t to_uint64(std::string const & s, std::size_t lineno, char const * what) {
+    try {
+      return static_cast<uint64_t>(
+          std::stoull(s));  // std::stoull convierte string a unsigned long long
+    } catch (...) {         // Si hay cualquier error (no se puede convertir)
+      parse_error(lineno,
+                  std::string("Cannot be converted to uint64 (") + what + "): \"" + s + "\"");
+    }
   }
 
 }  // namespace parse::util

@@ -3,6 +3,10 @@
 
 class Config;  // forward declaration
 
-void parse_config_stream(std::istream & in, Config & cfg);
+namespace parse2 {
 
-void parse_config_file(std::string const & filename, Config & cfg);
+  void parse_config_stream(std::istream & in, Config & cfg);
+
+  void parse_config_file(std::string const & filename, Config & cfg);
+
+}  // namespace parse2

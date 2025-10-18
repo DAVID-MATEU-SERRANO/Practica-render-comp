@@ -51,8 +51,8 @@ struct Config {
   double gamma          = 2.2;
 
   // Color de fondo
-  std::array<double, 3> background_dark{0.25, 0.5, 1.0};
-  std::array<double, 3> background_light{1.0, 1.0, 1.0};
+  std::array<double, 3> bg_dark{0.25, 0.5, 1.0};
+  std::array<double, 3> bg_light{1.0, 1.0, 1.0};
 
   // Semillas
   unsigned int material_seed = 13;

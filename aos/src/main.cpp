@@ -2,8 +2,8 @@
 
 #include "vector.hpp"
 
-int main() { 
-    std::println("Starting AOS rendering");
-    render::vector vec{1.0, 2.0, 3.0};
-    std::println("Vector magnitude: {}", vec.magnitude());
+int main() {
+  std::println("Starting AOS rendering");
+  render::Vector vec{1.0, 2.0, 3.0};
+  std::println("Vector magnitude: {}", vec.magnitude());
 }

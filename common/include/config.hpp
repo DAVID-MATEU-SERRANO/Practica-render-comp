@@ -34,6 +34,7 @@ ray_seed      = 19
 #include <string>
 
 struct Config {
+  // ===========Anado valores default para el caso de que no se lea config.txt===========
   // Tamaño de imagen
   int aspect_ratio_width  = 16;
   int aspect_ratio_height = 9;
@@ -58,6 +59,7 @@ struct Config {
   unsigned int material_seed = 13;
   unsigned int ray_seed      = 19;
 
+  // Calcula la altura de la imagen en píxeles según el ancho y la relación de aspecto
   [[nodiscard]] int image_height() const {
     return static_cast<int>(
         std::round(image_width * double(aspect_ratio_height) / double(aspect_ratio_width)));

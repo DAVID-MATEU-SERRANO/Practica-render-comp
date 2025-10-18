@@ -31,7 +31,6 @@ ray_seed      = 19
 
 #include <array>
 #include <cmath>
-#include <string>
 
 struct Config {
   // ===========Anado valores default para el caso de que no se lea config.txt===========

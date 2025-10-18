@@ -8,3 +8,4 @@ matte: azul 0 0 1
 sphere: 0 0 -1 0.5 rojo
 cylinder: 0 -0.5 -1 0 1 0 0.3 acero
 cylinder: 0 -0.5 -1 0 1 0 0.3 azul
+cylinder: 0 -0.5 -1 0 1 0 0.3 vidrio

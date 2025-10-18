@@ -13,6 +13,6 @@ namespace parse {
   void parse_scene_stream(std::string_view text,
                           Scene & out);  // Lee string y carga datos en un objeto Scene
 
-  void parse_scene_stream(std::istream & in, Scene & out);
+  void parse_scene_stream(std::istream & in, Scene & scene);
 
 }  // namespace parse

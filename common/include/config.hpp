@@ -31,6 +31,7 @@ ray_seed      = 19
 
 #include <array>
 #include <cmath>
+#include <cstdint>
 
 struct Config {
   // ===========Anado valores default para el caso de que no se lea config.txt===========
@@ -55,8 +56,8 @@ struct Config {
   std::array<double, 3> bg_light{1.0, 1.0, 1.0};
 
   // Semillas
-  unsigned int material_seed = 13;
-  unsigned int ray_seed      = 19;
+  std::uint64_t material_seed = 13;
+  std::uint64_t ray_seed      = 19;
 
   // Calcula la altura de la imagen en píxeles según el ancho y la relación de aspecto
   [[nodiscard]] int image_height() const {

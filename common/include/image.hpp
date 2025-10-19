@@ -1,3 +1,4 @@
+/*
 #ifndef RENDER_IMAGE_HPP
 #define RENDER_IMAGE_HPP
 
@@ -66,3 +67,4 @@ namespace render {
 }  // namespace render
 
 #endif
+*/

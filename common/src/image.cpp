@@ -1,3 +1,4 @@
+/*
 #include "../include/image.hpp"
 #include <stdexcept>
 
@@ -81,3 +82,4 @@ namespace render {
   }
 
 }  // namespace render
+*/

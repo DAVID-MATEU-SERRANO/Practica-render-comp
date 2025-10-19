@@ -3,6 +3,7 @@
 #include "../include/util.hpp"
 
 #include <array>
+#include <sstream>
 #include <string>
 #include <string_view>
 
@@ -16,17 +17,20 @@ using parse::util::to_uint64;
 using parse::util::trim;
 using parse::util::validate_rgb;
 
-namespace {  // ----------- helpers "privados" al .cpp -----------
+namespace {  // ----------- helpers "privados"-----------
 
   bool handle_image(std::string_view key, std::string_view val, std::size_t ln, Config & cfg) {
-    if (key == "aspect_ratio_width") {
-      cfg.aspect_ratio_width = to_int(std::string(val), ln, "aspect_ratio_width");
-      expect_positive(cfg.aspect_ratio_width, ln, "aspect_ratio_width");
-      return true;
-    }
-    if (key == "aspect_ratio_height") {
-      cfg.aspect_ratio_height = to_int(std::string(val), ln, "aspect_ratio_height");
-      expect_positive(cfg.aspect_ratio_height, ln, "aspect_ratio_height");
+    if (key == "aspect_ratio") {
+      std::istringstream iss{std::string(val)};
+      int w = 0, h = 0;
+      if (!(iss >> w >> h)) {
+        parse_error(ln, "aspect_ratio debe tener dos enteros separados por espacio");
+      }
+      if (w <= 0 or h <= 0) {
+        parse_error(ln, "aspect_ratio invbalido, ambos deben ser > 0");
+      }
+      cfg.aspect_ratio_width  = w;
+      cfg.aspect_ratio_height = h;
       return true;
     }
     if (key == "image_width") {
@@ -49,15 +53,15 @@ namespace {  // ----------- helpers "privados" al .cpp -----------
       cfg.camera_target = v;
       return true;
     }
-    if (key == "camera_up" or key == "camera_north") {
-      parse_three_doubles(std::string(val), v, ln, "camera_up");
-      cfg.camera_up = v;
+    if (key == "camera_north") {
+      parse_three_doubles(std::string(val), v, ln, "camera_north");
+      cfg.camera_north = v;
       return true;
     }
-    if (key == "fov_deg") {
-      cfg.fov_deg = to_double(std::string(val), ln, "fov_deg");
-      if (cfg.fov_deg <= 0.0 or cfg.fov_deg >= 180.0) {
-        parse_error(ln, "fov_deg debe estar en (0, 180)");
+    if (key == "field_of_view") {
+      cfg.field_of_view = to_double(std::string(val), ln, "field_of_view");
+      if (cfg.field_of_view <= 0.0 or cfg.field_of_view >= 180.0) {
+        parse_error(ln, "field_of_view debe estar en (0, 180)");
       }
       return true;
     }
@@ -87,28 +91,28 @@ namespace {  // ----------- helpers "privados" al .cpp -----------
 
   bool handle_background(std::string_view key, std::string_view val, std::size_t ln, Config & cfg) {
     std::array<double, 3> v{};
-    if (key == "background_dark" or key == "bg_dark") {
+    if (key == "background_dark_color") {
       parse_three_doubles(std::string(val), v, ln, "background_dark");
       validate_rgb(v[0], v[1], v[2], ln);
-      cfg.bg_dark = v;
+      cfg.background_dark_color = v;
       return true;
     }
-    if (key == "background_light" or key == "bg_light") {
-      parse_three_doubles(std::string(val), v, ln, "background_light");
+    if (key == "background_light_color") {
+      parse_three_doubles(std::string(val), v, ln, "background_light_color");
       validate_rgb(v[0], v[1], v[2], ln);
-      cfg.bg_light = v;
+      cfg.background_light_color = v;
       return true;
     }
     return false;
   }
 
   bool handle_seeds(std::string_view key, std::string_view val, std::size_t ln, Config & cfg) {
-    if (key == "material_seed") {
-      cfg.material_seed = to_uint64(std::string(val), ln, "material_seed");
+    if (key == "material_rng_seed") {
+      cfg.material_rng_seed = to_uint64(std::string(val), ln, "material_rng_seed");
       return true;
     }
-    if (key == "ray_seed") {
-      cfg.ray_seed = to_uint64(std::string(val), ln, "ray_seed");
+    if (key == "ray_rng_seed") {
+      cfg.ray_rng_seed = to_uint64(std::string(val), ln, "ray_rng_seed");
       return true;
     }
     return false;
@@ -129,7 +133,7 @@ namespace parse2 {
         continue;
       }
 
-      auto eq = line.find('=');
+      auto eq = line.find(':');
       if (eq == std::string::npos) {
         parse_error(lineno, std::string("Esperaba 'key = value', got: \"") + line + "\"");
       }

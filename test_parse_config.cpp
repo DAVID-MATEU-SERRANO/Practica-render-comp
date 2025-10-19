@@ -20,8 +20,8 @@ int main() {
   }
 
   std::cout << "Config leída correctamente\n";
-  std::cout << "FOV: " << cfg.fov_deg << "\n";
-  std::cout << "Imagen: " << cfg.image_width << "x" << cfg.image_height() << "\n";
-  std::cout << "Gamma: " << cfg.gamma << "\n";
-  std::cout << "Material seed: " << cfg.material_seed << "\n";
+  std::cout << "field_of_view: " << cfg.field_of_view << "\n";
+  std::cout << "image_height: " << cfg.image_width << "x" << cfg.image_height() << "\n";
+  std::cout << "gamma: " << cfg.gamma << "\n";
+  std::cout << "material_rng_seed: " << cfg.material_rng_seed << "\n";
 }

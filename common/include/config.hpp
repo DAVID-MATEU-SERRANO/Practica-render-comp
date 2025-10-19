@@ -43,8 +43,8 @@ struct Config {
   // Cámara
   std::array<double, 3> camera_position{0.0, 0.0, -10.0};
   std::array<double, 3> camera_target{0.0, 0.0, 0.0};
-  std::array<double, 3> camera_up{0.0, 1.0, 0.0};
-  double fov_deg = 60.0;
+  std::array<double, 3> camera_north{0.0, 1.0, 0.0};
+  double field_of_view = 60.0;
 
   // Renderizado
   int samples_per_pixel = 50;
@@ -52,12 +52,12 @@ struct Config {
   double gamma          = 2.2;
 
   // Color de fondo
-  std::array<double, 3> bg_dark{0.25, 0.5, 1.0};
-  std::array<double, 3> bg_light{1.0, 1.0, 1.0};
+  std::array<double, 3> background_dark_color{0.25, 0.5, 1.0};
+  std::array<double, 3> background_light_color{1.0, 1.0, 1.0};
 
   // Semillas
-  std::uint64_t material_seed = 13;
-  std::uint64_t ray_seed      = 19;
+  std::uint64_t material_rng_seed = 13;
+  std::uint64_t ray_rng_seed      = 19;
 
   // Calcula la altura de la imagen en píxeles según el ancho y la relación de aspecto
   [[nodiscard]] int image_height() const {
@@ -70,7 +70,7 @@ struct Config {
     return aspect_ratio_width > 0 and
            aspect_ratio_height > 0 and
            image_width > 0 and
-           fov_deg > 0.0 and
+           field_of_view > 0.0 and
            samples_per_pixel > 0 and
            max_depth > 0 and
            gamma > 0.0;

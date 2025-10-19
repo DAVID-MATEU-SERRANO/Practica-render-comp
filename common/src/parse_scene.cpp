@@ -76,7 +76,7 @@ namespace {
     s.material_name = t[4];
 
     // Verificar que el material exista
-    if (!scene.material_index.contains(s.material_name)) {
+    if (scene.material_index.find(s.material_name) == scene.material_index.end()) {
       parse_error(lineno, "Material not found: \"" + s.material_name + "\"");
     }
     scene.add_sphere(s);
@@ -98,7 +98,7 @@ namespace {
     validate_axis_nonzero(c.axis[0], c.axis[1], c.axis[2], lineno);
     c.material_name = t[7];
 
-    if (!scene.material_index.contains(c.material_name)) {
+    if (scene.material_index.find(c.material_name) == scene.material_index.end()) {
       parse_error(lineno, "Material not found: \"" + c.material_name + "\"");
     }
     scene.add_cylinder(c);

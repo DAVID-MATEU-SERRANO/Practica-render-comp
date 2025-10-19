@@ -1,25 +1,9 @@
 // Estructura de datos para almacenar la informacion de una escena
 // Contiene los parametros que se obtienen de leer el archivo scene.txt
 
-//============================= EJEMPLO DE ARCHIVO scene.txt =============================
-/*
-# ======= MATERIALES =======
-matte: rojo 1.0 0.1 0.1
-metal: acero 0.8 0.8 0.8 0.2
-refractive: vidrio 1.5
-
-# ======= OBJETOS =======
-sphere: 0.0 0.0 -1.0 0.5 rojo
-sphere: 1.0 0.0 -1.5 0.5 acero
-sphere: -1.0 0.0 -1.5 0.5 vidrio
-
-cylinder: 0.0 -0.5 -1.0 0.0 1.0 0.0 0.3 acero
-*/
-
-//==========================================================================================
-
 #include <array>
 #include <cstddef>
+#include <sstream>    // para std::ostringstream
 #include <stdexcept>  // para lanzar errores
 #include <string>
 #include <unordered_map>  // para poder usar diccionarios
@@ -71,21 +55,15 @@ struct Scene {
 
   // FUNCIONES PARA AGREGAR MATERIALES Y OBJETOS A LA ESCENA
   // Agregar material a la escena (verificar que no exista otro material con el mismo nombre)
-  void add_material(Material const & m) {
-    if (material_index.contains(m.name)) {
-      throw std::runtime_error("Error: Material with name '" + m.name + "' already exists.");
+  void add_material(Material const & m, std::string const & lineforprint) {
+    if (material_index.find(m.name) != material_index.end()) {
+      std::ostringstream oss;
+      oss << "Material with name '[" << m.name << "]' already exists\n"
+          << "Line: " << lineforprint;
+      throw std::runtime_error(oss.str());
     }
     material_index[m.name] = materials.size();
     materials.push_back(m);
-  }
-
-  // Buscar material por su nombre
-  Material const & get_material(std::string const & name) const {
-    auto it = material_index.find(name);
-    if (it == material_index.end()) {
-      throw std::runtime_error("Error: Material with name '" + name + "' not found");
-    }
-    return materials[it->second];
   }
 
   void add_sphere(Sphere const & sphere) { spheres.push_back(sphere); }

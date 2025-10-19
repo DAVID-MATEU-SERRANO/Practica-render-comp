@@ -32,16 +32,16 @@ namespace parse::util {
   // sobrecarga de la llamada a función y mejorar el rendimiento en funciones pequeñas, porque los
   // helpers estos los voy a usar mucho
 
-  [[noreturn]] inline void parse_error(
-      std::size_t line, std::string const & msg) {  // Función para lanzar errores de parseo,
-                                                    // noreturn para que no vuelva a donde la llame
-    std::ostringstream oss;  // Obviameente no vuelve si hemos lanzado un error
+  /*[[noreturn]] inline void parse_error(
+      std::size_t line, std::string const & msg) {
+
+    std::ostringstream oss;
     oss << "Parsing error in line " << line << ": "
-        << msg;  // line es el número de línea y msg es el mensaje de error
+        << msg;
     throw std::runtime_error(
-        oss.str());  // LO INTERESANTE: el ostringstream es para construir cadenas de texto de forma
-                     // eficiente, parecido a cout pero para strings
-  }  // basicamente es como hacer un cout pero que se almacena en la variable oss
+        oss.str());  /
+
+  } */
 
   // Que por que use el ostringstream y no un string normal? Pues porque he leido que es más
   // eficiente para concatenar múltiples partes de texto, especialmente en bucles o cuando se
@@ -64,16 +64,18 @@ namespace parse::util {
   // Basicamente lo que estamos haciendo es leer la cadena s como si fuera un flujo de entrada, y
   // cada vez que encontramos un token (una palabra separada por espacios) lo añadimos al vector out
   // Al final devolvemos el vector con todos los tokens encontrados
-  // Me hice fan de los istringstream y ostringstream, seguro el profe me dice que no los use
+  // Me hice fan de los istringstream y ostringstream
 
   inline double to_double(
-      std::string const & s, std::size_t lineno,
-      char const * what) {  // Convierte una cadena a double, lanza error si no se puede convertir
+      std::string const & s, std::string const & lineforprint,
+      char const * where) {  // Convierte una cadena a double, lanza error si no se puede convertir
     try {
       return std::stod(s);  // std::stod convierte string a double
     } catch (...) {         // Si hay cualquier error (no se puede convertir)
-      parse_error(lineno,
-                  std::string("Cannot be converted to number (") + what + "): \"" + s + "\"");
+      std::ostringstream oss;
+      oss << "Invalid" << " " << where << " parameters" << "\n"
+          << "Line: \"" << lineforprint << "\"";
+      throw std::runtime_error(oss.str());  // Lanzamos el error con el mensaje
     }
   }
 
@@ -83,26 +85,44 @@ namespace parse::util {
   inline void expect_token_count(
       std::vector<std::string> const & t,
       std::size_t n,  // Verifica que el número de tokens sea el esperado
-      std::size_t lineno,
+      std::string const & lineforprint,
       std::string const &
           label) {  // t es el vector de tokens, n es el número esperado, lineno es la línea actual
-                    // para errores, label es la etiqueta (matte, metal, etc)
-    if (t.size() != n) {       // Si el tamaño del vector no es el esperado
-      std::ostringstream oss;  // Usamos ostringstream para construir el mensaje de error
-      oss << label << " waiting " << n << " arguments, got " << t.size();
-      parse_error(lineno, oss.str());
+
+    std::string attr;
+    if (label == "matte" or label == "metal" or label == "refractive") {
+      attr = "material";
+    } else {
+      attr = "object";
+    }
+    //=============ERRORES PEDIDOS EN LA PRACTICA===============
+    if (t.size() < n) {
+      std::ostringstream oss;
+      oss << "Invalid " << label << " " << attr << " parameters\n"
+          << "Line: \"" << lineforprint << "\"";
+      throw std::runtime_error(oss.str());  // Lanzamos el error con el mensaje
+    }
+    if (t.size() > n) {
+      std::ostringstream oss;
+      oss << "Extra data after configuration value for key:" << " " << "[" + label + "]" << "\n"
+          << "Extra:" << " " << +(t.size() - n) << "\n"
+          << "Line: \"" << lineforprint << "\"";
+      throw std::runtime_error(oss.str());  // Lanzamos el error con el mensaje
     }
   }
 
   // Simple y al final acabamos usando parse_error para lanzar el error si no coincide el número de
   // tokens, PERO QUE EFICIENTES SOMOS
 
-  inline void validate_rgb(double r, double g, double b, std::size_t lineno) {
-    auto in01 = [](double x) {
-      return x >= 0.0 and x <= 1.0;
-    };  // Lambda para verificar si un valor está en [0,1
-    if (!in01(r) or !in01(g) or !in01(b)) {
-      parse_error(lineno, "Color out of range [0,1]");
+  inline void validate_rgb(std::array<double, 3> const & color, std::string const & lineforprint,
+                           std::string const & where) {
+    auto in01 = [](double x) { return x >= 0.0 and x <= 1.0; };
+    if (!in01(color[0]) or !in01(color[1]) or !in01(color[2])) {
+      std::ostringstream oss;
+      oss << "Invalid" << " " << where << " parameters" << "\n"
+          << "Line: \"" << lineforprint << "\"";
+
+      throw std::runtime_error(oss.str());
     }
   }
 
@@ -111,35 +131,44 @@ namespace parse::util {
   // g y b ES UNA FUNCION DENTRO DE OTRA, me lo sugirio ya sabemos quien y me gusto Si alguno no
   // está en el rango, lanzamos un error
 
-  inline void validate_axis_nonzero(double x, double y, double z, std::size_t lineno) {
-    if (x == 0.0 and y == 0.0 and z == 0.0) {
-      parse_error(lineno, "Cylinder's edge cannot be (0,0,0)");
+  inline void validate_axis_nonzero(std::array<double, 3> const & axis,
+                                    std::string const & lineforprint, std::string const & where) {
+    if (axis[0] == 0.0 and axis[1] == 0.0 and axis[2] == 0.0) {
+      std::ostringstream oss;
+      oss << "Invalid" << " " << where << " parameters" << "\n"
+          << "Line: \"" << lineforprint << "\"";
+      throw std::runtime_error(oss.str());
     }
   }
 
   // BUENO esta es muy simple, verifica que el cilindro no tenga un eje nulo (0,0,0), porque eso no
   // tiene sentido para un cilindro
 
-  inline int to_int(std::string const & s, std::size_t lineno, char const * what) {
+  inline int to_int(std::string const & s, char const * what) {
     try {
       return std::stoi(s);  // std::stoi convierte string a int
     } catch (...) {         // Si hay cualquier error (no se puede convertir)
-      parse_error(lineno,
-                  std::string("Cannot be converted to integer (") + what + "): \"" + s + "\"");
+      std::ostringstream oss;
+      oss << "Cannot be converted to int (" << what << "): \"" << s << "\"";
+      throw std::runtime_error(oss.str());
     }
   }
 
   inline void parse_three_doubles(std::string const & val, std::array<double, 3> & out,
-                                  std::size_t lineno, char const * what) {
+                                  char const * what) {
     std::istringstream iss(val);
     if (!(iss >> out[0] >> out[1] >> out[2])) {
-      parse_error(lineno, std::string("Expected 3 numbers for ") + what + ": \"" + val + "\"");
+      std::ostringstream oss;
+      oss << "Cannot parse three doubles (" << what << "): \"" << val << "\"";
+      throw std::runtime_error(oss.str());
     }
   }
 
-  inline void expect_positive(int v, std::size_t lineno, char const * what) {
+  inline void expect_positive(int v, char const * what) {
     if (v <= 0) {
-      parse_error(lineno, std::string(what) + " must be > 0");
+      std::ostringstream oss;
+      oss << what << " must be positive";
+      throw std::runtime_error(oss.str());
     }
   }
 
@@ -150,13 +179,14 @@ namespace parse::util {
     return trim(line);
   }
 
-  inline uint64_t to_uint64(std::string const & s, std::size_t lineno, char const * what) {
+  inline uint64_t to_uint64(std::string const & s, char const * what) {
     try {
       return static_cast<uint64_t>(
           std::stoull(s));  // std::stoull convierte string a unsigned long long
     } catch (...) {         // Si hay cualquier error (no se puede convertir)
-      parse_error(lineno,
-                  std::string("Cannot be converted to uint64 (") + what + "): \"" + s + "\"");
+      std::ostringstream oss;
+      oss << ": Cannot be converted to uint64 (" << what << "): \"" << s << "\"";
+      throw std::runtime_error(oss.str());
     }
   }
 

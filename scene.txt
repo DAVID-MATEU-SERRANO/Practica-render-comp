@@ -1,11 +1,11 @@
 # ======= MATERIALES =======
-matte: rojo 1 0 0
+matte: rojo 0 0 0 
 metal: acero 0.8 0.8 0.8 0.2
-refractive: vidrio 1.5
+refractive: vidrio 2
 matte: azul 0 0 1
 
 # ======= OBJETOS =======
-sphere: 0 0 -1 0.5 rojo
-cylinder: 0 -0.5 -1 0 1 0 0.3 acero
+sphere: 0 0 -1 1 rojo
+cylinder: 0 -0.5 -1 0 1 0 1 bomba
 cylinder: 0 -0.5 -1 0 1 0 0.3 azul
 cylinder: 0 -0.5 -1 0 1 0 0.3 vidrio

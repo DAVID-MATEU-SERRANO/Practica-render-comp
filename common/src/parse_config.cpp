@@ -4,11 +4,11 @@
 
 #include <array>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 
 using parse::util::expect_positive;
-using parse::util::parse_error;
 using parse::util::parse_three_doubles;
 using parse::util::strip_comment_and_trim;
 using parse::util::to_double;
@@ -19,49 +19,55 @@ using parse::util::validate_rgb;
 
 namespace {  // ----------- helpers "privados"-----------
 
-  bool handle_image(std::string_view key, std::string_view val, std::size_t ln, Config & cfg) {
+  bool handle_image(std::string_view key, std::string_view val, Config & cfg) {
     if (key == "aspect_ratio") {
       std::istringstream iss{std::string(val)};
       int w = 0, h = 0;
       if (!(iss >> w >> h)) {
-        parse_error(ln, "aspect_ratio debe tener dos enteros separados por espacio");
+        std::ostringstream oss;
+        oss << "Aspect ratio debe tener dos enteros separados por espacio";
+        throw std::runtime_error(oss.str());
       }
       if (w <= 0 or h <= 0) {
-        parse_error(ln, "aspect_ratio invbalido, ambos deben ser > 0");
+        std::ostringstream oss;
+        oss << "aspect_ratio invalido, ambos deben ser > 0";
+        throw std::runtime_error(oss.str());
       }
       cfg.aspect_ratio_width  = w;
       cfg.aspect_ratio_height = h;
       return true;
     }
     if (key == "image_width") {
-      cfg.image_width = to_int(std::string(val), ln, "image_width");
-      expect_positive(cfg.image_width, ln, "image_width");
+      cfg.image_width = to_int(std::string(val), "image_width");
+      expect_positive(cfg.image_width, "image_width");
       return true;
     }
     return false;
   }
 
-  bool handle_camera(std::string_view key, std::string_view val, std::size_t ln, Config & cfg) {
+  bool handle_camera(std::string_view key, std::string_view val, Config & cfg) {
     std::array<double, 3> v{};
     if (key == "camera_position") {
-      parse_three_doubles(std::string(val), v, ln, "camera_position");
+      parse_three_doubles(std::string(val), v, "camera_position");
       cfg.camera_position = v;
       return true;
     }
     if (key == "camera_target") {
-      parse_three_doubles(std::string(val), v, ln, "camera_target");
+      parse_three_doubles(std::string(val), v, "camera_target");
       cfg.camera_target = v;
       return true;
     }
     if (key == "camera_north") {
-      parse_three_doubles(std::string(val), v, ln, "camera_north");
+      parse_three_doubles(std::string(val), v, "camera_north");
       cfg.camera_north = v;
       return true;
     }
     if (key == "field_of_view") {
-      cfg.field_of_view = to_double(std::string(val), ln, "field_of_view");
+      cfg.field_of_view = to_double(std::string(val), "field_of_view");
       if (cfg.field_of_view <= 0.0 or cfg.field_of_view >= 180.0) {
-        parse_error(ln, "field_of_view debe estar en (0, 180)");
+        std::ostringstream oss;
+        oss << "field_of_view debe estar en (0, 180)";
+        throw std::runtime_error(oss.str());
       }
       return true;
     }
@@ -80,9 +86,11 @@ namespace {  // ----------- helpers "privados"-----------
       return true;
     }
     if (key == "gamma") {
-      cfg.gamma = to_double(std::string(val), ln, "gamma");
+      cfg.gamma = to_double(std::string(val), "gamma");
       if (cfg.gamma <= 0.0) {
-        parse_error(ln, "gamma debe ser > 0");
+        std::ostringstream oss;
+        oss << "gamma debe ser > 0";
+        throw std::runtime_error(oss.str());
       }
       return true;
     }
@@ -135,7 +143,9 @@ namespace parse2 {
 
       auto eq = line.find(':');
       if (eq == std::string::npos) {
-        parse_error(lineno, std::string("Esperaba 'key = value', got: \"") + line + "\"");
+        std::ostringstream oss;
+        oss << "Syntax error on line " << lineno << ": missing ':'";
+        throw std::runtime_error(oss.str());
       }
       std::string key = trim(line.substr(0, eq));
       std::string val = trim(line.substr(eq + 1));
@@ -148,7 +158,9 @@ namespace parse2 {
       handled      = handle_seeds(key, val, lineno, cfg) or handled;
 
       if (!handled) {
-        parse_error(lineno, "Clave desconocida: " + key);
+        std::ostringstream oss;
+        oss << "Unknown config key on line " << lineno << ": " << key;
+        throw std::runtime_error(oss.str());
       }
     }
 

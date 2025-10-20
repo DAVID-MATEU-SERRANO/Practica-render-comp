@@ -11,7 +11,9 @@
 #include <array>
 #include <cctype>
 #include <cstddef>
+#include <cstdio>
 #include <cstdlib>
+#include <iostream>
 #include <istream>
 #include <ostream>
 #include <vector>
@@ -160,7 +162,7 @@ namespace {
           << "Line: \"" << lineforprint << "\"";
       throw std::runtime_error(oss.str());
     }
-    auto it = scene.material_index.find(t[4]);
+    auto it = scene.material_index.find(t[7]);
     if (it != scene.material_index.end()) {
       // it es un iterador; it->first = clave (string), it->second = valor (size_t)
       std::size_t code    = it->second;

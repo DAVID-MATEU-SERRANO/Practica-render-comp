@@ -79,6 +79,19 @@ namespace parse::util {
     }
   }
 
+  inline double to_double_config(
+      std::string const & s, std::string const & lineforprint,
+      char const * where) {  // Convierte una cadena a double, lanza error si no se puede convertir
+    try {
+      return std::stod(s);  // std::stod convierte string a double
+    } catch (...) {         // Si hay cualquier error (no se puede convertir)
+      std::ostringstream oss;
+      oss << "Invalid" << " " << where << " parameters" << "\n"
+          << "Line: \"" << lineforprint << "\"";
+      throw std::runtime_error(oss.str());  // Lanzamos el error con el mensaje
+    }
+  }
+
   // Simple, no creo que se necesite mucha explicación, intenta convertir la cadena s a double
   // usando std::stod
 
@@ -126,6 +139,18 @@ namespace parse::util {
     }
   }
 
+  inline void validate_rgb_config(std::array<double, 3> const & colors,
+                                  std::string const & lineforprint, std::string_view const & key) {
+    auto in01 = [](double x) { return x >= 0.0 and x <= 1.0; };
+    if (!in01(colors[0]) or !in01(colors[1]) or !in01(colors[2])) {
+      std::ostringstream oss;
+      oss << "Invalid value for key: < " << key << ">\n"
+          << "Line: \"" << lineforprint << "\"";
+
+      throw std::runtime_error(oss.str());
+    }
+  }
+
   // OJO ESTO ESTA INTERESANTE, CREAMOS UNA LAMBDA (FUNCION ANONIMA) PARA VERIFICAR SI UN VALOR ESTA
   // ENTRE 0 Y 1, basicamente es como una función pequeña que solo se usa aquí, y la usamos para r,
   // g y b ES UNA FUNCION DENTRO DE OTRA, me lo sugirio ya sabemos quien y me gusto Si alguno no
@@ -144,30 +169,33 @@ namespace parse::util {
   // BUENO esta es muy simple, verifica que el cilindro no tenga un eje nulo (0,0,0), porque eso no
   // tiene sentido para un cilindro
 
-  inline int to_int(std::string const & s, char const * what) {
+  inline int to_int(std::string const & s, std::string const & lineforprint, char const * what) {
     try {
       return std::stoi(s);  // std::stoi convierte string a int
     } catch (...) {         // Si hay cualquier error (no se puede convertir)
       std::ostringstream oss;
-      oss << "Cannot be converted to int (" << what << "): \"" << s << "\"";
+      oss << "Invalid value for key:" << " " << "[" << what << "]\n"
+          << "Line: \"" << lineforprint << "\"";
       throw std::runtime_error(oss.str());
     }
   }
 
   inline void parse_three_doubles(std::string const & val, std::array<double, 3> & out,
-                                  char const * what) {
+                                  std::string const & lineforprint, char const * what) {
     std::istringstream iss(val);
     if (!(iss >> out[0] >> out[1] >> out[2])) {
       std::ostringstream oss;
-      oss << "Cannot parse three doubles (" << what << "): \"" << val << "\"";
+      oss << "Invalid" << " " << what << " parameters" << "\n"
+          << "Line: \"" << lineforprint << "\"";
       throw std::runtime_error(oss.str());
     }
   }
 
-  inline void expect_positive(int v, char const * what) {
+  inline void expect_positive(int v, std::string const & lineforprint, char const * what) {
     if (v <= 0) {
       std::ostringstream oss;
-      oss << what << " must be positive";
+      oss << what << " must be positive (integer), got: " << v << "\n"
+          << "Line: \"" << lineforprint << "\"";
       throw std::runtime_error(oss.str());
     }
   }
@@ -179,13 +207,15 @@ namespace parse::util {
     return trim(line);
   }
 
-  inline uint64_t to_uint64(std::string const & s, char const * what) {
+  inline uint64_t to_uint64(std::string const & s, std::string const & lineforprint,
+                            char const * what) {
     try {
       return static_cast<uint64_t>(
           std::stoull(s));  // std::stoull convierte string a unsigned long long
     } catch (...) {         // Si hay cualquier error (no se puede convertir)
       std::ostringstream oss;
-      oss << ": Cannot be converted to uint64 (" << what << "): \"" << s << "\"";
+      oss << "Cannot be converted to uint64 (" << what << "): \"" << s << "\"\n"
+          << "Line: \"" << lineforprint << "\"";
       throw std::runtime_error(oss.str());
     }
   }

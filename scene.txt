@@ -6,6 +6,6 @@ matte: azul 0 0 1
 
 # ======= OBJETOS =======
 sphere: 0 0 -1 1 rojo
-cylinder: 0 -0.5 -1 0 1 0 1 bomba
+cylinder: 0 -0.5 -1 0 1 0 1 acero
 cylinder: 0 -0.5 -1 0 1 0 0.3 azul
 cylinder: 0 -0.5 -1 0 1 0 0.3 vidrio

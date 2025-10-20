@@ -14,7 +14,9 @@ int main() {
   try {
     parse ::parse_scene_stream(in, s);
     std::cout << "OK\n";
-    std::cout << "Materiales: " << s.materials.size() << "\n";
+    std::cout << "Mattes: " << s.mattes.size() << "\n";
+    std::cout << "Metales: " << s.metales.size() << "\n";
+    std::cout << "Refractarios: " << s.refractarios.size() << "\n";
     std::cout << "Esferas:    " << s.spheres.size() << "\n";
     std::cout << "Cilindros:  " << s.cylinders.size() << "\n";
   } catch (std::exception const & e) {

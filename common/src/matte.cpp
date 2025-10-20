@@ -1,10 +1,10 @@
 #include "matte.hpp"
 
-namespace render {
-
-  std::string Matte::get_name() const {
-    return name;
-  }
+// namespace render {
+/*
+ std::string Matte::get_name() const {
+  return name;
+}
 
   double Matte::get_reflect1() const {
     return reflec1;
@@ -19,3 +19,4 @@ namespace render {
   }
 
 }  // namespace render
+*/

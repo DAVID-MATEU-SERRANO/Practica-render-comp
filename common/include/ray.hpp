@@ -17,10 +17,16 @@ namespace render {
 
     [[nodiscard]] Point const & get_origin() const;
     [[nodiscard]] Vector const & get_direction() const;
+
     bool sphere_intersection(Sphere const & sphere);
     bool cylinder_side_intersection(Cylinder const & cylinder);
     bool cylinder_upper_base_intersection(Cylinder const & cylinder);
     bool cylinder_lower_base_intersection(Cylinder const & cylinder);
+
+    bool test_sphere_intersections(Scene const & scene, double & closest_distance,
+                                   Point & closest_point, Vector & closest_normal);
+    bool test_cylinder_intersections(Scene const & scene, double & closest_distance,
+                                     Point & closest_point, Vector & closest_normal);
     void find_closest_intersection(Scene const & scene);
 
   private:

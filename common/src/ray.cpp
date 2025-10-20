@@ -139,8 +139,86 @@ namespace render {
     return true;
   }
 
+  bool Ray::test_sphere_intersections(Scene const & scene, double & closest_distance,
+                                      Point & closest_point, Vector & closest_normal) {
+    bool found_intersection = false;
+
+    for (auto const & sphere : scene.spheres) {
+      if (sphere_intersection(sphere) and intersection_distance >= 0) {
+        // Update if the intersection is closer
+        if (intersection_distance < closest_distance) {
+          closest_distance   = intersection_distance;
+          closest_point      = point_intersection;
+          closest_normal     = normal_vector;
+          found_intersection = true;
+        }
+      }
+    }
+    return found_intersection;
+  }
+
+  bool Ray::test_cylinder_intersections(Scene const & scene, double & closest_distance,
+                                        Point & closest_point, Vector & closest_normal) {
+    bool found_intersection = false;
+
+    for (auto const & cylinder : scene.cylinders) {
+      if (cylinder_side_intersection(cylinder) and intersection_distance >= 0) {
+        // Update if the intersection is closer
+        if (intersection_distance < closest_distance) {
+          closest_distance   = intersection_distance;
+          closest_point      = point_intersection;
+          closest_normal     = normal_vector;
+          found_intersection = true;
+        }
+      }
+
+      if (cylinder_upper_base_intersection(cylinder) and intersection_distance >= 0) {
+        // Update if the intersection is closer
+        if (intersection_distance < closest_distance) {
+          closest_distance   = intersection_distance;
+          closest_point      = point_intersection;
+          closest_normal     = normal_vector;
+          found_intersection = true;
+        }
+      }
+
+      if (cylinder_lower_base_intersection(cylinder) and intersection_distance >= 0) {
+        // Update if the intersection is closer
+        if (intersection_distance < closest_distance) {
+          closest_distance   = intersection_distance;
+          closest_point      = point_intersection;
+          closest_normal     = normal_vector;
+          found_intersection = true;
+        }
+      }
+    }
+    return found_intersection;
+  }
+
   void Ray::find_closest_intersection(Scene const & scene) {
-    // Find the closest intersection with objects in the scene
+    double closest_distance = std::numeric_limits<double>::max();
+    bool found_intersection = false;
+
+    Point closest_point;
+    Vector closest_normal;
+
+    // Test intersections with all scene objects (spheres and cylinders)
+    found_intersection =
+        test_sphere_intersections(scene, closest_distance, closest_point, closest_normal) or
+        found_intersection;
+    found_intersection =
+        test_cylinder_intersections(scene, closest_distance, closest_point, closest_normal) or
+        found_intersection;
+
+    if (found_intersection) {
+      // Closest intersection data
+      intersection_distance = closest_distance;
+      point_intersection    = closest_point;
+      normal_vector         = closest_normal;
+    } else {
+      // Intersection not found
+      intersection_distance = -1.0;
+    }
   }
 
 }  // namespace render

@@ -1,5 +1,5 @@
 /*
-#include "../include/image.hpp"
+#include "image.hpp"
 #include <stdexcept>
 
 namespace render {

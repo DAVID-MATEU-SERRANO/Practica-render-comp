@@ -1,6 +1,6 @@
-#include "../include/parse_scene.hpp"
-#include "../include/scene.hpp"
-#include "../include/util.hpp"
+#include "parse_scene.hpp"
+#include "scene.hpp"
+#include "util.hpp"
 
 #include <cctype>
 #include <cstddef>

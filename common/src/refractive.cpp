@@ -1,4 +1,4 @@
-#include "../include/refractive.hpp"
+#include "refractive.hpp"
 
 namespace render {
 

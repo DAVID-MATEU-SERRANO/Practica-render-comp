@@ -1,6 +1,6 @@
-#include "../include/parse_config.hpp"
-#include "../include/config.hpp"
-#include "../include/util.hpp"
+#include "parse_config.hpp"
+#include "config.hpp"
+#include "util.hpp"
 
 #include <array>
 #include <sstream>

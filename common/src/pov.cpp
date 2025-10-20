@@ -1,4 +1,4 @@
-#include "../include/pov.hpp"
+#include "pov.hpp"
 #include "vector.hpp"
 #include <cmath>
 

@@ -1,4 +1,4 @@
-#include "../include/matte.hpp"
+#include "matte.hpp"
 
 namespace render {
 

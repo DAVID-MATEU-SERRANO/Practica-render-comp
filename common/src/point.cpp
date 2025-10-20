@@ -1,4 +1,4 @@
-#include "../include/point.hpp"
+#include "point.hpp"
 #include "vector.hpp"
 
 namespace render {
@@ -21,6 +21,14 @@ namespace render {
 
   Point Point::substract(Vector const & other) const {
     return Point{x - other.get_x(), y - other.get_y(), z - other.get_z()};
+  }
+
+  Vector Point::add(Point const & other) const {
+    return Vector{x + other.get_x(), y + other.get_y(), z + other.get_z()};
+  }
+
+  Point Point::add(Vector const & other) const {
+    return Point{x + other.get_x(), y + other.get_y(), z + other.get_z()};
   }
 
 }  // namespace render

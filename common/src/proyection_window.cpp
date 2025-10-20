@@ -1,4 +1,4 @@
-#include "../include/proyection_window.hpp"
+#include "proyection_window.hpp"
 #include "vector.hpp"
 #include <cmath>
 

@@ -1,17 +1,13 @@
-#include "../include/cylinder.hpp"
+#include "cylinder.hpp"
 
 namespace render {
 
-  double Cylinder::get_cords_x() const {
-    return vec_center.get_x();
+  Point Cylinder::get_center() const {
+    return vec_center;
   }
 
-  double Cylinder::get_cords_y() const {
-    return vec_center.get_y();
-  }
-
-  double Cylinder::get_cords_z() const {
-    return vec_center.get_z();
+  Vector Cylinder::get_edge() const {
+    return vec_edge.normalized();
   }
 
   double Cylinder::get_radius() const {

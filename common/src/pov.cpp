@@ -1,8 +1,8 @@
 #include "../include/pov.hpp"
-#include "../include/ray.hpp"
+#include "../include/point.hpp"
 #include "../include/vector.hpp"
 #include <cmath>
-#include <random>
+#include <cstdint>
 
 namespace render {
 

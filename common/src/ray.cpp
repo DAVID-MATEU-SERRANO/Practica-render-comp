@@ -1,9 +1,11 @@
 #include "ray.hpp"
+#include "../include/point.hpp"
 #include "../include/vector.hpp"
+#include "color.hpp"
+#include "cylinder.hpp"
 #include "sphere.hpp"
 #include <cmath>
 #include <cstdlib>
-#include <limits>
 #include <random>
 
 namespace render {
@@ -14,6 +16,54 @@ namespace render {
 
   Vector const & Ray::get_direction() const {
     return direction;
+  }
+
+  Point const & Ray::get_point_intersection() const {
+    return point_intersection;
+  }
+
+  Vector const & Ray::get_normal_vector() const {
+    return normal_vector;
+  }
+
+  double Ray::get_intersection_distance() const {
+    return intersection_distance;
+  }
+
+  t_material const & Ray::get_intersection_material() const {
+    return intersection_material;
+  }
+
+  Color const & Ray::get_intersection_color() const {
+    return intersection_color;
+  }
+
+  Vector const & Ray::get_reflected_direction() const {
+    return reflected_direction;
+  }
+
+  void Ray::set_point_intersection(Point const & point) {
+    point_intersection = point;
+  }
+
+  void Ray::set_normal_vector(Vector const & normal) {
+    normal_vector = normal;
+  }
+
+  void Ray::set_intersection_distance(double distance) {
+    intersection_distance = distance;
+  }
+
+  void Ray::set_intersection_material(t_material const & material) {
+    intersection_material = material;
+  }
+
+  void Ray::set_intersection_color(Color const & color) {
+    intersection_color = color;
+  }
+
+  void Ray::set_reflected_direction(Vector const & direction) {
+    reflected_direction = direction;
   }
 
   bool Ray::sphere_intersection(Sphere const & sphere) {
@@ -139,88 +189,6 @@ namespace render {
     }
 
     return true;
-  }
-
-  bool Ray::test_sphere_intersections(Scene const & scene, double & closest_distance,
-                                      Point & closest_point, Vector & closest_normal) {
-    bool found_intersection = false;
-
-    for (auto const & sphere : scene.spheres) {
-      if (sphere_intersection(sphere) and intersection_distance >= 0) {
-        // Update if the intersection is closer
-        if (intersection_distance < closest_distance) {
-          closest_distance   = intersection_distance;
-          closest_point      = point_intersection;
-          closest_normal     = normal_vector;
-          found_intersection = true;
-        }
-      }
-    }
-    return found_intersection;
-  }
-
-  bool Ray::test_cylinder_intersections(Scene const & scene, double & closest_distance,
-                                        Point & closest_point, Vector & closest_normal) {
-    bool found_intersection = false;
-
-    for (auto const & cylinder : scene.cylinders) {
-      if (cylinder_side_intersection(cylinder) and intersection_distance >= 0) {
-        // Update if the intersection is closer
-        if (intersection_distance < closest_distance) {
-          closest_distance   = intersection_distance;
-          closest_point      = point_intersection;
-          closest_normal     = normal_vector;
-          found_intersection = true;
-        }
-      }
-
-      if (cylinder_upper_base_intersection(cylinder) and intersection_distance >= 0) {
-        // Update if the intersection is closer
-        if (intersection_distance < closest_distance) {
-          closest_distance   = intersection_distance;
-          closest_point      = point_intersection;
-          closest_normal     = normal_vector;
-          found_intersection = true;
-        }
-      }
-
-      if (cylinder_lower_base_intersection(cylinder) and intersection_distance >= 0) {
-        // Update if the intersection is closer
-        if (intersection_distance < closest_distance) {
-          closest_distance   = intersection_distance;
-          closest_point      = point_intersection;
-          closest_normal     = normal_vector;
-          found_intersection = true;
-        }
-      }
-    }
-    return found_intersection;
-  }
-
-  void Ray::find_closest_intersection(Scene const & scene) {
-    double closest_distance = std::numeric_limits<double>::max();
-    bool found_intersection = false;
-
-    Point closest_point;
-    Vector closest_normal;
-
-    // Test intersections with all scene objects (spheres and cylinders)
-    found_intersection =
-        test_sphere_intersections(scene, closest_distance, closest_point, closest_normal) or
-        found_intersection;
-    found_intersection =
-        test_cylinder_intersections(scene, closest_distance, closest_point, closest_normal) or
-        found_intersection;
-
-    if (found_intersection) {
-      // Closest intersection data
-      intersection_distance = closest_distance;
-      point_intersection    = closest_point;
-      normal_vector         = closest_normal;
-    } else {
-      // Intersection not found
-      intersection_distance = -1.0;
-    }
   }
 
   void Ray::color_contribution(Color const & dark_color, Color const & light_color,

@@ -4,6 +4,88 @@
 
 namespace render {
 
+  bool Scene::test_sphere_intersections(Ray & ray, double & closest_distance, Point & closest_point,
+                                        Vector & closest_normal) {
+    bool found_intersection = false;
+
+    for (auto const & sphere : spheres) {
+      if (ray.sphere_intersection(sphere) and ray.get_intersection_distance() >= 0) {
+        // Update if the intersection is closer
+        if (ray.get_intersection_distance() < closest_distance) {
+          closest_distance   = ray.get_intersection_distance();
+          closest_point      = ray.get_point_intersection();
+          closest_normal     = ray.get_normal_vector();
+          found_intersection = true;
+        }
+      }
+    }
+    return found_intersection;
+  }
+
+  bool Scene::test_cylinder_intersections(Ray & ray, double & closest_distance,
+                                          Point & closest_point, Vector & closest_normal) {
+    bool found_intersection = false;
+
+    for (auto const & cylinder : cylinders) {
+      if (ray.cylinder_side_intersection(cylinder) and ray.get_intersection_distance() >= 0) {
+        // Update if the intersection is closer
+        if (ray.get_intersection_distance() < closest_distance) {
+          closest_distance   = ray.get_intersection_distance();
+          closest_point      = ray.get_point_intersection();
+          closest_normal     = ray.get_normal_vector();
+          found_intersection = true;
+        }
+      }
+
+      if (ray.cylinder_upper_base_intersection(cylinder) and ray.get_intersection_distance() >= 0) {
+        // Update if the intersection is closer
+        if (ray.get_intersection_distance() < closest_distance) {
+          closest_distance   = ray.get_intersection_distance();
+          closest_point      = ray.get_point_intersection();
+          closest_normal     = ray.get_normal_vector();
+          found_intersection = true;
+        }
+      }
+
+      if (ray.cylinder_lower_base_intersection(cylinder) and ray.get_intersection_distance() >= 0) {
+        // Update if the intersection is closer
+        if (ray.get_intersection_distance() < closest_distance) {
+          closest_distance   = ray.get_intersection_distance();
+          closest_point      = ray.get_point_intersection();
+          closest_normal     = ray.get_normal_vector();
+          found_intersection = true;
+        }
+      }
+    }
+    return found_intersection;
+  }
+
+  void Scene::find_closest_intersection(Ray & ray) {
+    double closest_distance = std::numeric_limits<double>::max();
+    bool found_intersection = false;
+
+    Point closest_point;
+    Vector closest_normal;
+
+    // Test intersections with all scene objects (spheres and cylinders)
+    found_intersection =
+        test_sphere_intersections(ray, closest_distance, closest_point, closest_normal) or
+        found_intersection;
+    found_intersection =
+        test_cylinder_intersections(ray, closest_distance, closest_point, closest_normal) or
+        found_intersection;
+
+    if (found_intersection) {
+      // Closest intersection data
+      ray.set_intersection_distance(closest_distance);
+      ray.set_point_intersection(closest_point);
+      ray.set_normal_vector(closest_normal);
+    } else {
+      // Intersection not found
+      ray.set_intersection_distance(-1.0);
+    }
+  }
+
   Pixel Scene::get_pixel_color(int f, int c) const {
     std::mt19937_64 rng(rays_rng_seed);
     std::uniform_real_distribution<double> dist(-0.5, 0.5);
@@ -19,9 +101,9 @@ namespace render {
                     .get_origin()
                     .add(dx.dot(static_cast<double>(c + rx)))
                     .add(dy.dot(static_cast<double>(f + ry)));
-      Ray ray(camera_position, q.substract(camera_position));
+      Ray ray(pov.get_camera_position(), q.substract(pov.get_camera_position()));
       for (int depth = 0; depth < max_depth; ++depth) {
-        ray.find_closest_intersection(*this);
+        find_closest_intersection(ray);
         ray.color_contribution(background_dark_color, background_light_color,
                                rays_rng_seed + ray_counter * max_depth + depth);
       }

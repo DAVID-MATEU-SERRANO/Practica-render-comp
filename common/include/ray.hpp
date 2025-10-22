@@ -4,9 +4,9 @@
 #include "color.hpp"
 #include "cylinder.hpp"
 #include "point.hpp"
-#include "scene.hpp"
 #include "sphere.hpp"
 #include "vector.hpp"
+#include <cstdint>
 
 namespace render {
 
@@ -16,10 +16,26 @@ namespace render {
   public:
     Ray(Point const & origin, Vector const & direction)
         : origin(origin), direction(direction), point_intersection(0.0, 0.0, 0.0),
-          normal_vector(0.0, 0.0, 0.0) { }
+          normal_vector(0.0, 0.0, 0.0), intersection_distance(),
+          intersection_material(Matte("default", Color(1.0, 1.0, 1.0))),
+          intersection_color(1.0, 1.0, 1.0), reflected_direction(0.0, 0.0, 0.0) { }
 
     [[nodiscard]] Point const & get_origin() const;
     [[nodiscard]] Vector const & get_direction() const;
+    [[nodiscard]] Point const & get_point_intersection() const;
+    [[nodiscard]] Vector const & get_normal_vector() const;
+    [[nodiscard]] double get_intersection_distance() const;
+    [[nodiscard]] t_material const & get_intersection_material() const;
+    [[nodiscard]] Color const & get_intersection_color() const;
+    [[nodiscard]] Vector const & get_reflected_direction() const;
+
+    void set_point_intersection(Point const & point);
+    void set_normal_vector(Vector const & normal);
+
+    void set_intersection_distance(double distance);
+    void set_intersection_material(t_material const & material);
+    void set_intersection_color(Color const & color);
+    void set_reflected_direction(Vector const & direction);
 
     bool sphere_intersection(Sphere const & sphere);
     bool cylinder_side_intersection(Cylinder const & cylinder);
@@ -33,20 +49,14 @@ namespace render {
     void metal_color_contribution(Metal const & metal, std::uint64_t seed);
     void refractive_color_contribution(Refractive const & refractive);
 
-    bool test_sphere_intersections(Scene const & scene, double & closest_distance,
-                                   Point & closest_point, Vector & closest_normal);
-    bool test_cylinder_intersections(Scene const & scene, double & closest_distance,
-                                     Point & closest_point, Vector & closest_normal);
-    void find_closest_intersection(Scene const & scene);
-
   private:
     Point origin;
     Vector direction;
     Point point_intersection;
     Vector normal_vector;
-    double intersection_distance = 0.0;
+    double intersection_distance = -1.0;
     t_material intersection_material;
-    Color intersection_color = Color(1.0, 1.0, 1.0);
+    Color intersection_color;
     Vector reflected_direction;
   };
 

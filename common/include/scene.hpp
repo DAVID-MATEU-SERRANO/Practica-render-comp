@@ -4,6 +4,7 @@
 #include "color.hpp"
 #include "cylinder.hpp"
 #include "pov.hpp"
+#include "ray.hpp"
 #include "sphere.hpp"
 #include <sys/types.h>
 #include <utility>
@@ -25,10 +26,9 @@ namespace render {
 
     // Clase usada para el punto de vista
   public:
-    Scene(std::vector<render::Sphere> spheres, std::vector<render::Cylinder> cylinders,
-          render::Pov pov, int samples_per_pixel, int max_depth, uint64_t material_rng_seed,
-          uint64_t rays_rng_seed, render::Color background_dark_color,
-          render::Color background_light_color)
+    Scene(std::vector<Sphere> spheres, std::vector<Cylinder> cylinders, Pov pov,
+          int samples_per_pixel, int max_depth, uint64_t material_rng_seed, uint64_t rays_rng_seed,
+          Color background_dark_color, Color background_light_color)
         : spheres{std::move(spheres)}, cylinders{std::move(cylinders)}, pov{pov},
           samples_per_pixel{samples_per_pixel}, max_depth{max_depth},
           material_rng_seed{material_rng_seed}, rays_rng_seed{rays_rng_seed},
@@ -36,19 +36,25 @@ namespace render {
           background_light_color{background_light_color} { }
 
     // Método
+    bool test_sphere_intersections(Ray & ray, double & closest_distance, Point & closest_point,
+                                   Vector & closest_normal);
+    bool test_cylinder_intersections(Ray & ray, double & closest_distance, Point & closest_point,
+                                     Vector & closest_normal);
+    void find_closest_intersection(Ray & ray);
+
     [[nodiscard]] Pixel get_pixel_color(int f, int c) const;
 
   private:
-    std::vector<render::Sphere> spheres;      // Vector de esferas
-    std::vector<render::Cylinder> cylinders;  // Vector de cilindros
-    render::Pov pov;                          // Cámara
+    std::vector<Sphere> spheres;      // Vector de esferas
+    std::vector<Cylinder> cylinders;  // Vector de cilindros
+    render::Pov pov;                  // Cámara
 
-    int samples_per_pixel;       // Muestras por pixel
-    int max_depth;               // Profundidad maxima de rayos
-    uint64_t material_rng_seed;  // Semilla para el generador de numeros aleatorios de materiales
-    uint64_t rays_rng_seed;      // Semilla para el generador de numeros aleatorios de rayos
-    render::Color background_dark_color;   // Color oscuro del fondo
-    render::Color background_light_color;  // Color claro del fondo
+    int samples_per_pixel;         // Muestras por pixel
+    int max_depth;                 // Profundidad maxima de rayos
+    uint64_t material_rng_seed;    // Semilla para el generador de numeros aleatorios de materiales
+    uint64_t rays_rng_seed;        // Semilla para el generador de numeros aleatorios de rayos
+    Color background_dark_color;   // Color oscuro del fondo
+    Color background_light_color;  // Color claro del fondo
 
     /*
     // Mapa para buscar materiales por su nombre

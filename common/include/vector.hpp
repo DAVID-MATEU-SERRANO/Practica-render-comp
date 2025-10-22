@@ -19,6 +19,7 @@ namespace render {
     [[nodiscard]] double dot(Vector const & other) const;
     [[nodiscard]] Vector cross(Vector const & other) const;
     [[nodiscard]] Vector perpendicular_component(Vector const & other) const;
+    [[nodiscard]] Vector add_number(double value) const;
 
     [[nodiscard]] double get_x() const;
     [[nodiscard]] double get_y() const;

@@ -5,16 +5,19 @@ namespace render {
 
   class Color {
   public:
-    Color(int r, int g, int b) : r(r), g(g), b(b) { }
+    Color(double r, double g, double b) : r(r), g(g), b(b) { }
 
-    [[nodiscard]] int get_r() const;
-    [[nodiscard]] int get_g() const;
-    [[nodiscard]] int get_b() const;
+    [[nodiscard]] double get_r() const;
+    [[nodiscard]] double get_g() const;
+    [[nodiscard]] double get_b() const;
+    [[nodiscard]] Color multiply(double factor) const;
+    [[nodiscard]] Color multiply(Color const & other) const;
+    [[nodiscard]] Color add(Color const & other) const;
 
   private:
-    int r;
-    int g;
-    int b;
+    double r;
+    double g;
+    double b;
   };
 
 }  // namespace render

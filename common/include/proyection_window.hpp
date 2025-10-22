@@ -11,6 +11,7 @@ namespace render {
         : focal_vector{focal_vector}, focal_distance{focal_distance}, height{height}, width{width},
           horizontal_vector{horizontal_vector}, vertical_vector{vertical_vector}, origin{origin} { }
 
+    // TODO: Verificar que atributos de aquí hacen realmente falta
     // Getters para los atributos
     [[nodiscard]] Vector get_focal_vector() const;
     [[nodiscard]] double get_focal_distance() const;

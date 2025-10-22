@@ -39,6 +39,10 @@ namespace render {
     return this->substract(other.dot(this->dot(other)));
   }
 
+  Vector Vector::add_number(double value) const {
+    return {x + value, y + value, z + value};
+  }
+
   double Vector::get_x() const {
     return x;
   }

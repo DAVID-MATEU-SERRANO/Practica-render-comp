@@ -1,8 +1,10 @@
 #include "ray.hpp"
+#include "../include/vector.hpp"
 #include "sphere.hpp"
-#include "vector.hpp"
 #include <cmath>
+#include <cstdlib>
 #include <limits>
+#include <random>
 
 namespace render {
 
@@ -219,6 +221,89 @@ namespace render {
       // Intersection not found
       intersection_distance = -1.0;
     }
+  }
+
+  void Ray::color_contribution(Color const & dark_color, Color const & light_color,
+                               std::uint64_t seed) {
+    // To be implemented: Calculate color contribution based on intersection and material
+    if (intersection_distance == -1.0) {
+      // No intersection, return background color
+      background_color_contribution(dark_color, light_color);
+      return;
+    }
+    if (std::holds_alternative<Matte>(intersection_material)) {
+      matte_color_contribution(std::get<Matte>(intersection_material), seed);
+    }
+
+    if (std::holds_alternative<Metal>(intersection_material)) {
+      metal_color_contribution(std::get<Metal>(intersection_material), seed);
+    }
+
+    if (std::holds_alternative<Refractive>(intersection_material)) {
+      refractive_color_contribution(std::get<Refractive>(intersection_material));
+    }
+  }
+
+  void Ray::background_color_contribution(Color const & dark_color, Color const & light_color) {
+    double mix_factor = (direction.normalized().get_y() + 1.0) / 2.0;
+    intersection_color =
+        light_color.multiply(1.0 - mix_factor).add(dark_color.multiply(mix_factor));
+  }
+
+  void Ray::matte_color_contribution(Matte const & matte, std::uint64_t seed) {
+    std::mt19937_64 rng(seed);
+    std::uniform_real_distribution<double> dist(-1.0, 1.0);
+    double random_value      = dist(rng);
+    Vector reflection_vector = normal_vector.add_number(random_value);
+    if (reflection_vector.get_x() < 1e-8 and
+        reflection_vector.get_y() < 1e-8 and
+        reflection_vector.get_z() < 1e-8)
+    {
+      reflected_direction = normal_vector;
+    } else {
+      reflected_direction = reflection_vector;
+    }
+    intersection_color = intersection_color.multiply(matte.get_reflectance());
+  }
+
+  void Ray::metal_color_contribution(Metal const & metal, std::uint64_t seed) {
+    // To be implemented: Metal color contribution
+    Vector initial_reflection =
+        direction.substract(normal_vector.dot(2.0 * normal_vector.dot(direction)));
+
+    std::mt19937_64 rng(seed);
+    std::uniform_real_distribution<double> dist(-1.0 * metal.get_difusion_factor(),
+                                                metal.get_difusion_factor());
+    Vector diffusion_vector = Vector(dist(rng), dist(rng), dist(rng));
+    reflected_direction     = initial_reflection.normalized().add(diffusion_vector);
+    intersection_color      = intersection_color.multiply(metal.get_reflectance());
+  }
+
+  void Ray::refractive_color_contribution(Refractive const & refractive) {
+    // To be implemented: Refractive color contribution
+    double cos_0 = std::min(-normal_vector.normalized().dot(direction.normalized()), 1.0);
+    double sin_0 = std::sqrt(1.0 - cos_0 * cos_0);
+
+    double refraction_index_corrected = refractive.get_refraction_index();
+
+    if (cos_0 < 0) {
+      // Hacia dentro
+      refraction_index_corrected = 1.0 / refraction_index_corrected;
+    }
+
+    if (refraction_index_corrected * sin_0 > 1.0) {
+      // Total internal reflection
+      reflected_direction =
+          direction.substract(normal_vector.dot(2.0 * normal_vector.dot(direction)));
+
+    } else {
+      Vector u =
+          direction.normalized().add(normal_vector.dot(cos_0)).dot(refraction_index_corrected);
+      Vector v            = normal_vector.dot((-1.0) * std::sqrt(std::abs(1 - u.dot(u))));
+      reflected_direction = u.add(v);
+    }
+
+    intersection_color = intersection_color.multiply(Color(1, 1, 1));
   }
 
 }  // namespace render

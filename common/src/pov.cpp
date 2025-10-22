@@ -1,6 +1,8 @@
-#include "pov.hpp"
-#include "vector.hpp"
+#include "../include/pov.hpp"
+#include "../include/ray.hpp"
+#include "../include/vector.hpp"
 #include <cmath>
+#include <random>
 
 namespace render {
 
@@ -31,6 +33,10 @@ namespace render {
 
   std::uint64_t Pov::get_ray_seed() const {
     return ray_seed;
+  }
+
+  Proyection_window Pov::get_proyection_window() const {
+    return proyection_window;
   }
 
   // Ventana de proyección

@@ -1,6 +1,7 @@
 #ifndef RENDER_POV_HPP
 #define RENDER_POV_HPP
 
+#include "color.hpp"
 #include "point.hpp"
 #include "proyection_window.hpp"
 #include "vector.hpp"
@@ -33,6 +34,7 @@ namespace render {
     [[nodiscard]] int get_image_height() const;
     [[nodiscard]] int get_image_width() const;
     [[nodiscard]] std::uint64_t get_ray_seed() const;
+    [[nodiscard]] Proyection_window get_proyection_window() const;
 
     // Calculos ventana proyección
     [[nodiscard]] Vector pw_focal_vector() const;
@@ -53,6 +55,13 @@ namespace render {
     ImageSize image_size;
     std::uint64_t ray_seed;
     Proyection_window proyection_window;
+    // Otros datos
+    int samples_per_pixel;       // Muestras por pixel
+    int max_depth;               // Profundidad maxima de rayos
+    uint64_t material_rng_seed;  // Semilla para el generador de numeros aleatorios de materiales
+    uint64_t rays_rng_seed;      // Semilla para el generador de numeros aleatorios de rayos
+    render::Color background_dark_color;   // Color oscuro del fondo
+    render::Color background_light_color;  // Color claro del fondo
   };
 
 }  // namespace render

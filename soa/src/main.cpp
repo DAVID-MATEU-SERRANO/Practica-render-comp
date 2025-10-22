@@ -6,7 +6,6 @@
 #include <iostream>
 #include <vector>
 
-//HOLA 
 int main(int argc, char * argv[]) {
   // ####### CHECK PARAMETERS #######
   std::vector<std::string> args(argv + 1, argv + argc);

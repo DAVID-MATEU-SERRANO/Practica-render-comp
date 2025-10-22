@@ -1,9 +1,9 @@
-#include "ray.hpp"
+#include "../include/ray.hpp"
+#include "../include/color.hpp"
+#include "../include/cylinder.hpp"
 #include "../include/point.hpp"
+#include "../include/sphere.hpp"
 #include "../include/vector.hpp"
-#include "color.hpp"
-#include "cylinder.hpp"
-#include "sphere.hpp"
 #include <cmath>
 #include <cstdlib>
 #include <random>

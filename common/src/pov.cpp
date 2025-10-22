@@ -2,7 +2,6 @@
 #include "../include/point.hpp"
 #include "../include/vector.hpp"
 #include <cmath>
-#include <cstdint>
 
 namespace render {
 
@@ -29,10 +28,6 @@ namespace render {
 
   int Pov::get_image_width() const {
     return image_size.image_width;
-  }
-
-  std::uint64_t Pov::get_ray_seed() const {
-    return ray_seed;
   }
 
   Proyection_window Pov::get_proyection_window() const {

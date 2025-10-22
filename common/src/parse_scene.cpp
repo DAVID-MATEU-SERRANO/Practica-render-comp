@@ -1,13 +1,13 @@
-#include "parse_scene.hpp"
-#include "point.hpp"
-#include "scene.hpp"
-#include "util.hpp"
+#include "../include/cylinder.hpp"
+#include "../include/point.hpp"
+#include "../include/scene.hpp"
+#include "../include/util.hpp"
 
-#include "cylinder.hpp"
-#include "metal.hpp"
-#include "refractive.hpp"
-#include "sphere.hpp"
-#include "vector.hpp"
+#include "../include/matte.hpp"
+#include "../include/metal.hpp"
+#include "../include/refractive.hpp"
+#include "../include/sphere.hpp"
+#include "../include/vector.hpp"
 #include <array>
 #include <cctype>
 #include <cstddef>
@@ -22,7 +22,7 @@ using namespace parse::util;
 
 // ============================ Parsers por etiqueta ============================
 
-namespace {
+namespace render {
 
   void parse_matte_line(std::vector<std::string> const & t, Scene & scene,
                         std::string const & lineforprint) {
@@ -210,7 +210,7 @@ namespace {
     }
   }
 
-}  // namespace
+}  // namespace render
 
 // FUNCION IMPORTANTE, ES LA QUE SE LLAMA DESDE FUERA, LE PASAMOS EL STREAM DE ENTRADA Y LA ESCENA
 // DONDE VAMOS A GUARDAR LO PARSEADO

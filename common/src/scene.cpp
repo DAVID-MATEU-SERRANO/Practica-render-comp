@@ -86,9 +86,11 @@ namespace render {
     }
   }
 
-  Pixel Scene::get_pixel_color(int f, int c) const {
+  Pixel Scene::get_pixel_color(int f, int c) {
     std::mt19937_64 rng(rays_rng_seed);
     std::uniform_real_distribution<double> dist(-0.5, 0.5);
+    Color pixel_color;
+    Color accumulated_color(0.0, 0.0, 0.0);
 
     // TODO: ∆x and ∆y añadirlos como posibles atributos a la ventana de proyección.
     Vector dx = pov.pw_horizontal_vector().dot(static_cast<double>(1.0 / pov.get_image_width()));
@@ -101,13 +103,24 @@ namespace render {
                     .get_origin()
                     .add(dx.dot(static_cast<double>(c + rx)))
                     .add(dy.dot(static_cast<double>(f + ry)));
-      Ray ray(pov.get_camera_position(), q.substract(pov.get_camera_position()));
+
+      Ray ray(pov.get_camera_position(), q.substract(pov.get_camera_position()),
+              Color(1.0, 1.0, 1.0));
       for (int depth = 0; depth < max_depth; ++depth) {
         find_closest_intersection(ray);
-        ray.color_contribution(background_dark_color, background_light_color,
-                               rays_rng_seed + ray_counter * max_depth + depth);
+        ray.color_contribution(background_dark_color, background_light_color, material_rng_seed);
+        if (depth != max_depth - 1) {
+          ray = Ray(ray.get_point_intersection(), ray.get_reflected_direction(),
+                    ray.get_intersection_color());
+        }
       }
+      pixel_color       = ray.get_intersection_color().apply_gamma_correction(gamma);
+      accumulated_color = accumulated_color.add(pixel_color);
     }
+    accumulated_color = accumulated_color.multiply(1.0 / static_cast<double>(samples_per_pixel));
+    return {static_cast<std::uint8_t>(255.0 * accumulated_color.get_r()),
+            static_cast<std::uint8_t>(255.0 * accumulated_color.get_g()),
+            static_cast<std::uint8_t>(255.0 * accumulated_color.get_b())};
   }
 
 }  // namespace render

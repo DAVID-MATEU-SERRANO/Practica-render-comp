@@ -15,6 +15,7 @@ namespace render {
     [[nodiscard]] Color multiply(double factor) const;
     [[nodiscard]] Color multiply(Color const & other) const;
     [[nodiscard]] Color add(Color const & other) const;
+    [[nodiscard]] Color apply_gamma_correction(double gamma) const;
 
   private:
     double r;

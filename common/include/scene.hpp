@@ -13,9 +13,9 @@
 namespace render {
 
   struct Pixel {
-    int r;
-    int g;
-    int b;
+    std::uint8_t r;
+    std::uint8_t g;
+    std::uint8_t b;
   };
 
   class Scene {
@@ -42,7 +42,7 @@ namespace render {
                                      Vector & closest_normal);
     void find_closest_intersection(Ray & ray);
 
-    [[nodiscard]] Pixel get_pixel_color(int f, int c) const;
+    [[nodiscard]] Pixel get_pixel_color(int f, int c);
 
   private:
     std::vector<Sphere> spheres;      // Vector de esferas
@@ -55,6 +55,7 @@ namespace render {
     uint64_t rays_rng_seed;        // Semilla para el generador de numeros aleatorios de rayos
     Color background_dark_color;   // Color oscuro del fondo
     Color background_light_color;  // Color claro del fondo
+    double gamma = 2.2;            // Valor de gamma
 
     /*
     // Mapa para buscar materiales por su nombre

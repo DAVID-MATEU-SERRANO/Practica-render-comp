@@ -14,11 +14,11 @@ namespace render {
 
   class Ray {
   public:
-    Ray(Point const & origin, Vector const & direction)
+    Ray(Point const & origin, Vector const & direction, Color intersection_color)
         : origin(origin), direction(direction), point_intersection(0.0, 0.0, 0.0),
           normal_vector(0.0, 0.0, 0.0), intersection_distance(),
           intersection_material(Matte("default", Color(1.0, 1.0, 1.0))),
-          intersection_color(1.0, 1.0, 1.0), reflected_direction(0.0, 0.0, 0.0) { }
+          intersection_color(intersection_color), reflected_direction(0.0, 0.0, 0.0) { }
 
     [[nodiscard]] Point const & get_origin() const;
     [[nodiscard]] Vector const & get_direction() const;

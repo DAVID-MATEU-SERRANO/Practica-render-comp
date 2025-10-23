@@ -2,8 +2,8 @@ add_library(common STATIC)
 
 target_sources(common 
     PRIVATE
+        src/color.cpp
         src/cylinder.cpp
-        src/image.cpp
         src/matte.cpp
         src/metal.cpp
         src/parse_config.cpp
@@ -15,6 +15,7 @@ target_sources(common
         src/refractive.cpp
         src/sphere.cpp
         src/vector.cpp
+        src/scene.cpp
 )
 
 target_include_directories(common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

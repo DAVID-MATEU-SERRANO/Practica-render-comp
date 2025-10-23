@@ -43,6 +43,7 @@ namespace render {
     void find_closest_intersection(Ray & ray);
 
     [[nodiscard]] Pixel get_pixel_color(int f, int c);
+    [[nodiscard]] Pov get_pov() const;
 
   private:
     std::vector<Sphere> spheres;      // Vector de esferas

@@ -1,21 +1,25 @@
 #include "../include/parse_scene.hpp"
+#include "../include/color.hpp"
+#include "../include/cylinder.hpp"
+#include "../include/matte.hpp"
+#include "../include/metal.hpp"
+#include "../include/parse_exception.hpp"
+#include "../include/point.hpp"
+#include "../include/refractive.hpp"
 #include "../include/scene.hpp"
+#include "../include/sphere.hpp"
 #include "../include/util.hpp"
-#include "color.hpp"
-#include "cylinder.hpp"
-#include "matte.hpp"
-#include "metal.hpp"
-#include "parse_exception.hpp"
-#include "point.hpp"
-#include "refractive.hpp"
-#include "sphere.hpp"
+#include "../include/vector.hpp"
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <ostream>
 #include <regex>
+#include <sstream>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 namespace render {
 
@@ -56,12 +60,12 @@ namespace render {
                           std::string const & line_content) {
       parse::util::expect_token_count(tokens, 4, line_content, "matte");
 
-      double r = parse::util::to_double(tokens[1]);
-      double g = parse::util::to_double(tokens[2]);
-      double b = parse::util::to_double(tokens[3]);
+      double const r = parse::util::to_double(tokens[1]);
+      double const g = parse::util::to_double(tokens[2]);
+      double const b = parse::util::to_double(tokens[3]);
 
-      Color reflectance(r, g, b);
-      render::Matte matte(tokens[0], reflectance);
+      Color const reflectance(r, g, b);
+      render::Matte const matte(tokens[0], reflectance);
       scene.add_material_matte(matte, line_content);
     }
 
@@ -69,18 +73,18 @@ namespace render {
                           std::string const & line_content) {
       parse::util::expect_token_count(tokens, 5, line_content, "metal");
 
-      double r         = parse::util::to_double(tokens[1]);
-      double g         = parse::util::to_double(tokens[2]);
-      double b         = parse::util::to_double(tokens[3]);
-      double diffusion = parse::util::to_double(tokens[4]);
+      double const r         = parse::util::to_double(tokens[1]);
+      double const g         = parse::util::to_double(tokens[2]);
+      double const b         = parse::util::to_double(tokens[3]);
+      double const diffusion = parse::util::to_double(tokens[4]);
 
-      Color reflectance(r, g, b);
+      Color const reflectance(r, g, b);
 
       if (diffusion < 0.0) {
         parse::throw_invalid_parameters("metal", line_content);
       }
 
-      render::Metal metal(tokens[0], reflectance, diffusion);
+      render::Metal const metal(tokens[0], reflectance, diffusion);
       scene.add_material_metal(metal, line_content);
     }
 
@@ -88,23 +92,23 @@ namespace render {
                                std::string const & line_content) {
       parse::util::expect_token_count(tokens, 2, line_content, "refractive");
 
-      double refraction_index = parse::util::to_double(tokens[1]);
+      double const refraction_index = parse::util::to_double(tokens[1]);
 
       if (refraction_index < 1.0) {
         parse::throw_invalid_parameters("refractive", line_content);
       }
 
-      render::Refractive refractive(tokens[0], refraction_index);
+      render::Refractive const refractive(tokens[0], refraction_index);
       scene.add_material_refractive(refractive, line_content);
     }
 
     void parse_sphere_line(std::vector<std::string> const & tokens, Scene & scene,
                            std::string const & line_content) {
       parse::util::expect_token_count(tokens, 3, line_content, "sphere");
-      double cx                         = parse::util::to_double(tokens[0]);
-      double cy                         = parse::util::to_double(tokens[1]);
-      double cz                         = parse::util::to_double(tokens[2]);
-      double radius                     = parse::util::to_double(tokens[3]);
+      double const cx                   = parse::util::to_double(tokens[0]);
+      double const cy                   = parse::util::to_double(tokens[1]);
+      double const cz                   = parse::util::to_double(tokens[2]);
+      double const radius               = parse::util::to_double(tokens[3]);
       std::string const & material_name = tokens[4];
 
       if (radius < 0.0) {
@@ -118,22 +122,22 @@ namespace render {
       }
 
       // Obtener material
-      std::size_t code  = material_index.at(material_name);
-      int material_type = static_cast<int>(code % 10);  // Está sobre 10 el índice
+      std::size_t const code  = material_index.at(material_name);
+      int const material_type = static_cast<int>(code % 10);  // Está sobre 10 el índice
 
-      render::Point center(cx, cy, cz);
+      render::Point const center(cx, cy, cz);
 
       if (material_type == 0) {
         auto material = get_material_from_code<render::Matte>(scene, code);
-        render::Sphere s(center, radius, material);
+        render::Sphere const s(center, radius, material);
         scene.add_sphere(s);
       } else if (material_type == 1) {
         auto material = get_material_from_code<render::Metal>(scene, code);
-        render::Sphere s(center, radius, material);
+        render::Sphere const s(center, radius, material);
         scene.add_sphere(s);
       } else {
         auto material = get_material_from_code<render::Refractive>(scene, code);
-        render::Sphere s(center, radius, material);
+        render::Sphere const s(center, radius, material);
         scene.add_sphere(s);
       }
     }
@@ -148,13 +152,13 @@ namespace render {
 
     CylinderParams parse_cylinder_geometry(std::vector<std::string> const & t,
                                            std::string const & lineforprint) {
-      double cx                         = parse::util::to_double(t[0]);
-      double cy                         = parse::util::to_double(t[1]);
-      double cz                         = parse::util::to_double(t[2]);
-      double radius                     = parse::util::to_double(t[3]);
-      double ax                         = parse::util::to_double(t[4]);
-      double ay                         = parse::util::to_double(t[5]);
-      double az                         = parse::util::to_double(t[6]);
+      double const cx                   = parse::util::to_double(t[0]);
+      double const cy                   = parse::util::to_double(t[1]);
+      double const cz                   = parse::util::to_double(t[2]);
+      double const radius               = parse::util::to_double(t[3]);
+      double const ax                   = parse::util::to_double(t[4]);
+      double const ay                   = parse::util::to_double(t[5]);
+      double const az                   = parse::util::to_double(t[6]);
       std::string const & material_name = t[7];
 
       if (radius <= 0.0) {
@@ -172,7 +176,7 @@ namespace render {
                              std::string const & line_content) {
       parse::util::expect_token_count(tokens, 8, line_content, "cylinder");
 
-      CylinderParams params = parse_cylinder_geometry(tokens, line_content);
+      CylinderParams const params = parse_cylinder_geometry(tokens, line_content);
 
       auto & material_index = scene.get_material_index();
       auto it               = material_index.contains(params.material_name);
@@ -181,20 +185,20 @@ namespace render {
         parse::throw_material_not_found(params.material_name, line_content);
       }
 
-      std::size_t code  = material_index.at(params.material_name);
-      int material_type = static_cast<int>(code % 10);
+      std::size_t const code  = material_index.at(params.material_name);
+      int const material_type = static_cast<int>(code % 10);
 
       if (material_type == 0) {
         auto material = get_material_from_code<render::Matte>(scene, code);
-        render::Cylinder c(params.center, params.radius, params.direction, material);
+        render::Cylinder const c(params.center, params.radius, params.direction, material);
         scene.add_cylinder(c);
       } else if (material_type == 1) {
         auto material = get_material_from_code<render::Metal>(scene, code);
-        render::Cylinder c(params.center, params.radius, params.direction, material);
+        render::Cylinder const c(params.center, params.radius, params.direction, material);
         scene.add_cylinder(c);
       } else {
         auto material = get_material_from_code<render::Refractive>(scene, code);
-        render::Cylinder c(params.center, params.radius, params.direction, material);
+        render::Cylinder const c(params.center, params.radius, params.direction, material);
         scene.add_cylinder(c);
       }
     }
@@ -253,11 +257,12 @@ namespace parse {
       // Comprobación
       try {
         if (std::regex_match(line, match, scene_line_regex)) {
-          std::string tag   = match[1].str();
-          std::string args  = match[2].str();
-          std::string extra = match[3].str();  // Usado para comprobar que no se pasa de argumentos
+          std::string const tag  = match[1].str();
+          std::string const args = match[2].str();
+          std::string const extra =
+              match[3].str();  // Usado para comprobar que no se pasa de argumentos
 
-          if (!extra.empty() and util::trim(extra) != "") {
+          if (!extra.empty() and !util::trim(extra).empty()) {
             std::ostringstream oss;
             oss << "Error: Extra data after configuration value for key: " << "[" << tag << "]"
                 << "\n"

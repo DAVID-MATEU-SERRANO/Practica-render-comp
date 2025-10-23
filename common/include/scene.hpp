@@ -1,15 +1,15 @@
 // Estructura de datos para almacenar la informacion de una escena
 // Contiene los parametros que se obtienen de leer el archivo scene.txt
 
-#include "color.hpp"
-#include "cylinder.hpp"
-#include "matte.hpp"
-#include "metal.hpp"
-#include "parse_exception.hpp"
-#include "pov.hpp"
-#include "ray.hpp"
-#include "refractive.hpp"
-#include "sphere.hpp"
+#include "../include/color.hpp"
+#include "../include/cylinder.hpp"
+#include "../include/matte.hpp"
+#include "../include/metal.hpp"
+#include "../include/parse_exception.hpp"
+#include "../include/pov.hpp"
+#include "../include/ray.hpp"
+#include "../include/refractive.hpp"
+#include "../include/sphere.hpp"
 #include <map>
 #include <sys/types.h>
 #include <utility>
@@ -57,7 +57,7 @@ namespace render {
       }
 
       // Añadimos matte en vector mattes
-      std::size_t new_index            = mattes.size();
+      std::size_t const new_index      = mattes.size();
       material_index[matte.get_name()] = new_index * 10 + 0;
       mattes.push_back(matte);
     }
@@ -68,7 +68,7 @@ namespace render {
       }
 
       // Añadimos matte en vectir mattes
-      std::size_t new_index            = metals.size();
+      std::size_t const new_index      = metals.size();
       material_index[metal.get_name()] = new_index * 10 + 0;
       metals.push_back(metal);
     }
@@ -79,7 +79,7 @@ namespace render {
       }
 
       // Añadimos matte en vectir mattes
-      std::size_t new_index                 = refractives.size();
+      std::size_t const new_index           = refractives.size();
       material_index[refractive.get_name()] = new_index * 10 + 0;
       refractives.push_back(refractive);
     }

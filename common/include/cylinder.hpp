@@ -1,11 +1,11 @@
 #ifndef RENDER_CYLINDER_HPP
 #define RENDER_CYLINDER_HPP
 
-#include "matte.hpp"
-#include "metal.hpp"
-#include "point.hpp"
-#include "refractive.hpp"
-#include "vector.hpp"
+#include "../include/matte.hpp"
+#include "../include/metal.hpp"
+#include "../include/point.hpp"
+#include "../include/refractive.hpp"
+#include "../include/vector.hpp"
 #include <utility>
 #include <variant>
 

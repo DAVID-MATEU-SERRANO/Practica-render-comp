@@ -1,4 +1,6 @@
 #include "../include/metal.hpp"
+#include "../include/color.hpp"
+#include <string>
 
 namespace render {
 

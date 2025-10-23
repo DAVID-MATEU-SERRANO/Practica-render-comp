@@ -1,5 +1,6 @@
 #include "../include/refractive.hpp"
 #include <stdexcept>
+#include <string>
 
 namespace render {
 

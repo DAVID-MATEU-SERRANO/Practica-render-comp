@@ -1,4 +1,5 @@
-#include "vector.hpp"
+#include "../include/vector.hpp"
+#include <cmath>
 #include <stdexcept>
 
 namespace render {
@@ -8,7 +9,7 @@ namespace render {
   }
 
   Vector Vector::normalized() const {
-    double mag = magnitude();
+    double const mag = magnitude();
     if (mag == 0) {
       throw std::runtime_error("Cannot normalize zero vector");
     }

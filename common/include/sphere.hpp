@@ -1,10 +1,10 @@
 #ifndef RENDER_SPHERE_HPP
 #define RENDER_SPHERE_HPP
 
-#include "matte.hpp"
-#include "metal.hpp"
-#include "point.hpp"
-#include "refractive.hpp"
+#include "../include/matte.hpp"
+#include "../include/metal.hpp"
+#include "../include/point.hpp"
+#include "../include/refractive.hpp"
 #include <utility>
 #include <variant>
 

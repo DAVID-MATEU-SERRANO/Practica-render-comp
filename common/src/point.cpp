@@ -1,5 +1,5 @@
-#include "point.hpp"
-#include "vector.hpp"
+#include "../include/point.hpp"
+#include "../include/vector.hpp"
 
 namespace render {
 

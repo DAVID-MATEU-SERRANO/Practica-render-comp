@@ -1,11 +1,11 @@
 #ifndef RENDER_RAY_HPP
 #define RENDER_RAY_HPP
 
-#include "color.hpp"
-#include "cylinder.hpp"
-#include "point.hpp"
-#include "sphere.hpp"
-#include "vector.hpp"
+#include "../include/color.hpp"
+#include "../include/cylinder.hpp"
+#include "../include/point.hpp"
+#include "../include/sphere.hpp"
+#include "../include/vector.hpp"
 #include <cstdint>
 
 namespace render {

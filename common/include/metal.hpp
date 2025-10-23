@@ -1,7 +1,7 @@
 #ifndef RENDER_METAL_HPP
 #define RENDER_METAL_HPP
 
-#include "color.hpp"
+#include "../include/color.hpp"
 #include <string>
 #include <utility>
 

@@ -1,10 +1,9 @@
 #ifndef RENDER_POV_HPP
 #define RENDER_POV_HPP
 
-#include "color.hpp"
-#include "point.hpp"
-#include "proyection_window.hpp"
-#include "vector.hpp"
+#include "../include/point.hpp"
+#include "../include/proyection_window.hpp"
+#include "../include/vector.hpp"
 #include <cmath>
 #include <cstdint>
 

@@ -1,4 +1,5 @@
-#include "sphere.hpp"
+#include "../include/sphere.hpp"
+#include "../include/point.hpp"
 #include <stdexcept>
 
 namespace render {

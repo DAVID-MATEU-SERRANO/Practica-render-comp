@@ -1,5 +1,6 @@
-#include "proyection_window.hpp"
-#include "vector.hpp"
+#include "../include/proyection_window.hpp"
+#include "../include/point.hpp"
+#include "../include/vector.hpp"
 #include <cmath>
 
 namespace render {

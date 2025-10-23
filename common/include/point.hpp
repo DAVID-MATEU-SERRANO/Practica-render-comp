@@ -1,7 +1,7 @@
 #ifndef RENDER_POINT_HPP
 #define RENDER_POINT_HPP
 
-#include "vector.hpp"
+#include "../include/vector.hpp"
 #include <cmath>
 
 namespace render {

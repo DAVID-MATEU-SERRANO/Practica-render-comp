@@ -1,6 +1,11 @@
 #include "../include/scene.hpp"
+#include "../include/color.hpp"
+#include "../include/point.hpp"
+#include "../include/pov.hpp"
 #include "../include/ray.hpp"
-#include "pov.hpp"
+#include "../include/vector.hpp"
+#include <cstdint>
+#include <limits>
 #include <random>
 
 namespace render {
@@ -98,16 +103,18 @@ namespace render {
     Color accumulated_color(0.0, 0.0, 0.0);
 
     // TODO: ∆x and ∆y añadirlos como posibles atributos a la ventana de proyección.
-    Vector dx = pov.pw_horizontal_vector().dot(static_cast<double>(1.0 / pov.get_image_width()));
-    Vector dy = pov.pw_vertical_vector().dot(static_cast<double>(1.0 / pov.get_image_height()));
+    Vector const dx =
+        pov.pw_horizontal_vector().dot(static_cast<double>(1.0 / pov.get_image_width()));
+    Vector const dy =
+        pov.pw_vertical_vector().dot(static_cast<double>(1.0 / pov.get_image_height()));
 
     for (int ray_counter = 0; ray_counter < samples_per_pixel; ++ray_counter) {
-      double rx = dist(rng);
-      double ry = dist(rng);
-      Point q   = pov.get_proyection_window()
-                    .get_origin()
-                    .add(dx.dot(static_cast<double>(c + rx)))
-                    .add(dy.dot(static_cast<double>(f + ry)));
+      double const rx = dist(rng);
+      double const ry = dist(rng);
+      Point const q   = pov.get_proyection_window()
+                          .get_origin()
+                          .add(dx.dot(static_cast<double>(c + rx)))
+                          .add(dy.dot(static_cast<double>(f + ry)));
 
       Ray ray(pov.get_camera_position(), q.substract(pov.get_camera_position()),
               Color(1.0, 1.0, 1.0));

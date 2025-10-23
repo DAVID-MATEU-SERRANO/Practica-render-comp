@@ -1,7 +1,7 @@
 #ifndef RENDER_MATTE_HPP
 #define RENDER_MATTE_HPP
 
-#include "color.hpp"
+#include "../include/color.hpp"
 #include <string>
 #include <utility>
 

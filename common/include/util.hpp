@@ -1,3 +1,4 @@
+#include "parse_exception.hpp"
 #include <array>
 #include <cctype>
 #include <cstdint>
@@ -66,18 +67,7 @@ namespace parse::util {
   // Al final devolvemos el vector con todos los tokens encontrados
   // Me hice fan de los istringstream y ostringstream
 
-  inline double to_double(
-      std::string const & s, std::string const & lineforprint,
-      char const * where) {  // Convierte una cadena a double, lanza error si no se puede convertir
-    try {
-      return std::stod(s);  // std::stod convierte string a double
-    } catch (...) {         // Si hay cualquier error (no se puede convertir)
-      std::ostringstream oss;
-      oss << "Invalid" << " " << where << " parameters" << "\n"
-          << "Line: \"" << lineforprint << "\"";
-      throw std::runtime_error(oss.str());  // Lanzamos el error con el mensaje
-    }
-  }
+  double to_double(std::string const & token);
 
   inline double to_double_config(
       std::string const & s, std::string const & lineforprint,
@@ -95,34 +85,8 @@ namespace parse::util {
   // Simple, no creo que se necesite mucha explicación, intenta convertir la cadena s a double
   // usando std::stod
 
-  inline void expect_token_count(
-      std::vector<std::string> const & t,
-      std::size_t n,  // Verifica que el número de tokens sea el esperado
-      std::string const & lineforprint,
-      std::string const &
-          label) {  // t es el vector de tokens, n es el número esperado, lineno es la línea actual
-
-    std::string attr;
-    if (label == "matte" or label == "metal" or label == "refractive") {
-      attr = "material";
-    } else {
-      attr = "object";
-    }
-    //=============ERRORES PEDIDOS EN LA PRACTICA===============
-    if (t.size() < n) {
-      std::ostringstream oss;
-      oss << "Invalid " << label << " " << attr << " parameters\n"
-          << "Line: \"" << lineforprint << "\"";
-      throw std::runtime_error(oss.str());  // Lanzamos el error con el mensaje
-    }
-    if (t.size() > n) {
-      std::ostringstream oss;
-      oss << "Extra data after configuration value for key:" << " " << "[" + label + "]" << "\n"
-          << "Extra:" << " " << +(t.size() - n) << "\n"
-          << "Line: \"" << lineforprint << "\"";
-      throw std::runtime_error(oss.str());  // Lanzamos el error con el mensaje
-    }
-  }
+  void expect_token_count(std::vector<std::string> const & tokens, size_t expected_count,
+                          std::string const & line_content, std::string const & entity_type);
 
   // Simple y al final acabamos usando parse_error para lanzar el error si no coincide el número de
   // tokens, PERO QUE EFICIENTES SOMOS
@@ -139,17 +103,8 @@ namespace parse::util {
     }
   }
 
-  inline void validate_rgb_config(std::array<double, 3> const & colors,
-                                  std::string const & lineforprint, std::string_view const & key) {
-    auto in01 = [](double x) { return x >= 0.0 and x <= 1.0; };
-    if (!in01(colors[0]) or !in01(colors[1]) or !in01(colors[2])) {
-      std::ostringstream oss;
-      oss << "Invalid value for key: < " << key << ">\n"
-          << "Line: \"" << lineforprint << "\"";
-
-      throw std::runtime_error(oss.str());
-    }
-  }
+  void validate_rgb_config(std::array<double, 3> const & color, std::string const & line_content,
+                           std::string const & entity_type);
 
   // OJO ESTO ESTA INTERESANTE, CREAMOS UNA LAMBDA (FUNCION ANONIMA) PARA VERIFICAR SI UN VALOR ESTA
   // ENTRE 0 Y 1, basicamente es como una función pequeña que solo se usa aquí, y la usamos para r,

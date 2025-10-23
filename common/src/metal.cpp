@@ -1,5 +1,4 @@
 #include "../include/metal.hpp"
-#include <stdexcept>
 
 namespace render {
 

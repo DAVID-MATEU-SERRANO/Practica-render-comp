@@ -1,5 +1,4 @@
 #include "../include/matte.hpp"
-#include <stdexcept>
 
 namespace render {
 

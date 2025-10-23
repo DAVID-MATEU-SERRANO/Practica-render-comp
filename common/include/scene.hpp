@@ -3,9 +3,14 @@
 
 #include "color.hpp"
 #include "cylinder.hpp"
+#include "matte.hpp"
+#include "metal.hpp"
+#include "parse_exception.hpp"
 #include "pov.hpp"
 #include "ray.hpp"
+#include "refractive.hpp"
 #include "sphere.hpp"
+#include <map>
 #include <sys/types.h>
 #include <utility>
 #include <vector>
@@ -42,13 +47,64 @@ namespace render {
                                      Vector & closest_normal);
     void find_closest_intersection(Ray & ray);
 
+    void add_sphere(Sphere const & sphere) { spheres.push_back(sphere); }
+
+    void add_cylinder(Cylinder const & cylinder) { cylinders.push_back(cylinder); }
+
+    void add_material_matte(Matte const & matte, std::string const & line_content) {
+      if (material_index.contains(matte.get_name())) {
+        parse::throw_material_exists(matte.get_name(), line_content);
+      }
+
+      // Añadimos matte en vector mattes
+      std::size_t new_index            = mattes.size();
+      material_index[matte.get_name()] = new_index * 10 + 0;
+      mattes.push_back(matte);
+    }
+
+    void add_material_metal(Metal const & metal, std::string const & line_content) {
+      if (material_index.contains(metal.get_name())) {
+        parse::throw_material_exists(metal.get_name(), line_content);
+      }
+
+      // Añadimos matte en vectir mattes
+      std::size_t new_index            = metals.size();
+      material_index[metal.get_name()] = new_index * 10 + 0;
+      metals.push_back(metal);
+    }
+
+    void add_material_refractive(Refractive const & refractive, std::string const & line_content) {
+      if (material_index.contains(refractive.get_name())) {
+        parse::throw_material_exists(refractive.get_name(), line_content);
+      }
+
+      // Añadimos matte en vectir mattes
+      std::size_t new_index                 = refractives.size();
+      material_index[refractive.get_name()] = new_index * 10 + 0;
+      refractives.push_back(refractive);
+    }
+
     [[nodiscard]] Pixel get_pixel_color(int f, int c);
     [[nodiscard]] Pov get_pov() const;
+    [[nodiscard]] std::map<std::string, std::size_t> & get_material_index();
+
+    [[nodiscard]] std::vector<render::Matte> const & get_mattes() const { return mattes; }
+
+    [[nodiscard]] std::vector<render::Metal> const & get_metals() const { return metals; }
+
+    [[nodiscard]] std::vector<render::Refractive> const & get_refractives() const {
+      return refractives;
+    }
 
   private:
-    std::vector<Sphere> spheres;      // Vector de esferas
-    std::vector<Cylinder> cylinders;  // Vector de cilindros
-    render::Pov pov;                  // Cámara
+    std::vector<Sphere> spheres;          // Vector de esferas
+    std::vector<Cylinder> cylinders;      // Vector de cilindros
+    render::Pov pov;                      // Cámara
+    std::vector<Metal> metals;            // Vector de metales
+    std::vector<Matte> mattes;            // Vector de mates
+    std::vector<Refractive> refractives;  // Vector de refractivos
+    std::map<std::string, std::size_t>
+        material_index;  // Mapa para indexar materiales con nombre y flag
 
     int samples_per_pixel;         // Muestras por pixel
     int max_depth;                 // Profundidad maxima de rayos

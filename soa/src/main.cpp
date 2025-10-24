@@ -4,8 +4,12 @@
 #include <iostream>
 #include <vector>
 
-int main() {
-  // #### PARSE ####//
+int main(int argc, char * argv[]) {
+  if (argc != 3) {
+    std::cerr << "Error: Invalid number of arguments: " << (argc - 1) << "\n";
+    std::cerr << "Usage: " << argv[0] << " <config_file> <output_file>\n";
+    return 1;
+  }
 
   // ### IMAGE_GENERATION ### //
   using namespace render;
@@ -44,20 +48,29 @@ int main() {
   std::size_t total_pixels =
       static_cast<std::size_t>(image_height) * static_cast<std::size_t>(image_width);
 
-  std::vector<int> R(total_pixels);
-  std::vector<int> G(total_pixels);
-  std::vector<int> B(total_pixels);
+  std::vector<uint8_t> R(total_pixels);
+  std::vector<uint8_t> G(total_pixels);
+  std::vector<uint8_t> B(total_pixels);
 
-  for (int f = 0; f < scene.get_pov().get_image_height(); ++f) {
-    for (int c = 0; c < scene.get_pov().get_image_width(); ++c) {
-      Pixel pixel                    = scene.get_pixel_color(f, c);
-      R[static_cast<std::size_t>(f) * static_cast<std::size_t>(image_width) +
-        static_cast<std::size_t>(c)] = pixel.r;
-      G[static_cast<std::size_t>(f) * static_cast<std::size_t>(image_width) +
-        static_cast<std::size_t>(c)] = pixel.g;
-      B[static_cast<std::size_t>(f) * static_cast<std::size_t>(image_width) +
-        static_cast<std::size_t>(c)] = pixel.b;
+  // Creación del archivo PPM
+  std::ofstream ppm_file(argv[2]);
+  ppm_file << "P3\n" << image_width << " " << image_height << "\n255\n";
+
+  for (int f = 0; f < image_height; ++f) {
+    for (int c = 0; c < image_width; ++c) {
+      Pixel pixel       = scene.get_pixel_color(f, c);
+      std::size_t index = static_cast<std::size_t>(f) * static_cast<std::size_t>(image_width) +
+                          static_cast<std::size_t>(c);
+
+      R[index] = pixel.r;
+      G[index] = pixel.g;
+      B[index] = pixel.b;
+
+      ppm_file << static_cast<int>(pixel.r) << " " << static_cast<int>(pixel.g) << " "
+               << static_cast<int>(pixel.b) << "\n";
     }
   }
+
+  ppm_file.close();
   return 0;
 }

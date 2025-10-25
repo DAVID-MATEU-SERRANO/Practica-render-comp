@@ -49,9 +49,9 @@ namespace render {
 
     // Método
     bool test_sphere_intersections(Ray & ray, double & closest_distance, Point & closest_point,
-                                   Vector & closest_normal);
+                                   Vector & closest_normal, t_material closest_material);
     bool test_cylinder_intersections(Ray & ray, double & closest_distance, Point & closest_point,
-                                     Vector & closest_normal);
+                                     Vector & closest_normal, t_material closest_material);
     void find_closest_intersection(Ray & ray);
 
     std::vector<Sphere> get_vector_esferas() { return spheres; }

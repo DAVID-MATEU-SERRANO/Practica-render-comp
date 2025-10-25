@@ -24,6 +24,7 @@ namespace render {
 
     [[nodiscard]] double get_radius() const;
     [[nodiscard]] Point get_center() const;
+    [[nodiscard]] t_material get_material() const;
 
   private:
     Point sphere_center;

@@ -15,4 +15,8 @@ namespace render {
     return sphere_center;
   }
 
+  t_material Sphere::get_material() const {
+    return material;
+  }
+
 }  // namespace render

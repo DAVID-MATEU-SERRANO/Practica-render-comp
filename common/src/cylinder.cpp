@@ -31,4 +31,8 @@ namespace render {
     return vec_edge.magnitude();
   }
 
+  t_material Cylinder::get_material() const {
+    return material;
+  }
+
 }  // namespace render

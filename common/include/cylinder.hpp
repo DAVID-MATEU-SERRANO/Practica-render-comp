@@ -26,6 +26,7 @@ namespace render {
     [[nodiscard]] Vector get_edge() const;
     [[nodiscard]] double get_radius() const;
     [[nodiscard]] double get_height() const;
+    [[nodiscard]] t_material get_material() const;
 
   private:
     Point vec_center;

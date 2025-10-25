@@ -1,5 +1,6 @@
 #include "../include/scene.hpp"
 #include "../include/color.hpp"
+#include "../include/matte.hpp"
 #include "../include/point.hpp"
 #include "../include/pov.hpp"
 #include "../include/ray.hpp"
@@ -11,17 +12,17 @@
 namespace render {
 
   bool Scene::test_sphere_intersections(Ray & ray, double & closest_distance, Point & closest_point,
-                                        Vector & closest_normal) {
+                                        Vector & closest_normal, t_material closest_material) {
     bool found_intersection = false;
 
     for (auto const & sphere : spheres) {
       if (ray.sphere_intersection(sphere) and ray.get_intersection_distance() >= 0) {
         // Update if the intersection is closer
         if (ray.get_intersection_distance() < closest_distance) {
-          closest_distance = ray.get_intersection_distance();
-          closest_point    = ray.get_point_intersection();
-          closest_normal   = ray.get_normal_vector();
-
+          closest_distance   = ray.get_intersection_distance();
+          closest_point      = ray.get_point_intersection();
+          closest_normal     = ray.get_normal_vector();
+          closest_material   = sphere.get_material();
           found_intersection = true;
         }
       }
@@ -30,7 +31,8 @@ namespace render {
   }
 
   bool Scene::test_cylinder_intersections(Ray & ray, double & closest_distance,
-                                          Point & closest_point, Vector & closest_normal) {
+                                          Point & closest_point, Vector & closest_normal,
+                                          t_material closest_material) {
     bool found_intersection = false;
 
     for (auto const & cylinder : cylinders) {
@@ -40,6 +42,7 @@ namespace render {
           closest_distance   = ray.get_intersection_distance();
           closest_point      = ray.get_point_intersection();
           closest_normal     = ray.get_normal_vector();
+          closest_material   = cylinder.get_material();
           found_intersection = true;
         }
       }
@@ -50,6 +53,7 @@ namespace render {
           closest_distance   = ray.get_intersection_distance();
           closest_point      = ray.get_point_intersection();
           closest_normal     = ray.get_normal_vector();
+          closest_material   = cylinder.get_material();
           found_intersection = true;
         }
       }
@@ -60,6 +64,7 @@ namespace render {
           closest_distance   = ray.get_intersection_distance();
           closest_point      = ray.get_point_intersection();
           closest_normal     = ray.get_normal_vector();
+          closest_material   = cylinder.get_material();
           found_intersection = true;
         }
       }
@@ -73,20 +78,21 @@ namespace render {
 
     Point closest_point;
     Vector closest_normal;
+    t_material closest_material(Matte{"none", Color(1.0, 1.0, 1.0)});
 
     // Test intersections with all scene objects (spheres and cylinders)
-    found_intersection =
-        test_sphere_intersections(ray, closest_distance, closest_point, closest_normal) or
-        found_intersection;
-    found_intersection =
-        test_cylinder_intersections(ray, closest_distance, closest_point, closest_normal) or
-        found_intersection;
+    found_intersection = test_sphere_intersections(ray, closest_distance, closest_point,
+                                                   closest_normal, closest_material) or
+                         found_intersection;
+    found_intersection = test_cylinder_intersections(ray, closest_distance, closest_point,
+                                                     closest_normal, closest_material) or
+                         found_intersection;
     if (found_intersection) {
       // Closest intersection data
       ray.set_intersection_distance(closest_distance);
       ray.set_point_intersection(closest_point);
       ray.set_normal_vector(closest_normal);
-      ray.set_intersection_material()
+      ray.set_intersection_material(closest_material);
     } else {
       // Intersection not found
       ray.set_intersection_distance(-1.0);

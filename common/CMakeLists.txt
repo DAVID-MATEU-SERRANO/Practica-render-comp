@@ -13,9 +13,11 @@ target_sources(common
         src/proyection_window.cpp
         src/ray.cpp
         src/refractive.cpp
-        src/sphere.cpp
-        src/vector.cpp
+        src/render.cpp
         src/scene.cpp
+        src/sphere.cpp
+        src/utils.cpp
+        src/vector.cpp
 )
 
 target_include_directories(common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

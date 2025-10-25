@@ -24,8 +24,8 @@ int main(int argc, char * argv[]) {
     std::cerr << " No se pudo abrir config.txt\n";
     return 1;
   }
-  render::Scene scene;
-  render::load_scene_from_files(scene, in, file);
+  Scene scene;
+  load_scene_from_files(scene, in, file);
   int image_height = scene.get_pov().get_image_height();
   int image_width  = scene.get_pov().get_image_width();
   std::size_t total_pixels =

@@ -74,10 +74,11 @@ namespace render {
   }
 
   bool Ray::sphere_intersection(Sphere const & sphere) {
-    double const a = std::pow(direction.magnitude(), 2);
+    double const a = direction.dot(direction);
     double const b = 2.0 * direction.dot(sphere.get_center().substract(origin));
-    double const c = std::pow(sphere.get_center().substract(origin).magnitude(), 2) -
-                     std::pow(sphere.get_radius(), 2);
+    double const c =
+        sphere.get_center().substract(origin).dot(sphere.get_center().substract(origin)) -
+        std::pow(sphere.get_radius(), 2);
 
     double const discriminant = b * b - 4 * a * c;
 
@@ -99,6 +100,7 @@ namespace render {
       intersection_distance = t2;
     }
 
+    point_intersection = origin.add(direction.dot(intersection_distance));
     normal_vector = point_intersection.substract(sphere.get_center()).dot(1 / sphere.get_radius());
     // Ensure the normal vector points against the ray direction
     if (normal_vector.dot(direction) > 0) {
@@ -136,7 +138,7 @@ namespace render {
     }
 
     point_intersection = origin.add(direction.dot(intersection_distance));
-    if (point_intersection.substract(cylinder.get_center()).dot(cylinder.get_edge()) >
+    if (std::abs(point_intersection.substract(cylinder.get_center()).dot(cylinder.get_edge())) >
         (cylinder.get_height() / 2))
     {
       return false;

@@ -12,7 +12,7 @@
 namespace render {
 
   bool Scene::test_sphere_intersections(Ray & ray, double & closest_distance, Point & closest_point,
-                                        Vector & closest_normal, t_material closest_material) {
+                                        Vector & closest_normal, t_material & closest_material) {
     bool found_intersection = false;
 
     for (auto const & sphere : spheres) {
@@ -32,7 +32,7 @@ namespace render {
 
   bool Scene::test_cylinder_intersections(Ray & ray, double & closest_distance,
                                           Point & closest_point, Vector & closest_normal,
-                                          t_material closest_material) {
+                                          t_material & closest_material) {
     bool found_intersection = false;
 
     for (auto const & cylinder : cylinders) {
@@ -132,13 +132,12 @@ namespace render {
                     ray.get_intersection_color());
         }
       }
-      pixel_color       = ray.get_intersection_color();
+      pixel_color       = ray.get_intersection_color().apply_gamma_correction(gamma);
       accumulated_color = accumulated_color.add(pixel_color);
       std::cout << ray_counter << " RAY COUNTER  \n";
       std::cout.flush();
     }
-    accumulated_color = accumulated_color.multiply(1.0 / static_cast<double>(samples_per_pixel))
-                            .apply_gamma_correction(gamma);
+    accumulated_color = accumulated_color.multiply(1.0 / static_cast<double>(samples_per_pixel));
     return {static_cast<std::uint8_t>(255.0 * accumulated_color.get_r()),
             static_cast<std::uint8_t>(255.0 * accumulated_color.get_g()),
             static_cast<std::uint8_t>(255.0 * accumulated_color.get_b())};

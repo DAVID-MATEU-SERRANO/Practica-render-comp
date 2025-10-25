@@ -111,9 +111,13 @@ namespace render {
 
     void set_gamma(double g) { gamma = g; }
 
+    void set_pov(Pov & p) { pov = p; }
+
     [[nodiscard]] Pixel get_pixel_color(int f, int c);
 
-    [[nodiscard]] Pov get_pov() const { return pov; }
+    [[nodiscard]] Pov & get_pov() { return pov; }
+
+    [[nodiscard]] Pov const & get_pov() const { return pov; }
 
     [[nodiscard]] std::map<std::string, std::size_t> & get_material_index() {
       return material_index;

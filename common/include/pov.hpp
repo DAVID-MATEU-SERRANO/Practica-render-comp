@@ -10,8 +10,8 @@
 namespace render {
 
   struct ImageSize {
-    int image_width;
-    int image_height;
+    int image_width  = 16;
+    int image_height = 9;
   };
 
   // Clase usada para el punto de vista

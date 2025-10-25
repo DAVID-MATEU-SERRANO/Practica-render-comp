@@ -33,6 +33,10 @@ namespace render {
     return image_size.image_width;
   }
 
+  std::uint64_t Pov::get_ray_seed() const {
+    return ray_seed;
+  }
+
   Proyection_window Pov::get_proyection_window() const {
     return proyection_window;
   }

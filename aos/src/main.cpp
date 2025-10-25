@@ -1,4 +1,5 @@
 #include "../../common/include/config.hpp"
+#include "../../common/include/pov.hpp"
 #include "../../common/include/render.hpp"
 #include "../../common/include/scene.hpp"
 #include <fstream>
@@ -36,9 +37,9 @@ int main(int argc, char * argv[]) {
 
   for (int f = 0; f < image_height; ++f) {
     for (int c = 0; c < image_width; ++c) {
-      Pixel pixel = scene.get_pixel_color(f, c);
-      std::size_t index =
-          static_cast<std::size_t>(f) * static_cast<std::size_t>(225) + static_cast<std::size_t>(c);
+      Pixel pixel       = scene.get_pixel_color(f, c);
+      std::size_t index = static_cast<std::size_t>(f) * static_cast<std::size_t>(image_height) +
+                          static_cast<std::size_t>(c);
       pixels[index] = pixel;
       ppm_file << static_cast<int>(pixel.r) << " " << static_cast<int>(pixel.g) << " "
                << static_cast<int>(pixel.b) << "\n";

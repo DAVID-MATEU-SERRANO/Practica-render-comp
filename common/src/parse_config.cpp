@@ -68,7 +68,7 @@ namespace {  // ----------- helpers "privados"-----------
 
   std::tuple<bool, int, int> handle_image_aspect_ratio(std::string_view key, std::string_view val,
                                                        std::string const & lineforprint) {
-    int w = 0, h = 0;
+    int w = 16, h = 9;
     if (key == "aspect_ratio") {
       ensure_token_count_exact(val, 2, lineforprint, "aspect_ratio");
       std::istringstream iss{std::string(val)};
@@ -279,11 +279,9 @@ namespace parse {
         // aspect_ratio -> std::tuple<bool,int,int>
         {
           auto [ok_ar, aw, ah] = handle_image_aspect_ratio(key, val, lineforprint);
-          if (ok_ar) {
-            handled     = true;
-            parsed_ar_w = aw;
-            parsed_ar_h = ah;
-          }
+          handled              = true;
+          parsed_ar_w          = aw;
+          parsed_ar_h          = ah;
         }
         // image_width -> std::pair<bool,int>
         {
@@ -303,10 +301,12 @@ namespace parse {
         handled = handle_background(key, val, lineforprint, scene) or handled;
         handled = handle_seeds(key, val, lineforprint, scene) or handled;
 
-        auto isz = render::Pov::compute_image_size(parsed_image_width, parsed_ar_w, parsed_ar_h);
+        render::ImageSize isz =
+            render::Pov::compute_image_size(parsed_image_width, parsed_ar_w, parsed_ar_h);
         // aquí puedes usar `isz` para construir el Pov o asignarlo según tu diseño
         // ej: pov = render::Pov(position, target, north, cfg.field_of_view, isz);
         pov.set_image_size(isz);
+        scene.set_pov(pov);
 
         if (!handled) {
           std::ostringstream oss;

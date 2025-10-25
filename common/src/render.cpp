@@ -2,7 +2,6 @@
 #include "parse_config.hpp"
 #include "parse_scene.hpp"
 #include <fstream>
-#include <iostream>
 
 namespace render {
 

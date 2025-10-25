@@ -18,9 +18,10 @@ namespace render {
       if (ray.sphere_intersection(sphere) and ray.get_intersection_distance() >= 0) {
         // Update if the intersection is closer
         if (ray.get_intersection_distance() < closest_distance) {
-          closest_distance   = ray.get_intersection_distance();
-          closest_point      = ray.get_point_intersection();
-          closest_normal     = ray.get_normal_vector();
+          closest_distance = ray.get_intersection_distance();
+          closest_point    = ray.get_point_intersection();
+          closest_normal   = ray.get_normal_vector();
+
           found_intersection = true;
         }
       }
@@ -85,6 +86,7 @@ namespace render {
       ray.set_intersection_distance(closest_distance);
       ray.set_point_intersection(closest_point);
       ray.set_normal_vector(closest_normal);
+      ray.set_intersection_material()
     } else {
       // Intersection not found
       ray.set_intersection_distance(-1.0);
@@ -124,12 +126,13 @@ namespace render {
                     ray.get_intersection_color());
         }
       }
-      pixel_color       = ray.get_intersection_color().apply_gamma_correction(gamma);
+      pixel_color       = ray.get_intersection_color();
       accumulated_color = accumulated_color.add(pixel_color);
       std::cout << ray_counter << " RAY COUNTER  \n";
       std::cout.flush();
     }
-    accumulated_color = accumulated_color.multiply(1.0 / static_cast<double>(samples_per_pixel));
+    accumulated_color = accumulated_color.multiply(1.0 / static_cast<double>(samples_per_pixel))
+                            .apply_gamma_correction(gamma);
     return {static_cast<std::uint8_t>(255.0 * accumulated_color.get_r()),
             static_cast<std::uint8_t>(255.0 * accumulated_color.get_g()),
             static_cast<std::uint8_t>(255.0 * accumulated_color.get_b())};

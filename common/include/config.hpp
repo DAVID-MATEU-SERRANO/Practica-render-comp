@@ -29,7 +29,7 @@ material_seed = 13
 ray_seed      = 19
 */
 
-#include <array>
+/*#include <array>
 #include <cmath>
 #include <cstdint>
 
@@ -75,4 +75,4 @@ struct Config {
            max_depth > 0 and
            gamma > 0.0;
   }
-};
+};*/

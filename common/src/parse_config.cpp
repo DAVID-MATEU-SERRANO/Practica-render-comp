@@ -1,8 +1,13 @@
 #include "parse_config.hpp"
+#include "color.hpp"
 #include "config.hpp"
+#include "point.hpp"
+#include "pov.hpp"
 #include "util.hpp"
+#include "vector.hpp"
 
 #include <array>
+#include <regex>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -14,7 +19,6 @@ using parse::util::strip_comment_and_trim;
 using parse::util::to_double_config;
 using parse::util::to_int;
 using parse::util::to_uint64;
-using parse::util::trim;
 using parse::util::validate_rgb_config;
 
 namespace {  // ----------- helpers "privados"-----------
@@ -62,12 +66,13 @@ namespace {  // ----------- helpers "privados"-----------
     }
   }
 
-  bool handle_image(std::string_view key, std::string_view val, std::string const & lineforprint,
-                    Config & cfg) {
+  std::tuple<bool, int, int> handle_image_aspect_ratio(std::string_view key, std::string_view val,
+                                                       std::string const & lineforprint) {
+    int w = 0, h = 0;
     if (key == "aspect_ratio") {
       ensure_token_count_exact(val, 2, lineforprint, "aspect_ratio");
       std::istringstream iss{std::string(val)};
-      int w = 0, h = 0;
+
       if (!(iss >> w >> h)) {
         std::ostringstream oss;
         oss << "Invalid value for key: \"" << "[" << key << ":" << "]\"" << "\n"
@@ -80,112 +85,152 @@ namespace {  // ----------- helpers "privados"-----------
             << "Line: \"" << lineforprint << "\"";
         throw std::runtime_error(oss.str());
       }
-      cfg.aspect_ratio_width  = w;
-      cfg.aspect_ratio_height = h;
-      return true;
+      return {true, w, h};
     }
+    return {false, w, h};
+  }
+
+  std::pair<bool, int> handle_image_width(std::string_view key, std::string_view val,
+                                          std::string const & lineforprint) {
+    int w = 0;
     if (key == "image_width") {
       ensure_token_count_exact(val, 1, lineforprint, "image_width");
-      cfg.image_width = to_int(std::string(val), lineforprint, "image_width");
-      expect_positive(cfg.image_width, lineforprint, "image_width");
+      // Convert the value to int, validate and store into cfg
+      w = to_int(std::string(val), lineforprint, "image_width");
+      expect_positive(w, lineforprint, "image_width");
+      return {true, w};
+    }
+    return {false, w};
+  }
+
+  bool handle_camera_position(std::string_view key, std::string_view val,
+                              std::string const & lineforprint, render::Pov & pov) {
+    std::array<double, 3> v{};
+    render::Point position{};
+    if (key == "camera_position") {
+      ensure_token_count_exact(val, 3, lineforprint, "camera_position");
+      parse_three_doubles(std::string(val), v, lineforprint, "camera_position");
+      position = render::Point(v[0], v[1], v[2]);
+      pov.set_camera_position(position);
+      return true;
+    }
+
+    return false;
+  }
+
+  bool handle_camera_target(std::string_view key, std::string_view val,
+                            std::string const & lineforprint, render::Pov & pov) {
+    std::array<double, 3> v{};
+    render::Point target{};
+    if (key == "camera_target") {
+      ensure_token_count_exact(val, 3, lineforprint, "camera_target");
+      parse_three_doubles(std::string(val), v, lineforprint, "camera_target");
+      target = render::Point(v[0], v[1], v[2]);
+      pov.set_camera_target(target);
       return true;
     }
     return false;
   }
 
-  bool handle_camera(std::string_view key, std::string_view val, std::string const & lineforprint,
-                     Config & cfg) {
+  bool handle_north(std::string_view key, std::string_view val, std::string const & lineforprint,
+                    render::Pov & pov) {
     std::array<double, 3> v{};
-    if (key == "camera_position") {
-      ensure_token_count_exact(val, 3, lineforprint, "camera_position");
-      parse_three_doubles(std::string(val), v, lineforprint, "camera_position");
-      cfg.camera_position = v;
-      return true;
-    }
-    if (key == "camera_target") {
-      ensure_token_count_exact(val, 3, lineforprint, "camera_target");
-      parse_three_doubles(std::string(val), v, lineforprint, "camera_target");
-      cfg.camera_target = v;
-      return true;
-    }
+    render::Vector north{};
     if (key == "camera_north") {
       ensure_token_count_exact(val, 3, lineforprint, "camera_north");
       parse_three_doubles(std::string(val), v, lineforprint, "camera_north");
-      cfg.camera_north = v;
+      north = render::Vector(v[0], v[1], v[2]);
+      pov.set_camera_north(north);
       return true;
     }
+    return false;
+  }
+
+  bool handle_fov(std::string_view key, std::string_view val, std::string const & lineforprint,
+                  render::Pov & pov) {
+    double fov = 0.0;
     if (key == "field_of_view") {
       ensure_token_count_exact(val, 1, lineforprint, "field_of_view");
-      cfg.field_of_view = to_double_config(std::string(val), lineforprint, "field_of_view");
-      if (cfg.field_of_view <= 0.0 or cfg.field_of_view >= 180.0) {
+      fov = to_double_config(std::string(val), lineforprint, "field_of_view");
+      if (fov <= 0.0 or fov >= 180.0) {
         std::ostringstream oss;
         oss << "Invalid value for key: \"" << "[" << key << ":" << "]\"" << "\n"
             << "Line: \"" << lineforprint << "\"";
         throw std::runtime_error(oss.str());
       }
+      pov.set_field_of_view(fov);
       return true;
     }
     return false;
   }
 
   bool handle_render(std::string_view key, std::string_view val, std::string const & lineforprint,
-                     Config & cfg) {
+                     render::Scene & scene) {
     if (key == "samples_per_pixel") {
       ensure_token_count_exact(val, 1, lineforprint, "samples_per_pixel");
-      cfg.samples_per_pixel = to_int(std::string(val), lineforprint, "samples_per_pixel");
-      expect_positive(cfg.samples_per_pixel, lineforprint, "samples_per_pixel");
+      int samples_per_pixel = to_int(std::string(val), lineforprint, "samples_per_pixel");
+      expect_positive(samples_per_pixel, lineforprint, "samples_per_pixel");
+      scene.set_samples_per_pixel(samples_per_pixel);
       return true;
     }
+
     if (key == "max_depth") {
       ensure_token_count_exact(val, 1, lineforprint, "max_depth");
-      cfg.max_depth = to_int(std::string(val), lineforprint, "max_depth");
-      expect_positive(cfg.max_depth, lineforprint, "max_depth");
+      int max_depth = to_int(std::string(val), lineforprint, "max_depth");
+      expect_positive(max_depth, lineforprint, "max_depth");
+      scene.set_max_depth(max_depth);
       return true;
     }
+
     if (key == "gamma") {
       ensure_token_count_exact(val, 1, lineforprint, "gamma");
-      cfg.gamma = to_double_config(std::string(val), lineforprint, "gamma");
-      if (cfg.gamma <= 0.0) {
+      double gamma = to_double_config(std::string(val), lineforprint, "gamma");
+      if (gamma <= 0.0) {
         std::ostringstream oss;
         oss << "Invalid value for key: \"" << "[" << key << ":" << "]\"" << "\n"
             << "Line: \"" << lineforprint << "\"";
         throw std::runtime_error(oss.str());
       }
+      scene.set_gamma(gamma);
       return true;
     }
     return false;
   }
 
   bool handle_background(std::string_view key, std::string_view val,
-                         std::string const & lineforprint, Config & cfg) {
+                         std::string const & lineforprint, render::Scene & scene) {
     std::array<double, 3> colors{};
     if (key == "background_dark_color") {
+      render::Color color;
       ensure_token_count_exact(val, 3, lineforprint, "background_dark_color");
       parse_three_doubles(std::string(val), colors, lineforprint, "background_dark");
       validate_rgb_config(colors, lineforprint, key);
-      cfg.background_dark_color = colors;
+      color = render::Color(colors[0], colors[1], colors[2]);
+      scene.set_background_dark_color(color);
       return true;
     }
     if (key == "background_light_color") {
+      render::Color color;
       ensure_token_count_exact(val, 3, lineforprint, "background_light_color");
       parse_three_doubles(std::string(val), colors, lineforprint, "background_light_color");
       validate_rgb_config(colors, lineforprint, key);
-      cfg.background_light_color = colors;
+      color = render::Color(colors[0], colors[1], colors[2]);
+      scene.set_background_light_color(color);
       return true;
     }
     return false;
   }
 
   bool handle_seeds(std::string_view key, std::string_view val, std::string const & lineforprint,
-                    Config & cfg) {
+                    render::Scene & scene) {
     if (key == "material_rng_seed") {
       ensure_token_count_exact(val, 1, lineforprint, "material_rng_seed");
-      cfg.material_rng_seed = to_uint64(std::string(val), lineforprint, "material_rng_seed");
+      scene.set_material_rng_seed(to_uint64(std::string(val), lineforprint, "material_rng_seed"));
       return true;
     }
     if (key == "ray_rng_seed") {
       ensure_token_count_exact(val, 1, lineforprint, "ray_rng_seed");
-      cfg.ray_rng_seed = to_uint64(std::string(val), lineforprint, "ray_rng_seed");
+      scene.set_rays_rng_seed(to_uint64(std::string(val), lineforprint, "ray_rng_seed"));
       return true;
     }
     return false;
@@ -193,11 +238,21 @@ namespace {  // ----------- helpers "privados"-----------
 
 }  // namespace
 
-namespace parse2 {
+namespace parse {
 
-  void parse_config_stream(std::istream & in, Config & cfg) {
+  void parse_config_stream(std::istream & in, render::Scene & scene) {
     std::string line;
     std::string lineforprint;
+
+    render::Pov pov;
+
+    // valores parseados que pueden venir en líneas separadas
+    int parsed_image_width = 0;
+    int parsed_ar_w        = 0;
+    int parsed_ar_h        = 0;
+
+    std::regex const config_line_regex(R"(^\s*([A-Za-z_]+):\s*(.*?)\s*$)");
+    std::smatch match;
 
     while (std::getline(in, line)) {
       lineforprint = line;
@@ -206,34 +261,63 @@ namespace parse2 {
         continue;
       }
 
-      auto eq = line.find(':');
-      if (eq == std::string::npos) {
-        std::string key = trim(line);
-        std::ostringstream oss;
-        oss << "Unknown configuration key: \"" << "[" << key + ":" << "]\"" << "\n";
-        throw std::runtime_error(oss.str());
+      try {
+        std::string key;
+        std::string val;
+
+        if (std::regex_match(line, match, config_line_regex)) {
+          key = match[1].str();
+          val = match[2].str();
+        } else {
+          std::ostringstream oss;
+          oss << "Invalid configuration line format." << "\n"
+              << "Line: \"" << lineforprint << "\"";
+          throw std::runtime_error(oss.str());
+        }
+
+        bool handled = false;
+        // aspect_ratio -> std::tuple<bool,int,int>
+        {
+          auto [ok_ar, aw, ah] = handle_image_aspect_ratio(key, val, lineforprint);
+          if (ok_ar) {
+            handled     = true;
+            parsed_ar_w = aw;
+            parsed_ar_h = ah;
+          }
+        }
+        // image_width -> std::pair<bool,int>
+        {
+          auto [ok_w, w] = handle_image_width(key, val, lineforprint);
+          if (ok_w) {
+            handled            = true;
+            parsed_image_width = w;
+          }
+        }
+
+        handled = handle_camera_position(key, val, lineforprint, pov) or handled;
+        handled = handle_camera_target(key, val, lineforprint, pov) or handled;
+        handled = handle_fov(key, val, lineforprint, pov) or handled;
+        handled = handle_north(key, val, lineforprint, pov) or handled;
+
+        handled = handle_render(key, val, lineforprint, scene) or handled;
+        handled = handle_background(key, val, lineforprint, scene) or handled;
+        handled = handle_seeds(key, val, lineforprint, scene) or handled;
+
+        auto isz = render::Pov::compute_image_size(parsed_image_width, parsed_ar_w, parsed_ar_h);
+        // aquí puedes usar `isz` para construir el Pov o asignarlo según tu diseño
+        // ej: pov = render::Pov(position, target, north, cfg.field_of_view, isz);
+        pov.set_image_size(isz);
+
+        if (!handled) {
+          std::ostringstream oss;
+          oss << "Unknown configuration key: \"" << "[" << key << ":" << "]\"" << "\n";
+          throw std::runtime_error(oss.str());
+        }
+
+      } catch (std::runtime_error const & e) {
+        throw;  // Re-throw to be handled by caller (same behaviour as before)
       }
-      std::string key = trim(line.substr(0, eq));
-      std::string val = trim(line.substr(eq + 1));
-
-      bool handled = false;
-      handled      = handle_image(key, val, lineforprint, cfg) or handled;
-      handled      = handle_camera(key, val, lineforprint, cfg) or handled;
-      handled      = handle_render(key, val, lineforprint, cfg) or handled;
-      handled      = handle_background(key, val, lineforprint, cfg) or handled;
-      handled      = handle_seeds(key, val, lineforprint, cfg) or handled;
-
-      if (!handled) {
-        std::ostringstream oss;
-        oss << "Unknown configuration key: \"" << "[" << key + ":" << "]\"" << "\n";
-        throw std::runtime_error(oss.str());
-      }
-    }
-
-    if (!cfg.is_valid()) {
-      throw std::runtime_error("Config invalida tras parseo (revisa rangos y campos) ESTE PRINT ES "
-                               "MIO NO LO PIDE EL PROFESOR");
     }
   }
 
-}  // namespace parse2
+}  // namespace parse

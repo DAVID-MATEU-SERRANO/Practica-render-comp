@@ -1,3 +1,4 @@
+#include "scene.hpp"
 #include <istream>
 
 class Scene;  // Al parecer esto se llamna forward declaration y avisa al compilador que existe una
@@ -5,7 +6,7 @@ class Scene;  // Al parecer esto se llamna forward declaration y avisa al compil
 
 namespace parse {
 
-  void parse_scene_stream(std::istream & in, Scene & scene);
+  void parse_scene_stream(std::istream & in, render::Scene & scene);
 
 }  // namespace parse
 

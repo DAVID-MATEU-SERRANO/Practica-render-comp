@@ -35,6 +35,12 @@ namespace render {
     return proyection_window;
   }
 
+  ImageSize Pov::compute_image_size(int image_width, int aspect_ratio_w, int aspect_ratio_h) {
+    double ratio     = static_cast<double>(aspect_ratio_h) / static_cast<double>(aspect_ratio_w);
+    int image_height = static_cast<int>(std::lround(image_width * ratio));
+    return ImageSize{image_width, image_height};
+  }
+
   // Ventana de proyección
 
   Vector Pov::pw_focal_vector() const {

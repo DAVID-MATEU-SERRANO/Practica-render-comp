@@ -10,10 +10,6 @@
 
 namespace render {
 
-  Pov Scene::get_pov() const {
-    return pov;
-  }
-
   bool Scene::test_sphere_intersections(Ray & ray, double & closest_distance, Point & closest_point,
                                         Vector & closest_normal) {
     bool found_intersection = false;

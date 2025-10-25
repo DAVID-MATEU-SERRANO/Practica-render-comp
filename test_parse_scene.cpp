@@ -1,4 +1,4 @@
-#include "common/include/parse_scene.hpp"
+/*#include "common/include/parse_scene.hpp"
 #include "common/include/scene.hpp"
 #include <fstream>
 #include <iostream>
@@ -23,4 +23,4 @@ int main() {
     std::cerr << "Error: " << e.what() << "\n";
     return 2;
   }
-}
+}*/

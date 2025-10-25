@@ -1,9 +1,7 @@
 #include <array>
-#include <cctype>
-#include <cstdint>
 #include <sstream>
 #include <stdexcept>
-#include <string>
+#include <string_view>
 #include <vector>
 
 // ================================ Helpers ================================
@@ -102,8 +100,16 @@ namespace parse::util {
     }
   }
 
-  void validate_rgb_config(std::array<double, 3> const & color, std::string const & line_content,
-                           std::string const & entity_type);
+  inline void validate_rgb_config(std::array<double, 3> const & colors,
+                                  std::string const & lineforprint, std::string_view key) {
+    auto in01 = [](double v) { return v >= 0.0 and v <= 1.0; };
+    if (!in01(colors[0]) or !in01(colors[1]) or !in01(colors[2])) {
+      std::ostringstream oss;
+      oss << "Invalid value for key: \"" << "[" << key << ":" << "]\"" << "\n"
+          << "Line: \"" << lineforprint << "\"";
+      throw std::runtime_error(oss.str());
+    }
+  }
 
   // OJO ESTO ESTA INTERESANTE, CREAMOS UNA LAMBDA (FUNCION ANONIMA) PARA VERIFICAR SI UN VALOR ESTA
   // ENTRE 0 Y 1, basicamente es como una función pequeña que solo se usa aquí, y la usamos para r,

@@ -6,7 +6,6 @@
 #include "../include/parse_exception.hpp"
 #include "../include/point.hpp"
 #include "../include/refractive.hpp"
-#include "../include/scene.hpp"
 #include "../include/sphere.hpp"
 #include "../include/util.hpp"
 #include "../include/vector.hpp"

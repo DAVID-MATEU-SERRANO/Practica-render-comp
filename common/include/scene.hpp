@@ -1,3 +1,6 @@
+#ifndef RENDER_SCENE_HPP
+#define RENDER_SCENE_HPP
+
 // Estructura de datos para almacenar la informacion de una escena
 // Contiene los parametros que se obtienen de leer el archivo scene.txt
 
@@ -10,6 +13,7 @@
 #include "../include/ray.hpp"
 #include "../include/refractive.hpp"
 #include "../include/sphere.hpp"
+#include "../include/vector.hpp"
 #include <map>
 #include <sys/types.h>
 #include <utility>
@@ -30,7 +34,10 @@ namespace render {
     std::vector<render::Refractive> refractarios;  // Vector Refractive*/
 
     // Clase usada para el punto de vista
+
   public:
+    Scene() = default;
+
     Scene(std::vector<Sphere> spheres, std::vector<Cylinder> cylinders, Pov pov,
           int samples_per_pixel, int max_depth, uint64_t material_rng_seed, uint64_t rays_rng_seed,
           Color background_dark_color, Color background_light_color)
@@ -48,6 +55,8 @@ namespace render {
     void find_closest_intersection(Ray & ray);
 
     void add_sphere(Sphere const & sphere) { spheres.push_back(sphere); }
+
+    void add_pov(Pov const & p) { pov = p; }
 
     void add_cylinder(Cylinder const & cylinder) { cylinders.push_back(cylinder); }
 
@@ -84,9 +93,46 @@ namespace render {
       refractives.push_back(refractive);
     }
 
+    // Setters para configuración de la escena
+
+    void set_samples_per_pixel(int s) { samples_per_pixel = s; }
+
+    void set_max_depth(int d) { max_depth = d; }
+
+    void set_material_rng_seed(uint64_t s) { material_rng_seed = s; }
+
+    void set_rays_rng_seed(uint64_t s) { rays_rng_seed = s; }
+
+    void set_background_dark_color(Color const & c) { background_dark_color = c; }
+
+    void set_background_light_color(Color const & c) { background_light_color = c; }
+
+    void set_gamma(double g) { gamma = g; }
+
     [[nodiscard]] Pixel get_pixel_color(int f, int c);
-    [[nodiscard]] Pov get_pov() const;
-    [[nodiscard]] std::map<std::string, std::size_t> & get_material_index();
+
+    [[nodiscard]] Pov get_pov() const { return pov; }
+
+    [[nodiscard]] std::map<std::string, std::size_t> & get_material_index() {
+      return material_index;
+    }
+
+    // Getters
+    [[nodiscard]] int get_samples_per_pixel() const { return samples_per_pixel; }
+
+    [[nodiscard]] int get_max_depth() const { return max_depth; }
+
+    [[nodiscard]] std::uint64_t get_material_rng_seed() const { return material_rng_seed; }
+
+    [[nodiscard]] std::uint64_t get_rays_rng_seed() const { return rays_rng_seed; }
+
+    [[nodiscard]] Color const & get_background_dark_color() const { return background_dark_color; }
+
+    [[nodiscard]] Color const & get_background_light_color() const {
+      return background_light_color;
+    }
+
+    [[nodiscard]] double get_gamma() const { return gamma; }
 
     [[nodiscard]] std::vector<render::Matte> const & get_mattes() const { return mattes; }
 
@@ -97,22 +143,32 @@ namespace render {
     }
 
   private:
-    std::vector<Sphere> spheres;          // Vector de esferas
-    std::vector<Cylinder> cylinders;      // Vector de cilindros
-    render::Pov pov;                      // Cámara
+    std::vector<Sphere> spheres;      // Vector de esferas
+    std::vector<Cylinder> cylinders;  // Vector de cilindros
+    render::Pov pov{
+      /*pos*/ {0, 0, -10},
+      /*tgt*/
+      {0, 0,   0},
+      /*up */
+      {0, 1,   0},
+      /*fov*/
+      90.0,
+      /*img*/ Pov::compute_image_size(1'920, 16, 9)
+    };  // Cámara
     std::vector<Metal> metals;            // Vector de metales
     std::vector<Matte> mattes;            // Vector de mates
     std::vector<Refractive> refractives;  // Vector de refractivos
     std::map<std::string, std::size_t>
         material_index;  // Mapa para indexar materiales con nombre y flag
 
-    int samples_per_pixel;         // Muestras por pixel
-    int max_depth;                 // Profundidad maxima de rayos
-    uint64_t material_rng_seed;    // Semilla para el generador de numeros aleatorios de materiales
-    uint64_t rays_rng_seed;        // Semilla para el generador de numeros aleatorios de rayos
-    Color background_dark_color;   // Color oscuro del fondo
-    Color background_light_color;  // Color claro del fondo
-    double gamma = 2.2;            // Valor de gamma
+    int samples_per_pixel = 50;  // Muestras por pixel
+    int max_depth         = 10;  // Profundidad maxima de rayos
+    uint64_t material_rng_seed =
+        13;  // Semilla para el generador de numeros aleatorios de materiales
+    uint64_t rays_rng_seed       = 19;  // Semilla para el generador de numeros aleatorios de rayos
+    Color background_dark_color  = {0.25, 0.5, 1.0};  // Color oscuro del fondo
+    Color background_light_color = {1.0, 1.0, 1.0};   // Color claro del fondo
+    double gamma                 = 2.2;               // Valor de gamma
 
     /*
     // Mapa para buscar materiales por su nombre
@@ -165,7 +221,10 @@ namespace render {
       spheres.clear();
       cylinders.clear();
       material_index.clear();
-    }*/
+    }
+    */
   };
 
 }  // namespace render
+
+#endif  // RENDER_SCENE_HPP

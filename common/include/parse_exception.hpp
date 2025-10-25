@@ -1,6 +1,7 @@
 #ifndef PARSE_EXCEPTION_HPP
 #define PARSE_EXCEPTION_HPP
 
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -24,8 +25,9 @@ namespace parse {
   // inline para mejorar rendimiento evitando proceso de llamada y retorno
   [[noreturn]] inline void throw_invalid_parameters(std::string const & entity_type,
                                                     std::string const & line_content) {
+    std::cout << "Hola wuw" << "\n";
     std::ostringstream oss;
-    oss << "Error: Invalid " << entity_type << "parameters";
+    oss << "Error: Invalid " << entity_type << " parameters";
     throw ParseException(oss.str(), line_content);
   }
 

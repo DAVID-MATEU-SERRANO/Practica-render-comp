@@ -54,6 +54,8 @@ namespace render {
                                      Vector & closest_normal);
     void find_closest_intersection(Ray & ray);
 
+    std::vector<Sphere> get_vector_esferas() { return spheres; }
+
     void add_sphere(Sphere const & sphere) { spheres.push_back(sphere); }
 
     void add_pov(Pov const & p) { pov = p; }

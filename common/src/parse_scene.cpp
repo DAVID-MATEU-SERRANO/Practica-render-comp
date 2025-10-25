@@ -103,7 +103,7 @@ namespace render {
 
     void parse_sphere_line(std::vector<std::string> const & tokens, Scene & scene,
                            std::string const & line_content) {
-      parse::util::expect_token_count(tokens, 3, line_content, "sphere");
+      parse::util::expect_token_count(tokens, 5, line_content, "sphere");
       double const cx                   = parse::util::to_double(tokens[0]);
       double const cy                   = parse::util::to_double(tokens[1]);
       double const cz                   = parse::util::to_double(tokens[2]);
@@ -229,46 +229,33 @@ namespace parse {
 
   void parse_scene_stream(std::istream & in, render::Scene & scene) {
     std::string line;
-    std::size_t lineno = 0;
     // Expresión regular que lleva el tag y sus argumentos
     // \s*: ignora espacios y tabuladores
     // ([a-z]+): captura el tag (solo letras minúsculas)
     // \s*([^:]+?): captura los argumentos (cualquier cosa que no sea ':')
     // \s*(.*): captura cualquier cosa después de los argumentos (espacios o comentarios
-    std::regex const scene_line_regex(R"(\s*([a-z]+):\s*([^:]+?)\s*(.*))");
+    std::regex const scene_line_regex(R"(\s*([a-z]+):\s*(.*))");
     std::smatch match;
 
     while (std::getline(in, line)) {
-      lineno += lineno;
       std::string const & line_content = line;
 
       // En caso de que ponga comentarios en los archivos ponemos esto
-      /*
-        if (auto p = line.find('#'); p != std::string::npos) {
-          line.erase(p);
-        }
-        line = trim(line);
-        if (line.empty()) {
-          continue;
-        }
-      */
+      if (auto p = line.find('#'); p != std::string::npos) {
+        line.erase(p);
+      }
+      line = util::trim(line);
+      if (line.empty()) {
+        continue;
+      }
 
       // Comprobación
       try {
         if (std::regex_match(line, match, scene_line_regex)) {
-          std::string const tag  = match[1].str();
-          std::string const args = match[2].str();
-          std::string const extra =
-              match[3].str();  // Usado para comprobar que no se pasa de argumentos
+          std::string const tag      = match[1].str();
+          std::string const args_raw = match[2].str();
 
-          if (!extra.empty() and !util::trim(extra).empty()) {
-            std::ostringstream oss;
-            oss << "Error: Extra data after configuration value for key: " << "[" << tag << "]"
-                << "\n"
-                << "Extra: \"" << extra << "\"\n"
-                << "Line: \"" << line_content << "\"";
-            throw std::runtime_error(oss.str());
-          }
+          std::string const args = util::trim(args_raw);
 
           // Guardamos argumentos en un vector de strings
           auto tokens = util::split_ws(args);

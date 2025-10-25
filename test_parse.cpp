@@ -1,5 +1,5 @@
-#include "render.hpp"
-#include "scene.hpp"
+#include "common/include/render.hpp"
+#include "common/include/scene.hpp"
 #include <fstream>
 #include <iostream>
 
@@ -20,6 +20,7 @@ int main() {
 
   std::cout << "gamma: " << scene.get_gamma() << "\n";
   std::cout << "height: " << scene.get_pov().get_image_height() << "\n";
+  std::cout << "vector esferas (count): " << scene.get_vector_esferas().size() << "\n";
 
   return 0;
 }

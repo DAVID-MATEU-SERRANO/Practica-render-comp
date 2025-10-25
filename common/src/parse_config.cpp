@@ -1,10 +1,10 @@
-#include "parse_config.hpp"
-#include "color.hpp"
-#include "config.hpp"
-#include "point.hpp"
-#include "pov.hpp"
-#include "util.hpp"
-#include "vector.hpp"
+#include "../include/parse_config.hpp"
+#include "../include/color.hpp"
+#include "../include/config.hpp"
+#include "../include/point.hpp"
+#include "../include/pov.hpp"
+#include "../include/util.hpp"
+#include "../include/vector.hpp"
 
 #include <array>
 #include <regex>

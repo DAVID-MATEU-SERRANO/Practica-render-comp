@@ -1,6 +1,7 @@
 #include "../include/cylinder.hpp"
 #include "../include/point.hpp"
 #include "../include/vector.hpp"
+#include <iostream>
 #include <stdexcept>
 
 namespace render {

@@ -80,7 +80,6 @@ namespace render {
     found_intersection =
         test_cylinder_intersections(ray, closest_distance, closest_point, closest_normal) or
         found_intersection;
-
     if (found_intersection) {
       // Closest intersection data
       ray.set_intersection_distance(closest_distance);
@@ -111,12 +110,15 @@ namespace render {
                           .get_origin()
                           .add(dx.dot(static_cast<double>(c + rx)))
                           .add(dy.dot(static_cast<double>(f + ry)));
-
       Ray ray(pov.get_camera_position(), q.substract(pov.get_camera_position()),
               Color(1.0, 1.0, 1.0));
       for (int depth = 0; depth < max_depth; ++depth) {
         find_closest_intersection(ray);
         ray.color_contribution(background_dark_color, background_light_color, material_rng_seed);
+
+        if (ray.get_intersection_distance() == -1.0) {
+          break;
+        }
         if (depth != max_depth - 1) {
           ray = Ray(ray.get_point_intersection(), ray.get_reflected_direction(),
                     ray.get_intersection_color());
@@ -124,6 +126,8 @@ namespace render {
       }
       pixel_color       = ray.get_intersection_color().apply_gamma_correction(gamma);
       accumulated_color = accumulated_color.add(pixel_color);
+      std::cout << ray_counter << " RAY COUNTER  \n";
+      std::cout.flush();
     }
     accumulated_color = accumulated_color.multiply(1.0 / static_cast<double>(samples_per_pixel));
     return {static_cast<std::uint8_t>(255.0 * accumulated_color.get_r()),

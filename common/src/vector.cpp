@@ -1,6 +1,9 @@
 #include "../include/vector.hpp"
+#include <array>
 #include <cmath>
+#include <iostream>
 #include <stdexcept>
+#include <vector>
 
 namespace render {
 

@@ -11,6 +11,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
+#include <iostream>
 #include <random>
 #include <variant>
 
@@ -78,12 +79,14 @@ namespace render {
     double const c = std::pow(sphere.get_center().substract(origin).magnitude(), 2) -
                      std::pow(sphere.get_radius(), 2);
 
-    double const discriminant = std::sqrt(b * b - 4 * a * c);
+    double const discriminant = b * b - 4 * a * c;
+
     if (discriminant < 0) {
       return false;
     }
-    double const t1 = (-b - discriminant) / (2 * a);
-    double const t2 = (-b + discriminant) / (2 * a);
+    double final_discriminant = std::sqrt(discriminant);
+    double const t1           = (-b - final_discriminant) / (2 * a);
+    double const t2           = (-b + final_discriminant) / (2 * a);
 
     if (t1 < 0 and t2 < 0) {
       return false;
@@ -95,8 +98,6 @@ namespace render {
     } else {
       intersection_distance = t2;
     }
-
-    point_intersection = origin.add(direction.dot(intersection_distance));
 
     normal_vector = point_intersection.substract(sphere.get_center()).dot(1 / sphere.get_radius());
     // Ensure the normal vector points against the ray direction
@@ -115,12 +116,14 @@ namespace render {
     double const c = std::pow(rc.perpendicular_component(cylinder.get_edge()).magnitude(), 2) -
                      std::pow(cylinder.get_radius(), 2);
 
-    double const discriminant = std::sqrt(b * b - 4 * a * c);
+    double const discriminant = b * b - 4 * a * c;
+
     if (discriminant < 0) {
       return false;
     }
-    double const t1 = (-b - discriminant) / (2 * a);
-    double const t2 = (-b + discriminant) / (2 * a);
+    double final_discriminant = std::sqrt(discriminant);
+    double const t1           = (-b - final_discriminant) / (2 * a);
+    double const t2           = (-b + final_discriminant) / (2 * a);
     if (t1 < 0 and t2 < 0) {
       return false;
     }
@@ -195,6 +198,7 @@ namespace render {
     return true;
   }
 
+  /// COLOR
   void Ray::color_contribution(Color const & dark_color, Color const & light_color,
                                std::uint64_t seed) {
     // To be implemented: Calculate color contribution based on intersection and material
@@ -227,9 +231,9 @@ namespace render {
     std::uniform_real_distribution<double> dist(-1.0, 1.0);
     double const random_value      = dist(rng);
     Vector const reflection_vector = normal_vector.add_number(random_value);
-    if (reflection_vector.get_x() < 1e-8 and
-        reflection_vector.get_y() < 1e-8 and
-        reflection_vector.get_z() < 1e-8)
+    if (std::abs(reflection_vector.get_x()) < 1e-8 and
+        std::abs(reflection_vector.get_y()) < 1e-8 and
+        std::abs(reflection_vector.get_z()) < 1e-8)
     {
       reflected_direction = normal_vector;
     } else {
@@ -242,13 +246,13 @@ namespace render {
     // To be implemented: Metal color contribution
     Vector const initial_reflection =
         direction.substract(normal_vector.dot(2.0 * normal_vector.dot(direction)));
-
     std::mt19937_64 rng(seed);
     std::uniform_real_distribution<double> dist(-1.0 * metal.get_difusion_factor(),
                                                 metal.get_difusion_factor());
     Vector const diffusion_vector = Vector(dist(rng), dist(rng), dist(rng));
     reflected_direction           = initial_reflection.normalized().add(diffusion_vector);
-    intersection_color            = intersection_color.multiply(metal.get_reflectance());
+
+    intersection_color = intersection_color.multiply(metal.get_reflectance());
   }
 
   void Ray::refractive_color_contribution(Refractive const & refractive) {

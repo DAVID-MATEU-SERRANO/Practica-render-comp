@@ -30,7 +30,7 @@ int main(int argc, char * argv[]) {
   std::vector<uint8_t> G(total_pixels);
   std::vector<uint8_t> B(total_pixels);
   // Creación del archivo PPM
-  std::ofstream ppm_file(arguments[2]);
+  std::ofstream ppm_file(arguments[3]);
   ppm_file << "P3\n" << image_width << " " << image_height << "\n255\n";
   for (int f = 0; f < image_height; ++f) {
     for (int c = 0; c < image_width; ++c) {

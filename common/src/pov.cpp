@@ -2,7 +2,9 @@
 #include "../include/point.hpp"
 #include "../include/vector.hpp"
 #include <cmath>
+#include <iostream>
 #include <numbers>
+#define _USE_MATH_DEFINES
 
 namespace render {
 
@@ -52,7 +54,7 @@ namespace render {
   }
 
   double Pov::pw_height() const {
-    return 2.0 * pw_focal_distance() * std::tan((field_of_view * std::numbers::pi / 180.0) / 2.0);
+    return 2.0 * pw_focal_distance() * std::tan((field_of_view * M_PI / 180.0) / 2.0);
   }
 
   double Pov::pw_width() const {

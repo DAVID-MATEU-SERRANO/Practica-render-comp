@@ -18,9 +18,6 @@ int main() {
   render::Scene scene;
   render::load_scene_from_files(scene, in, file);
 
-  std::cout << "gamma: " << scene.get_gamma() << "\n";
-  std::cout << "height: " << scene.get_pov().get_image_height() << "\n";
-  std::cout << "vector esferas (count): " << scene.get_vector_esferas().size() << "\n";
-
+  std::cout << scene.get_pov().get_image_width() << "\n";
   return 0;
 }

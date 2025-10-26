@@ -6,7 +6,7 @@
 #include "../include/point.hpp"
 #include "../include/sphere.hpp"
 #include "../include/vector.hpp"
-#include <cstdint>
+#include <random>
 
 namespace render {
 
@@ -43,10 +43,10 @@ namespace render {
     bool cylinder_lower_base_intersection(Cylinder const & cylinder);
 
     void color_contribution(Color const & dark_color, Color const & light_color,
-                            std::uint64_t seed);
-    void matte_color_contribution(Matte const & matte, std::uint64_t seed);
+                            std::mt19937_64 & rng);
+    void matte_color_contribution(Matte const & matte, std::mt19937_64 & rng);
     void background_color_contribution(Color const & dark_color, Color const & light_color);
-    void metal_color_contribution(Metal const & metal, std::uint64_t seed);
+    void metal_color_contribution(Metal const & metal, std::mt19937_64 & rng);
     void refractive_color_contribution(Refractive const & refractive);
 
   private:

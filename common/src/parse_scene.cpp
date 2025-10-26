@@ -40,16 +40,16 @@ namespace render {
           throw std::runtime_error("Error obtaining material. Case Mate");
         }
         return scene.get_mattes().at(material_index);
-      } else if constexpr (std::is_same_v<T, render::Refractive>) {
-        if (material_type != 1) {
-          throw std::runtime_error("Error obtaining material. Case refractive");
-        }
-        return scene.get_refractives().at(material_index);
       } else if constexpr (std::is_same_v<T, render::Metal>) {
-        if (material_type != 2) {
+        if (material_type != 1) {
           throw std::runtime_error("Error obtaining material. Case Metal");
         }
         return scene.get_metals().at(material_index);
+      } else if constexpr (std::is_same_v<T, render::Refractive>) {
+        if (material_type != 2) {
+          throw std::runtime_error("Error obtaining material. Case refractive");
+        }
+        return scene.get_refractives().at(material_index);
       } else {
         throw std::runtime_error("Obtained not recognized material");
       }

@@ -27,6 +27,35 @@ int main(int argc, char * argv[]) {
   }
   Scene scene;
   load_scene_from_files(scene, in, file);
+
+  // Configuración
+  std::cout << "CONFIGURACION:\n";
+  std::cout << "samples_per_pixel: " << scene.get_samples_per_pixel() << "\n";
+  std::cout << "max_depth: " << scene.get_max_depth() << "\n";
+  std::cout << "material_rng_seed: " << scene.get_material_rng_seed() << "\n";
+  std::cout << "rays_rng_seed: " << scene.get_rays_rng_seed() << "\n";
+  std::cout << "gamma: " << scene.get_gamma() << "\n";
+  std::cout << "background_dark_color: (" << scene.get_background_dark_color().get_r() << ", "
+            << scene.get_background_dark_color().get_g() << ", "
+            << scene.get_background_dark_color().get_b() << ")\n";
+  std::cout << "background_light_color: (" << scene.get_background_light_color().get_r() << ", "
+            << scene.get_background_light_color().get_g() << ", "
+            << scene.get_background_light_color().get_b() << ")\n";
+
+  // POV
+  Pov const & pov = scene.get_pov();
+  std::cout << "POV:\n";
+  std::cout << "  camera_position: (" << pov.get_camera_position().get_x() << ", "
+            << pov.get_camera_position().get_y() << ", " << pov.get_camera_position().get_z()
+            << ")\n";
+  std::cout << "  camera_target: (" << pov.get_camera_target().get_x() << ", "
+            << pov.get_camera_target().get_y() << ", " << pov.get_camera_target().get_z() << ")\n";
+  std::cout << "  camera_north: (" << pov.get_camera_north().get_x() << ", "
+            << pov.get_camera_north().get_y() << ", " << pov.get_camera_north().get_z() << ")\n";
+  std::cout << "  field_of_view: " << pov.get_field_of_view() << "\n";
+  std::cout << "  image_width: " << pov.get_image_width() << "\n";
+  std::cout << "  image_height: " << pov.get_image_height() << "\n";
+
   int image_height = scene.get_pov().get_image_height();
   int image_width  = scene.get_pov().get_image_width();
   std::size_t total_pixels =
@@ -48,5 +77,6 @@ int main(int argc, char * argv[]) {
     }
   }
   ppm_file.close();
+
   return 0;
 }

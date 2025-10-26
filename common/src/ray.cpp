@@ -9,9 +9,7 @@
 #include "../include/vector.hpp"
 #include <algorithm>
 #include <cmath>
-#include <cstdint>
 #include <cstdlib>
-#include <iostream>
 #include <random>
 #include <variant>
 
@@ -74,11 +72,10 @@ namespace render {
   }
 
   bool Ray::sphere_intersection(Sphere const & sphere) {
-    double const a = direction.dot(direction);
-    double const b = 2.0 * direction.dot(sphere.get_center().substract(origin));
-    double const c =
-        sphere.get_center().substract(origin).dot(sphere.get_center().substract(origin)) -
-        std::pow(sphere.get_radius(), 2);
+    Vector const rc = sphere.get_center().substract(origin);
+    double const a  = direction.dot(direction);
+    double const b  = -2.0 * direction.dot(rc);
+    double const c  = rc.dot(rc) - std::pow(sphere.get_radius(), 2);
 
     double const discriminant = b * b - 4 * a * c;
 
@@ -110,12 +107,12 @@ namespace render {
   }
 
   bool Ray::cylinder_side_intersection(Cylinder const & cylinder) {
-    Vector const rc = origin.substract(cylinder.get_center());
-    double const a =
-        std::pow(direction.perpendicular_component(cylinder.get_edge()).magnitude(), 2);
-    double const b = 2.0 * (rc.perpendicular_component(cylinder.get_edge())
-                                .dot(direction.perpendicular_component(cylinder.get_edge())));
-    double const c = std::pow(rc.perpendicular_component(cylinder.get_edge()).magnitude(), 2) -
+    Vector const a_hat = cylinder.get_edge().normalized();
+    Vector const rc    = origin.substract(cylinder.get_center());
+    double const a     = std::pow(direction.perpendicular_component(a_hat).magnitude(), 2);
+    double const b =
+        2.0 * (rc.perpendicular_component(a_hat).dot(direction.perpendicular_component(a_hat)));
+    double const c = std::pow(rc.perpendicular_component(a_hat).magnitude(), 2) -
                      std::pow(cylinder.get_radius(), 2);
 
     double const discriminant = b * b - 4 * a * c;
@@ -138,14 +135,14 @@ namespace render {
     }
 
     point_intersection = origin.add(direction.dot(intersection_distance));
-    if (std::abs(point_intersection.substract(cylinder.get_center()).dot(cylinder.get_edge())) >
+    if (std::abs(point_intersection.substract(cylinder.get_center()).dot(a_hat)) >
         (cylinder.get_height() / 2))
     {
       return false;
     }
 
-    normal_vector = point_intersection.substract(cylinder.get_center())
-                        .perpendicular_component(cylinder.get_edge());
+    normal_vector =
+        point_intersection.substract(cylinder.get_center()).perpendicular_component(a_hat);
     // Ensure the normal vector points against the ray direction
     if (normal_vector.dot(direction) > 0) {
       normal_vector = normal_vector.dot(-1);
@@ -154,15 +151,19 @@ namespace render {
   }
 
   bool Ray::cylinder_upper_base_intersection(Cylinder const & cylinder) {
-    Point const p   = cylinder.get_center().add(cylinder.get_edge().dot(cylinder.get_height() / 2));
-    normal_vector   = cylinder.get_edge();
-    Vector const rp = origin.substract(p);
+    Vector const a_hat = cylinder.get_edge().normalized();
+    Point const p      = cylinder.get_center().add(a_hat.dot(cylinder.get_height() / 2));
+    normal_vector      = a_hat;
+    Vector const rp    = p.substract(origin);
 
     if (std::abs(direction.dot(normal_vector)) < 1e-8) {
       return false;
     }
 
     intersection_distance = rp.dot(normal_vector) / direction.dot(normal_vector);
+    if (intersection_distance < 1e-3) {
+      return false;
+    }
 
     point_intersection = origin.add(direction.dot(intersection_distance));
     if (point_intersection.substract(p).magnitude() > cylinder.get_radius()) {
@@ -177,16 +178,19 @@ namespace render {
   }
 
   bool Ray::cylinder_lower_base_intersection(Cylinder const & cylinder) {
-    Point const p =
-        cylinder.get_center().substract(cylinder.get_edge().dot(cylinder.get_height() / 2));
-    normal_vector   = cylinder.get_edge().dot(-1);
-    Vector const rp = origin.substract(p);
+    Vector const a_hat = cylinder.get_edge().normalized();
+    Point const p      = cylinder.get_center().substract(a_hat.dot(cylinder.get_height() / 2));
+    normal_vector      = a_hat.dot(-1);
+    Vector const rp    = p.substract(origin);
 
     if (std::abs(direction.dot(normal_vector)) < 1e-8) {
       return false;
     }
 
     intersection_distance = rp.dot(normal_vector) / direction.dot(normal_vector);
+    if (intersection_distance < 1e-3) {
+      return false;
+    }
 
     point_intersection = origin.add(direction.dot(intersection_distance));
     if (point_intersection.substract(p).magnitude() > cylinder.get_radius()) {
@@ -202,7 +206,7 @@ namespace render {
 
   /// COLOR
   void Ray::color_contribution(Color const & dark_color, Color const & light_color,
-                               std::uint64_t seed) {
+                               std::mt19937_64 & rng) {
     // To be implemented: Calculate color contribution based on intersection and material
     if (intersection_distance == -1.0) {
       // No intersection, return background color
@@ -210,11 +214,11 @@ namespace render {
       return;
     }
     if (std::holds_alternative<Matte>(intersection_material)) {
-      matte_color_contribution(std::get<Matte>(intersection_material), seed);
+      matte_color_contribution(std::get<Matte>(intersection_material), rng);
     }
 
     if (std::holds_alternative<Metal>(intersection_material)) {
-      metal_color_contribution(std::get<Metal>(intersection_material), seed);
+      metal_color_contribution(std::get<Metal>(intersection_material), rng);
     }
 
     if (std::holds_alternative<Refractive>(intersection_material)) {
@@ -228,31 +232,30 @@ namespace render {
         light_color.multiply(1.0 - mix_factor).add(dark_color.multiply(mix_factor));
   }
 
-  void Ray::matte_color_contribution(Matte const & matte, std::uint64_t seed) {
-    std::mt19937_64 rng(seed);
+  void Ray::matte_color_contribution(Matte const & matte, std::mt19937_64 & rng) {
     std::uniform_real_distribution<double> dist(-1.0, 1.0);
-    double const random_value      = dist(rng);
-    Vector const reflection_vector = normal_vector.add_number(random_value);
+    Vector const random_vector     = Vector(dist(rng), dist(rng), dist(rng));
+    Vector const reflection_vector = normal_vector.add(random_vector);
+
     if (std::abs(reflection_vector.get_x()) < 1e-8 and
         std::abs(reflection_vector.get_y()) < 1e-8 and
         std::abs(reflection_vector.get_z()) < 1e-8)
     {
       reflected_direction = normal_vector;
     } else {
-      reflected_direction = reflection_vector;
+      reflected_direction = reflection_vector.normalized();
     }
     intersection_color = intersection_color.multiply(matte.get_reflectance());
   }
 
-  void Ray::metal_color_contribution(Metal const & metal, std::uint64_t seed) {
-    // To be implemented: Metal color contribution
+  void Ray::metal_color_contribution(Metal const & metal, std::mt19937_64 & rng) {
     Vector const initial_reflection =
-        direction.substract(normal_vector.dot(2.0 * normal_vector.dot(direction)));
-    std::mt19937_64 rng(seed);
+        direction.substract(normal_vector.dot(2.0 * direction.dot(normal_vector)));
     std::uniform_real_distribution<double> dist(-1.0 * metal.get_difusion_factor(),
                                                 metal.get_difusion_factor());
     Vector const diffusion_vector = Vector(dist(rng), dist(rng), dist(rng));
     reflected_direction           = initial_reflection.normalized().add(diffusion_vector);
+    reflected_direction           = reflected_direction.normalized();
 
     intersection_color = intersection_color.multiply(metal.get_reflectance());
   }

@@ -54,8 +54,6 @@ namespace render {
                                      Vector & closest_normal, t_material & closest_material);
     void find_closest_intersection(Ray & ray);
 
-    std::vector<Sphere> get_vector_esferas() { return spheres; }
-
     void add_sphere(Sphere const & sphere) { spheres.push_back(sphere); }
 
     void add_pov(Pov const & p) { pov = p; }
@@ -78,9 +76,9 @@ namespace render {
         parse::throw_material_exists(metal.get_name(), line_content);
       }
 
-      // Añadimos matte en vectir mattes
+      // Añadimos metal en vector metals
       std::size_t const new_index      = metals.size();
-      material_index[metal.get_name()] = new_index * 10 + 0;
+      material_index[metal.get_name()] = new_index * 10 + 1;
       metals.push_back(metal);
     }
 
@@ -89,9 +87,9 @@ namespace render {
         parse::throw_material_exists(refractive.get_name(), line_content);
       }
 
-      // Añadimos matte en vectir mattes
+      // Añadimos refractive en vector refractives
       std::size_t const new_index           = refractives.size();
-      material_index[refractive.get_name()] = new_index * 10 + 0;
+      material_index[refractive.get_name()] = new_index * 10 + 2;
       refractives.push_back(refractive);
     }
 

@@ -31,25 +31,25 @@ namespace render {
     // Función para obtener material del index
     template <typename T> T get_material_from_code(render::Scene & scene, size_t code) {
       // Obtenemos índice y tipo
-      std::size_t const material_index = code / 10;
-      int const material_type          = static_cast<int>(code % 10);
+      std::size_t const material_array_index = code / 10;
+      int const material_type                = static_cast<int>(code % 10);
 
       // constexpr permite ejecutar cosas en tiempo de compilación y eliminar ramas innecesarias
       if constexpr (std::is_same_v<T, render::Matte>) {
         if (material_type != 0) {
           throw std::runtime_error("Error obtaining material. Case Mate");
         }
-        return scene.get_mattes().at(material_index);
+        return scene.get_mattes().at(material_array_index);
       } else if constexpr (std::is_same_v<T, render::Metal>) {
         if (material_type != 1) {
           throw std::runtime_error("Error obtaining material. Case Metal");
         }
-        return scene.get_metals().at(material_index);
+        return scene.get_metals().at(material_array_index);
       } else if constexpr (std::is_same_v<T, render::Refractive>) {
         if (material_type != 2) {
           throw std::runtime_error("Error obtaining material. Case refractive");
         }
-        return scene.get_refractives().at(material_index);
+        return scene.get_refractives().at(material_array_index);
       } else {
         throw std::runtime_error("Obtained not recognized material");
       }
@@ -114,14 +114,14 @@ namespace render {
         parse::throw_invalid_parameters("sphere", line_content);
       }
 
-      auto & material_index = scene.get_material_index();
-      auto it               = material_index.contains(material_name);
+      auto & material_array_index = scene.get_material_index();
+      auto it                     = material_array_index.contains(material_name);
       if (!it) {
         parse::throw_material_not_found(material_name, line_content);
       }
 
       // Obtener material
-      std::size_t const code  = material_index.at(material_name);
+      std::size_t const code  = material_array_index.at(material_name);
       int const material_type = static_cast<int>(code % 10);  // Está sobre 10 el índice
 
       render::Point const center(cx, cy, cz);
@@ -177,14 +177,14 @@ namespace render {
 
       CylinderParams const params = parse_cylinder_geometry(tokens, line_content);
 
-      auto & material_index = scene.get_material_index();
-      auto it               = material_index.contains(params.material_name);
+      auto & material_array_index = scene.get_material_index();
+      auto it                     = material_array_index.contains(params.material_name);
 
       if (!it) {
         parse::throw_material_not_found(params.material_name, line_content);
       }
 
-      std::size_t const code  = material_index.at(params.material_name);
+      std::size_t const code  = material_array_index.at(params.material_name);
       int const material_type = static_cast<int>(code % 10);
 
       if (material_type == 0) {

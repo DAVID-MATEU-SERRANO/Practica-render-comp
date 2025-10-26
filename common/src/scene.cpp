@@ -101,6 +101,7 @@ namespace render {
 
   Pixel Scene::get_pixel_color(int f, int c) {
     std::mt19937_64 rng(rays_rng_seed);
+    std::mt19937_64 m_rng(material_rng_seed);
     std::uniform_real_distribution<double> dist(-0.5, 0.5);
     Color pixel_color;
     Color accumulated_color(0.0, 0.0, 0.0);
@@ -122,11 +123,12 @@ namespace render {
               Color(1.0, 1.0, 1.0));
       for (int depth = 0; depth < max_depth; ++depth) {
         find_closest_intersection(ray);
-        ray.color_contribution(background_dark_color, background_light_color, material_rng_seed);
+        ray.color_contribution(background_dark_color, background_light_color, m_rng);
 
         if (ray.get_intersection_distance() == -1.0) {
           break;
         }
+
         if (depth != max_depth - 1) {
           ray = Ray(ray.get_point_intersection(), ray.get_reflected_direction(),
                     ray.get_intersection_color());

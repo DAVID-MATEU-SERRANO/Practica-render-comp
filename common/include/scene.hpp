@@ -103,7 +103,8 @@ namespace render {
     void set_pov(Pov & p) { pov = p; }
 
     // Getters
-    [[nodiscard]] Pixel get_pixel_color(int f, int c);
+    [[nodiscard]] Pixel get_pixel_color(int f, int c, std::mt19937_64 & rng,
+                                        std::mt19937_64 & m_rng);
 
     [[nodiscard]] Pov & get_pov() { return pov; }
 

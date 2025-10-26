@@ -32,10 +32,14 @@ int main(int argc, char * argv[]) {
   // Creación del archivo PPM
   std::ofstream ppm_file(arguments[3]);
   ppm_file << "P3\n" << image_width << " " << image_height << "\n255\n";
+
+  std::mt19937_64 rng(scene.get_rays_rng_seed());
+  std::mt19937_64 m_rng(scene.get_material_rng_seed());
+
   for (int f = 0; f < image_height; ++f) {
     for (int c = 0; c < image_width; ++c) {
-      Pixel pixel       = scene.get_pixel_color(f, c);
-      std::size_t index = static_cast<std::size_t>(f) * static_cast<std::size_t>(image_width) +
+      Pixel pixel       = scene.get_pixel_color(f, c, rng, m_rng);
+      std::size_t index = static_cast<std::size_t>(f) * static_cast<std::size_t>(image_height) +
                           static_cast<std::size_t>(c);
       R[index] = pixel.r;
       G[index] = pixel.g;

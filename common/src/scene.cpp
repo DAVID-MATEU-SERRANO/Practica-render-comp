@@ -103,9 +103,7 @@ namespace render {
     }
   }
 
-  Pixel Scene::get_pixel_color(int f, int c) {
-    std::mt19937_64 rng(rays_rng_seed);
-    std::mt19937_64 m_rng(material_rng_seed);
+  Pixel Scene::get_pixel_color(int f, int c, std::mt19937_64 & rng, std::mt19937_64 & m_rng) {
     std::uniform_real_distribution<double> dist(-0.5, 0.5);
     Color accumulated_color(0.0, 0.0, 0.0);
 

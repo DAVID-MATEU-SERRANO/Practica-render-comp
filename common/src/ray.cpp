@@ -145,7 +145,7 @@ namespace render {
       return false;
     }
 
-    normal_vector = point_to_center.substract(a_hat.dot(height_projection)).normalized();
+    normal_vector = point_to_center.perpendicular_component(a_hat).normalized();
     // Ensure the normal vector points against the ray direction
     if (normal_vector.dot(direction) > 0) {
       normal_vector = normal_vector.dot(-1);
@@ -263,21 +263,21 @@ namespace render {
   }
 
   void Ray::refractive_color_contribution(Refractive const & refractive) {
-    double const cos_0 = std::min(-normal_vector.normalized().dot(direction.normalized()), 1.0);
-    double const sin_0 = std::sqrt(1.0 - cos_0 * cos_0);
+    double const cos_t = std::min(-normal_vector.normalized().dot(direction.normalized()), 1.0);
+    double const sin_t = std::sqrt(1.0 - (cos_t * cos_t));
 
     double refraction_index_corrected = refractive.get_refraction_index();
 
-    if (cos_0 < 0) {
+    if (cos_t >= 0.0) {
       refraction_index_corrected = 1.0 / refraction_index_corrected;
     }
 
-    if (refraction_index_corrected * sin_0 > 1.0) {
+    if (refraction_index_corrected * sin_t > 1.0) {
       reflected_direction =
           direction.substract(normal_vector.dot(2.0 * normal_vector.dot(direction)));
     } else {
       Vector const u =
-          direction.normalized().add(normal_vector.dot(cos_0)).dot(refraction_index_corrected);
+          direction.normalized().add(normal_vector.dot(cos_t)).dot(refraction_index_corrected);
       Vector const v      = normal_vector.dot((-1.0) * std::sqrt(std::abs(1 - u.dot(u))));
       reflected_direction = u.add(v);
     }

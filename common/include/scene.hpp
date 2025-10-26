@@ -1,9 +1,6 @@
 #ifndef RENDER_SCENE_HPP
 #define RENDER_SCENE_HPP
 
-// Estructura de datos para almacenar la informacion de una escena
-// Contiene los parametros que se obtienen de leer el archivo scene.txt
-
 #include "../include/color.hpp"
 #include "../include/cylinder.hpp"
 #include "../include/matte.hpp"
@@ -40,24 +37,28 @@ namespace render {
           background_dark_color{background_dark_color},
           background_light_color{background_light_color} { }
 
-    // Método
+    // Métodos de intersección
     bool test_sphere_intersections(Ray & ray, double & closest_distance, Point & closest_point,
                                    Vector & closest_normal, t_material & closest_material);
     bool test_cylinder_intersections(Ray & ray, double & closest_distance, Point & closest_point,
                                      Vector & closest_normal, t_material & closest_material);
     void find_closest_intersection(Ray & ray);
 
+    // Métodos para agregar objetos
     void add_sphere(Sphere const & sphere) { spheres.push_back(sphere); }
+
+    void add_cylinder(Cylinder const & cylinder) {
+      cylinders.push_back(cylinder);
+      ;
+    }
 
     void add_pov(Pov const & p) { pov = p; }
 
-    void add_cylinder(Cylinder const & cylinder) { cylinders.push_back(cylinder); }
-
+    // Métodos para agregar materiales
     void add_material_matte(Matte const & matte, std::string const & line_content) {
       if (material_index.contains(matte.get_name())) {
         parse::throw_material_exists(matte.get_name(), line_content);
       }
-
       // Añadimos matte en vector mattes
       std::size_t const new_index      = mattes.size();
       material_index[matte.get_name()] = new_index * 10 + 0;
@@ -68,7 +69,6 @@ namespace render {
       if (material_index.contains(metal.get_name())) {
         parse::throw_material_exists(metal.get_name(), line_content);
       }
-
       // Añadimos metal en vector metals
       std::size_t const new_index      = metals.size();
       material_index[metal.get_name()] = new_index * 10 + 1;
@@ -79,15 +79,13 @@ namespace render {
       if (material_index.contains(refractive.get_name())) {
         parse::throw_material_exists(refractive.get_name(), line_content);
       }
-
       // Añadimos refractive en vector refractives
       std::size_t const new_index           = refractives.size();
       material_index[refractive.get_name()] = new_index * 10 + 2;
       refractives.push_back(refractive);
     }
 
-    // Setters para configuración de la escena
-
+    // Setters
     void set_samples_per_pixel(int s) { samples_per_pixel = s; }
 
     void set_max_depth(int d) { max_depth = d; }
@@ -104,6 +102,7 @@ namespace render {
 
     void set_pov(Pov & p) { pov = p; }
 
+    // Getters
     [[nodiscard]] Pixel get_pixel_color(int f, int c);
 
     [[nodiscard]] Pov & get_pov() { return pov; }
@@ -114,7 +113,6 @@ namespace render {
       return material_index;
     }
 
-    // Getters
     [[nodiscard]] int get_samples_per_pixel() const { return samples_per_pixel; }
 
     [[nodiscard]] int get_max_depth() const { return max_depth; }
@@ -139,87 +137,35 @@ namespace render {
       return refractives;
     }
 
+    [[nodiscard]] std::vector<Sphere> const & get_spheres() const { return spheres; }
+
+    [[nodiscard]] std::vector<Cylinder> const & get_cylinders() const { return cylinders; }
+
   public:
-    std::vector<Sphere> spheres;      // Vector de esferas
-    std::vector<Cylinder> cylinders;  // Vector de cilindros
+    std::vector<Sphere> spheres;
+    std::vector<Cylinder> cylinders;
     render::Pov pov{
       /*pos*/ {0, 0, -10},
       /*tgt*/
       {0, 0,   0},
-      /*up */
+      /*up*/
       {0, 1,   0},
       /*fov*/
       90.0,
       /*img*/ Pov::compute_image_size(1'920, 16, 9)
-    };  // Cámara
-    std::vector<Metal> metals;            // Vector de metales
-    std::vector<Matte> mattes;            // Vector de mates
-    std::vector<Refractive> refractives;  // Vector de refractivos
-    std::map<std::string, std::size_t>
-        material_index;  // Mapa para indexar materiales con nombre y flag
+    };
+    std::vector<Metal> metals;
+    std::vector<Matte> mattes;
+    std::vector<Refractive> refractives;
+    std::map<std::string, std::size_t> material_index;
 
-    int samples_per_pixel = 20;  // Muestras por pixel
-    int max_depth         = 5;   // Profundidad maxima de rayos
-    uint64_t material_rng_seed =
-        13;  // Semilla para el generador de numeros aleatorios de materiales
-    uint64_t rays_rng_seed       = 19;  // Semilla para el generador de numeros aleatorios de rayos
-    Color background_dark_color  = {0.25, 0.5, 1.0};  // Color oscuro del fondo
-    Color background_light_color = {1.0, 1.0, 1.0};   // Color claro del fondo
-    double gamma                 = 2.2;               // Valor de gamma
-
-    /*
-    // Mapa para buscar materiales por su nombre
-    std::unordered_map<std::string, size_t> material_index;
-
-    // FUNCIONES PARA AGREGAR MATERIALES Y OBJETOS A LA ESCENA
-    // Agregar material a la escena (verificar que no exista otro material con el mismo nombre)
-
-    void add_material_Matte(render::Matte const & m, std::string const & lineforprint) {
-      if (material_index.find(m.get_name()) != material_index.end()) {
-        std::ostringstream oss;
-        oss << "Material with name '[" << m.get_name() << "]' already exists\n"
-            << "Line: " << lineforprint;
-        throw std::runtime_error(oss.str());
-      }
-      material_index[m.get_name()] = mattes.size() * 10 + 0;
-      mattes.push_back(m);
-    }
-
-    void add_material_Metal(render::Metal const & m, std::string const & lineforprint) {
-      if (material_index.find(m.get_name()) != material_index.end()) {
-        std::ostringstream oss;
-        oss << "Material with name '[" << m.get_name() << "]' already exists\n"
-            << "Line: " << lineforprint;
-        throw std::runtime_error(oss.str());
-      }
-      material_index[m.get_name()] = metales.size() * 10 + 1;
-      metales.push_back(m);
-    }
-
-    void add_material_Refractive(render::Refractive const & m, std::string const & lineforprint) {
-      if (material_index.find(m.get_name()) != material_index.end()) {
-        std::ostringstream oss;
-        oss << "Material with name '[" << m.get_name() << "]' already exists\n"
-            << "Line: " << lineforprint;
-        throw std::runtime_error(oss.str());
-      }
-      material_index[m.get_name()] = refractarios.size() * 10 + 2;
-      refractarios.push_back(m);
-    }
-
-    void add_sphere(render::Sphere const & sphere) { spheres.push_back(sphere); }
-
-    void add_cylinder(render::Cylinder const & cylinder) { cylinders.push_back(cylinder); }
-
-    void clear() {
-      metales.clear();
-      mattes.clear();
-      refractarios.clear();
-      spheres.clear();
-      cylinders.clear();
-      material_index.clear();
-    }
-    */
+    int samples_per_pixel        = 20;
+    int max_depth                = 5;
+    uint64_t material_rng_seed   = 13;
+    uint64_t rays_rng_seed       = 19;
+    Color background_dark_color  = {0.25, 0.5, 1.0};
+    Color background_light_color = {1.0, 1.0, 1.0};
+    double gamma                 = 2.2;
   };
 
 }  // namespace render

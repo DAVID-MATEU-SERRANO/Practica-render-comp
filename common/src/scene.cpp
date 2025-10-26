@@ -122,28 +122,27 @@ namespace render {
                           .get_origin()
                           .add(dx.dot(static_cast<double>(c + rx)))
                           .add(dy.dot(static_cast<double>(f + ry)));
-      Ray ray(pov.get_camera_position(), q.substract(pov.get_camera_position()),
-              Color(1.0, 1.0, 1.0));
-      Color color_for_this_ray(1.0, 1.0, 1.0);
+      Point current_origin     = pov.get_camera_position();
+      Vector current_direction = q.substract(pov.get_camera_position()).normalized();
+      Color ray_color(1.0, 1.0, 1.0);
 
       for (int depth = 0; depth < max_depth; ++depth) {
+        Ray ray(current_origin, current_direction, ray_color);
         find_closest_intersection(ray);
         ray.color_contribution(background_dark_color, background_light_color, m_rng);
 
+        ray_color = ray_color.multiply(ray.get_intersection_color());
+
         if (ray.get_intersection_distance() == -1.0) {
-          color_for_this_ray = ray.get_intersection_color();
           break;
         }
 
-        color_for_this_ray = color_for_this_ray.multiply(ray.get_intersection_color());
-
-        if (depth != max_depth - 1) {
-          ray =
-              Ray(ray.get_point_intersection(), ray.get_reflected_direction(), color_for_this_ray);
+        if (depth < max_depth - 1) {
+          current_origin    = ray.get_point_intersection();
+          current_direction = ray.get_reflected_direction().normalized();
         }
       }
-
-      accumulated_color = accumulated_color.add(color_for_this_ray);
+      accumulated_color = accumulated_color.add(ray_color);
     }
     accumulated_color = accumulated_color.multiply(1.0 / static_cast<double>(samples_per_pixel));
     accumulated_color = accumulated_color.apply_gamma_correction(gamma);

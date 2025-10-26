@@ -16,9 +16,7 @@ namespace render {
   class Cylinder {
   public:
     Cylinder(Point vec_center, double radius, Vector vec, t_material material)
-        : vec_center{vec_center}, radius{radius}, vec_edge{vec}, material(std::move(material)) {
-      // Introducir validaciones si es necesario
-    }
+        : vec_center{vec_center}, radius{radius}, vec_edge{vec}, material(std::move(material)) { }
 
     // [[nodiscard]] sirve para si haces operaciones y no se usan se eliminen (de momento las
     // dejamos pero no se si van a hacer falta)

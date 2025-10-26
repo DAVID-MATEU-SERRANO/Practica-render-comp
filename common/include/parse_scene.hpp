@@ -1,8 +1,5 @@
-#include "scene.hpp"
+#include "../include/scene.hpp"
 #include <istream>
-
-class Scene;  // Al parecer esto se llamna forward declaration y avisa al compilador que existe una
-              // clase llamada Scene y que se definira en otro sitio (QUE LOCURA)
 
 namespace parse {
 

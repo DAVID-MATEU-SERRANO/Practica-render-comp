@@ -16,7 +16,7 @@ namespace render {
     bool found_intersection = false;
 
     for (auto const & sphere : spheres) {
-      if (ray.sphere_intersection(sphere) and ray.get_intersection_distance() >= 0) {
+      if (ray.sphere_intersection(sphere) and ray.get_intersection_distance() >= 1e-3) {
         // Update if the intersection is closer
         if (ray.get_intersection_distance() < closest_distance) {
           closest_distance   = ray.get_intersection_distance();
@@ -36,7 +36,7 @@ namespace render {
     bool found_intersection = false;
 
     for (auto const & cylinder : cylinders) {
-      if (ray.cylinder_side_intersection(cylinder) and ray.get_intersection_distance() >= 0) {
+      if (ray.cylinder_side_intersection(cylinder) and ray.get_intersection_distance() >= 1e-3) {
         // Update if the intersection is closer
         if (ray.get_intersection_distance() < closest_distance) {
           closest_distance   = ray.get_intersection_distance();
@@ -47,7 +47,9 @@ namespace render {
         }
       }
 
-      if (ray.cylinder_upper_base_intersection(cylinder) and ray.get_intersection_distance() >= 0) {
+      if (ray.cylinder_upper_base_intersection(cylinder) and
+          ray.get_intersection_distance() >= 1e-3)
+      {
         // Update if the intersection is closer
         if (ray.get_intersection_distance() < closest_distance) {
           closest_distance   = ray.get_intersection_distance();
@@ -58,7 +60,9 @@ namespace render {
         }
       }
 
-      if (ray.cylinder_lower_base_intersection(cylinder) and ray.get_intersection_distance() >= 0) {
+      if (ray.cylinder_lower_base_intersection(cylinder) and
+          ray.get_intersection_distance() >= 1e-3)
+      {
         // Update if the intersection is closer
         if (ray.get_intersection_distance() < closest_distance) {
           closest_distance   = ray.get_intersection_distance();
@@ -103,7 +107,6 @@ namespace render {
     std::mt19937_64 rng(rays_rng_seed);
     std::mt19937_64 m_rng(material_rng_seed);
     std::uniform_real_distribution<double> dist(-0.5, 0.5);
-    Color pixel_color;
     Color accumulated_color(0.0, 0.0, 0.0);
 
     // TODO: ∆x and ∆y añadirlos como posibles atributos a la ventana de proyección.
@@ -121,25 +124,29 @@ namespace render {
                           .add(dy.dot(static_cast<double>(f + ry)));
       Ray ray(pov.get_camera_position(), q.substract(pov.get_camera_position()),
               Color(1.0, 1.0, 1.0));
+      Color color_for_this_ray(1.0, 1.0, 1.0);
+
       for (int depth = 0; depth < max_depth; ++depth) {
         find_closest_intersection(ray);
         ray.color_contribution(background_dark_color, background_light_color, m_rng);
 
         if (ray.get_intersection_distance() == -1.0) {
+          color_for_this_ray = ray.get_intersection_color();
           break;
         }
 
+        color_for_this_ray = color_for_this_ray.multiply(ray.get_intersection_color());
+
         if (depth != max_depth - 1) {
-          ray = Ray(ray.get_point_intersection(), ray.get_reflected_direction(),
-                    ray.get_intersection_color());
+          ray =
+              Ray(ray.get_point_intersection(), ray.get_reflected_direction(), color_for_this_ray);
         }
       }
-      pixel_color       = ray.get_intersection_color().apply_gamma_correction(gamma);
-      accumulated_color = accumulated_color.add(pixel_color);
-      std::cout << ray_counter << " RAY COUNTER  \n";
-      std::cout.flush();
+
+      accumulated_color = accumulated_color.add(color_for_this_ray);
     }
     accumulated_color = accumulated_color.multiply(1.0 / static_cast<double>(samples_per_pixel));
+    accumulated_color = accumulated_color.apply_gamma_correction(gamma);
     return {static_cast<std::uint8_t>(255.0 * accumulated_color.get_r()),
             static_cast<std::uint8_t>(255.0 * accumulated_color.get_g()),
             static_cast<std::uint8_t>(255.0 * accumulated_color.get_b())};

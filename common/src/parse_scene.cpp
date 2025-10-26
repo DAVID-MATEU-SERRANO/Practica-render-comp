@@ -22,9 +22,6 @@
 
 namespace render {
 
-  // Declaro la clase scene aquí por un error que me sale
-  class Scene;
-
   // Estas funciones que van a ser llamadas internamente se guardan en un namespace anónimo
   namespace {
 

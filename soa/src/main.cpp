@@ -15,7 +15,7 @@ int main(int argc, char * argv[]) {
     return 1;
   }
   std::ifstream in(arguments[1]);
-  std::ifstream file(arguments[1]);
+  std::ifstream file(arguments[2]);
   if (!in or !file) {
     std::cerr << "Error al abrir archivos\n";
     return 1;
@@ -45,5 +45,6 @@ int main(int argc, char * argv[]) {
     }
   }
   ppm_file.close();
+
   return 0;
 }

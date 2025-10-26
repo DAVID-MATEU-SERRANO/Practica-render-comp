@@ -83,13 +83,16 @@ namespace render {
   }
 
   Point Pov::pw_origin() const {
-    return camera_position.substract(pw_focal_vector())
-        .substract(pw_horizontal_vector().add(pw_vertical_vector()).dot(0.5))
-        .substract(pw_horizontal_vector()
-                       .dot(static_cast<double>(1.0 / image_size.image_width))
-                       .add(pw_vertical_vector()
-                                .dot(static_cast<double>(1.0 / image_size.image_height))
-                                .dot(0.5)));
+    Vector focal_vec = pw_focal_vector();
+    Vector p_h       = pw_horizontal_vector();
+    Vector p_v       = pw_vertical_vector();
+
+    Vector delta_x = p_h.dot(1.0 / image_size.image_width);
+    Vector delta_y = p_v.dot(1.0 / image_size.image_height);
+
+    return camera_position.substract(focal_vec)
+        .substract(p_h.add(p_v).dot(0.5))
+        .add(delta_x.add(delta_y).dot(0.5));
   }
 
 }  // namespace render

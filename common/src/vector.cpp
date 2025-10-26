@@ -37,7 +37,9 @@ namespace render {
   }
 
   Vector Vector::perpendicular_component(Vector const & other) const {
-    return this->substract(other.dot(this->dot(other)));
+    Vector unit_axis  = other.normalized();
+    double projection = this->dot(unit_axis);
+    return this->substract(unit_axis.dot(projection));
   }
 
   Vector Vector::add_number(double value) const {

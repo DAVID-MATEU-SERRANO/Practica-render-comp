@@ -92,7 +92,7 @@ namespace {  // ----------- helpers "privados"-----------
 
   std::pair<bool, int> handle_image_width(std::string_view key, std::string_view val,
                                           std::string const & lineforprint) {
-    int w = 0;
+    int w = 1'920;
     if (key == "image_width") {
       ensure_token_count_exact(val, 1, lineforprint, "image_width");
       // Convert the value to int, validate and store into cfg
@@ -148,7 +148,7 @@ namespace {  // ----------- helpers "privados"-----------
 
   bool handle_fov(std::string_view key, std::string_view val, std::string const & lineforprint,
                   render::Pov & pov) {
-    double fov = 0.0;
+    double fov = 90.0;
     if (key == "field_of_view") {
       ensure_token_count_exact(val, 1, lineforprint, "field_of_view");
       fov = to_double_config(std::string(val), lineforprint, "field_of_view");
@@ -245,11 +245,22 @@ namespace parse {
     std::string lineforprint;
 
     render::Pov pov;
+    pov.set_camera_position(render::Point(0, 0, -10));
+    pov.set_camera_target(render::Point(0, 0, 0));
+    pov.set_camera_north(render::Vector(0, 1, 0));
+    pov.set_field_of_view(90.0);
 
-    // valores parseados que pueden venir en líneas separadas
-    int parsed_image_width = 0;
-    int parsed_ar_w        = 0;
-    int parsed_ar_h        = 0;
+    int parsed_image_width = 1'920;
+    int parsed_ar_w        = 16;
+    int parsed_ar_h        = 9;
+
+    scene.set_samples_per_pixel(20);
+    scene.set_max_depth(5);
+    scene.set_gamma(2.2);
+    scene.set_material_rng_seed(13);
+    scene.set_rays_rng_seed(19);
+    scene.set_background_dark_color(render::Color(0.25, 0.5, 1));
+    scene.set_background_light_color(render::Color(1, 1, 1));
 
     std::regex const config_line_regex(R"(^\s*([A-Za-z_]+):\s*(.*?)\s*$)");
     std::smatch match;
@@ -275,21 +286,18 @@ namespace parse {
           throw std::runtime_error(oss.str());
         }
 
-        bool handled = false;
-        // aspect_ratio -> std::tuple<bool,int,int>
-        {
-          auto [ok_ar, aw, ah] = handle_image_aspect_ratio(key, val, lineforprint);
-          handled              = true;
-          parsed_ar_w          = aw;
-          parsed_ar_h          = ah;
+        bool handled         = false;
+        auto [ok_ar, aw, ah] = handle_image_aspect_ratio(key, val, lineforprint);
+        if (ok_ar) {
+          parsed_ar_w = aw;
+          parsed_ar_h = ah;
+          handled     = true;
         }
-        // image_width -> std::pair<bool,int>
-        {
-          auto [ok_w, w] = handle_image_width(key, val, lineforprint);
-          if (ok_w) {
-            handled            = true;
-            parsed_image_width = w;
-          }
+
+        auto [ok_w, w] = handle_image_width(key, val, lineforprint);
+        if (ok_w) {
+          parsed_image_width = w;
+          handled            = true;
         }
 
         handled = handle_camera_position(key, val, lineforprint, pov) or handled;
@@ -301,23 +309,22 @@ namespace parse {
         handled = handle_background(key, val, lineforprint, scene) or handled;
         handled = handle_seeds(key, val, lineforprint, scene) or handled;
 
-        render::ImageSize isz =
-            render::Pov::compute_image_size(parsed_image_width, parsed_ar_w, parsed_ar_h);
-        // aquí puedes usar `isz` para construir el Pov o asignarlo según tu diseño
-        // ej: pov = render::Pov(position, target, north, cfg.field_of_view, isz);
-        pov.set_image_size(isz);
-        scene.set_pov(pov);
-
         if (!handled) {
           std::ostringstream oss;
           oss << "Unknown configuration key: \"" << "[" << key << ":" << "]\"" << "\n";
           throw std::runtime_error(oss.str());
         }
-
       } catch (std::runtime_error const & e) {
         throw;  // Re-throw to be handled by caller (same behaviour as before)
       }
     }
+
+    render::ImageSize isz =
+        render::Pov::compute_image_size(parsed_image_width, parsed_ar_w, parsed_ar_h);
+    // aquí puedes usar `isz` para construir el Pov o asignarlo según tu diseño
+    // ej: pov = render::Pov(position, target, north, cfg.field_of_view, isz);
+    pov.set_image_size(isz);
+    scene.set_pov(pov);
   }
 
 }  // namespace parse

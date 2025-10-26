@@ -44,7 +44,7 @@ namespace render {
 
     void color_contribution(Color const & dark_color, Color const & light_color,
                             std::mt19937_64 & rng);
-    void matte_color_contribution(Matte const & matte, std::mt19937_64 & rng);
+    void matte_color_contribution(std::mt19937_64 & rng);
     void background_color_contribution(Color const & dark_color, Color const & light_color);
     void metal_color_contribution(Metal const & metal, std::mt19937_64 & rng);
     void refractive_color_contribution(Refractive const & refractive);

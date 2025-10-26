@@ -28,13 +28,6 @@ namespace render {
   };
 
   class Scene {
-    /*
-    std::vector<render::Matte> mattes;             // Vector Matte
-    std::vector<render::Metal> metales;            // Vector Metal
-    std::vector<render::Refractive> refractarios;  // Vector Refractive*/
-
-    // Clase usada para el punto de vista
-
   public:
     Scene() = default;
 
@@ -44,7 +37,7 @@ namespace render {
         : spheres{std::move(spheres)}, cylinders{std::move(cylinders)}, pov{pov},
           samples_per_pixel{samples_per_pixel}, max_depth{max_depth},
           material_rng_seed{material_rng_seed}, rays_rng_seed{rays_rng_seed},
-          background_dark_color{(background_dark_color)},
+          background_dark_color{background_dark_color},
           background_light_color{background_light_color} { }
 
     // Método
@@ -146,7 +139,7 @@ namespace render {
       return refractives;
     }
 
-  private:
+  public:
     std::vector<Sphere> spheres;      // Vector de esferas
     std::vector<Cylinder> cylinders;  // Vector de cilindros
     render::Pov pov{
@@ -165,8 +158,8 @@ namespace render {
     std::map<std::string, std::size_t>
         material_index;  // Mapa para indexar materiales con nombre y flag
 
-    int samples_per_pixel = 50;  // Muestras por pixel
-    int max_depth         = 10;  // Profundidad maxima de rayos
+    int samples_per_pixel = 20;  // Muestras por pixel
+    int max_depth         = 5;   // Profundidad maxima de rayos
     uint64_t material_rng_seed =
         13;  // Semilla para el generador de numeros aleatorios de materiales
     uint64_t rays_rng_seed       = 19;  // Semilla para el generador de numeros aleatorios de rayos

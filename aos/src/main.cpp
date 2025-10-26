@@ -27,7 +27,6 @@ int main(int argc, char * argv[]) {
   }
   Scene scene;
   load_scene_from_files(scene, in, file);
-
   int image_height = scene.get_pov().get_image_height();
   int image_width  = scene.get_pov().get_image_width();
   std::size_t total_pixels =
@@ -44,8 +43,6 @@ int main(int argc, char * argv[]) {
       pixels[index] = pixel;
       ppm_file << static_cast<int>(pixel.r) << " " << static_cast<int>(pixel.g) << " "
                << static_cast<int>(pixel.b) << "\n";
-      std::cout << f << " " << c << " PIXEL COUNTER  \n";
-      std::cout.flush();
     }
   }
   ppm_file.close();

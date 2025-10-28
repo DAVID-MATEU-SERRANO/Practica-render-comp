@@ -150,11 +150,9 @@ namespace render {
 
     normal_vector = point_to_center.perpendicular_component(a_hat).normalized();
 
-    // Calcular front_face
     double dot_product = normal_vector.dot(direction);
     front_face_out     = (dot_product < 0);
 
-    // Ajustar normal si es necesario
     if (!front_face_out) {
       normal_vector = normal_vector.dot(-1);
     }
@@ -181,11 +179,9 @@ namespace render {
       return false;
     }
 
-    // Calcular front_face
     double dot_product = normal_vector.dot(direction);
     front_face_out     = (dot_product < 0);
 
-    // Ajustar normal si es necesario
     if (!front_face_out) {
       normal_vector = normal_vector.dot(-1);
     }
@@ -212,11 +208,9 @@ namespace render {
       return false;
     }
 
-    // Calcular front_face
     double dot_product = normal_vector.dot(direction);
     front_face_out     = (dot_product < 0);
 
-    // Ajustar normal si es necesario
     if (!front_face_out) {
       normal_vector = normal_vector.dot(-1);
     }

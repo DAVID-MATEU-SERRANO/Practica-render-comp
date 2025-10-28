@@ -39,7 +39,7 @@ namespace render {
     bool found_intersection = false;
 
     for (auto const & cylinder : cylinders) {
-      bool front_face;
+      bool front_face = true;
       if (ray.cylinder_side_intersection(cylinder, front_face) and
           ray.get_intersection_distance() >= 1e-3)
       {
@@ -125,7 +125,7 @@ namespace render {
 
       for (int depth = 0; depth < max_depth; ++depth) {
         Ray ray(current_origin, current_direction, ray_color);
-        bool front_face;
+        bool front_face = true;
         find_closest_intersection(ray, front_face);
         ray.color_contribution(background_dark_color, background_light_color, m_rng, front_face);
 

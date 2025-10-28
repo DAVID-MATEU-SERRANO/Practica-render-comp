@@ -39,7 +39,7 @@ int main(int argc, char * argv[]) {
   for (int f = 0; f < image_height; ++f) {
     for (int c = 0; c < image_width; ++c) {
       Pixel pixel       = scene.get_pixel_color(f, c, rng, m_rng);
-      std::size_t index = static_cast<std::size_t>(f) * static_cast<std::size_t>(image_height) +
+      std::size_t index = static_cast<std::size_t>(f) * static_cast<std::size_t>(image_width) +
                           static_cast<std::size_t>(c);
       R[index] = pixel.r;
       G[index] = pixel.g;

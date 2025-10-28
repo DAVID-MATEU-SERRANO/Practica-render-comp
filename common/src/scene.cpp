@@ -136,10 +136,8 @@ namespace render {
           break;
         }
 
-        if (depth < max_depth - 1) {
-          current_origin    = ray.get_point_intersection();
-          current_direction = ray.get_reflected_direction().normalized();
-        }
+        current_origin    = ray.get_point_intersection();
+        current_direction = ray.get_reflected_direction().normalized();
       }
       accumulated_color = accumulated_color.add(ray_color);
     }

@@ -1,4 +1,3 @@
-// ray.cpp
 #include "../include/ray.hpp"
 #include "../include/color.hpp"
 #include "../include/cylinder.hpp"
@@ -11,7 +10,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
-#include <iostream>
 #include <random>
 #include <variant>
 
@@ -73,7 +71,7 @@ namespace render {
     reflected_direction = direction;
   }
 
-  bool Ray::sphere_intersection(Sphere const & sphere) {
+  bool Ray::sphere_intersection(Sphere const & sphere, bool & front_face_out) {
     Vector const rc = sphere.get_center().substract(origin);
     double const a  = direction.dot(direction);
     double const b  = -2.0 * direction.dot(rc);
@@ -101,14 +99,19 @@ namespace render {
 
     point_intersection = origin.add(direction.dot(intersection_distance));
     normal_vector = point_intersection.substract(sphere.get_center()).dot(1 / sphere.get_radius());
-    // Ensure the normal vector points against the ray direction
-    if (normal_vector.dot(direction) > 0) {
+
+    // Calcular front_face
+    double dot_product = normal_vector.dot(direction);
+    front_face_out     = (dot_product < 0);
+
+    // Ajustar normal si es necesario
+    if (!front_face_out) {
       normal_vector = normal_vector.dot(-1);
     }
     return true;
   }
 
-  bool Ray::cylinder_side_intersection(Cylinder const & cylinder) {
+  bool Ray::cylinder_side_intersection(Cylinder const & cylinder, bool & front_face_out) {
     Vector const a_hat = cylinder.get_edge().normalized();
     Vector const rc    = origin.substract(cylinder.get_center());
     double const a =
@@ -146,14 +149,19 @@ namespace render {
     }
 
     normal_vector = point_to_center.perpendicular_component(a_hat).normalized();
-    // Ensure the normal vector points against the ray direction
-    if (normal_vector.dot(direction) > 0) {
+
+    // Calcular front_face
+    double dot_product = normal_vector.dot(direction);
+    front_face_out     = (dot_product < 0);
+
+    // Ajustar normal si es necesario
+    if (!front_face_out) {
       normal_vector = normal_vector.dot(-1);
     }
     return true;
   }
 
-  bool Ray::cylinder_upper_base_intersection(Cylinder const & cylinder) {
+  bool Ray::cylinder_upper_base_intersection(Cylinder const & cylinder, bool & front_face_out) {
     Vector const a_hat = cylinder.get_edge().normalized();
     Point const p      = cylinder.get_center().add(a_hat.dot(cylinder.get_height() / 2));
     normal_vector      = a_hat;
@@ -173,14 +181,18 @@ namespace render {
       return false;
     }
 
-    // Ensure the normal vector points against the ray direction
-    if (normal_vector.dot(direction) > 0) {
+    // Calcular front_face
+    double dot_product = normal_vector.dot(direction);
+    front_face_out     = (dot_product < 0);
+
+    // Ajustar normal si es necesario
+    if (!front_face_out) {
       normal_vector = normal_vector.dot(-1);
     }
     return true;
   }
 
-  bool Ray::cylinder_lower_base_intersection(Cylinder const & cylinder) {
+  bool Ray::cylinder_lower_base_intersection(Cylinder const & cylinder, bool & front_face_out) {
     Vector const a_hat = cylinder.get_edge().normalized();
     Point const p      = cylinder.get_center().substract(a_hat.dot(cylinder.get_height() / 2));
     normal_vector      = a_hat.dot(-1);
@@ -200,18 +212,20 @@ namespace render {
       return false;
     }
 
-    // Ensure the normal vector points against the ray direction
-    if (normal_vector.dot(direction) > 0) {
+    // Calcular front_face
+    double dot_product = normal_vector.dot(direction);
+    front_face_out     = (dot_product < 0);
+
+    // Ajustar normal si es necesario
+    if (!front_face_out) {
       normal_vector = normal_vector.dot(-1);
     }
     return true;
   }
 
-  /// COLOR
   void Ray::color_contribution(Color const & dark_color, Color const & light_color,
-                               std::mt19937_64 & rng) {
+                               std::mt19937_64 & rng, bool front_face) {
     if (intersection_distance == -1.0) {
-      // No intersection, return background color
       background_color_contribution(dark_color, light_color);
       return;
     }
@@ -226,7 +240,7 @@ namespace render {
       intersection_color = metal.get_reflectance();
     } else if (std::holds_alternative<Refractive>(intersection_material)) {
       auto const & refractive = std::get<Refractive>(intersection_material);
-      refractive_color_contribution(refractive);
+      refractive_color_contribution(refractive, front_face);
       intersection_color = Color(1.0, 1.0, 1.0);
     }
   }
@@ -257,30 +271,35 @@ namespace render {
         direction.substract(normal_vector.dot(2.0 * direction.dot(normal_vector)));
     std::uniform_real_distribution<double> dist(-metal.get_difusion_factor(),
                                                 metal.get_difusion_factor());
-    Vector const diffusion_vector = Vector(dist(rng), dist(rng), dist(rng));
-    reflected_direction           = initial_reflection.normalized().add(diffusion_vector);
-    reflected_direction           = reflected_direction.normalized();
+
+    Vector const difusion_vector = Vector(dist(rng), dist(rng), dist(rng));
+    reflected_direction          = initial_reflection.normalized().add(difusion_vector);
+    reflected_direction          = reflected_direction.normalized();
   }
 
-  void Ray::refractive_color_contribution(Refractive const & refractive) {
-    double const cos_t = std::min(-normal_vector.normalized().dot(direction.normalized()), 1.0);
-    double const sin_t = std::sqrt(1.0 - (cos_t * cos_t));
+  void Ray::refractive_color_contribution(Refractive const & refractive, bool front_face) {
+    Vector u_hat = direction.normalized();
+    Vector n_hat = normal_vector.normalized();
 
-    double refraction_index_corrected = refractive.get_refraction_index();
+    double cos_theta = std::min(-u_hat.dot(n_hat), 1.0);
+    double sin_theta = std::sqrt(1.0 - cos_theta * cos_theta);
 
-    if (cos_t >= 0.0) {
-      refraction_index_corrected = 1.0 / refraction_index_corrected;
+    double corrected_refraction_index = refractive.get_refraction_index();
+
+    if (front_face) {
+      corrected_refraction_index = 1.0 / corrected_refraction_index;
     }
 
-    if (refraction_index_corrected * sin_t > 1.0) {
-      reflected_direction =
-          direction.substract(normal_vector.dot(2.0 * normal_vector.dot(direction)));
+    if (corrected_refraction_index * sin_theta > 1.0) {
+      reflected_direction = u_hat.substract(n_hat.dot(2.0 * u_hat.dot(n_hat)));
     } else {
-      Vector const u =
-          direction.normalized().add(normal_vector.dot(cos_t)).dot(refraction_index_corrected);
-      Vector const v      = normal_vector.dot((-1.0) * std::sqrt(std::abs(1 - u.dot(u))));
-      reflected_direction = u.add(v);
+      Vector u                   = u_hat.add(n_hat.dot(cos_theta)).dot(corrected_refraction_index);
+      double u_magnitude_squared = u.dot(u);
+      Vector v                   = n_hat.dot(-std::sqrt(1.0 - u_magnitude_squared));
+      reflected_direction        = u.add(v);
     }
+
+    reflected_direction = reflected_direction.normalized();
   }
 
 }  // namespace render

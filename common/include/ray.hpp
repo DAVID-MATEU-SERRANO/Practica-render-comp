@@ -31,23 +31,22 @@ namespace render {
 
     void set_point_intersection(Point const & point);
     void set_normal_vector(Vector const & normal);
-
     void set_intersection_distance(double distance);
     void set_intersection_material(t_material const & material);
     void set_intersection_color(Color const & color);
     void set_reflected_direction(Vector const & direction);
 
-    bool sphere_intersection(Sphere const & sphere);
-    bool cylinder_side_intersection(Cylinder const & cylinder);
-    bool cylinder_upper_base_intersection(Cylinder const & cylinder);
-    bool cylinder_lower_base_intersection(Cylinder const & cylinder);
+    bool sphere_intersection(Sphere const & sphere, bool & front_face_out);
+    bool cylinder_side_intersection(Cylinder const & cylinder, bool & front_face_out);
+    bool cylinder_upper_base_intersection(Cylinder const & cylinder, bool & front_face_out);
+    bool cylinder_lower_base_intersection(Cylinder const & cylinder, bool & front_face_out);
 
     void color_contribution(Color const & dark_color, Color const & light_color,
-                            std::mt19937_64 & rng);
+                            std::mt19937_64 & rng, bool front_face);
     void matte_color_contribution(std::mt19937_64 & rng);
     void background_color_contribution(Color const & dark_color, Color const & light_color);
     void metal_color_contribution(Metal const & metal, std::mt19937_64 & rng);
-    void refractive_color_contribution(Refractive const & refractive);
+    void refractive_color_contribution(Refractive const & refractive, bool front_face);
 
   private:
     Point origin;

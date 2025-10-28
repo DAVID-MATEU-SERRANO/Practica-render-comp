@@ -37,29 +37,24 @@ namespace render {
           background_dark_color{background_dark_color},
           background_light_color{background_light_color} { }
 
-    // Métodos de intersección
     bool test_sphere_intersections(Ray & ray, double & closest_distance, Point & closest_point,
-                                   Vector & closest_normal, t_material & closest_material);
+                                   Vector & closest_normal, t_material & closest_material,
+                                   bool & closest_front_face);
     bool test_cylinder_intersections(Ray & ray, double & closest_distance, Point & closest_point,
-                                     Vector & closest_normal, t_material & closest_material);
-    void find_closest_intersection(Ray & ray);
+                                     Vector & closest_normal, t_material & closest_material,
+                                     bool & closest_front_face);
+    void find_closest_intersection(Ray & ray, bool & front_face_out);
 
-    // Métodos para agregar objetos
     void add_sphere(Sphere const & sphere) { spheres.push_back(sphere); }
 
-    void add_cylinder(Cylinder const & cylinder) {
-      cylinders.push_back(cylinder);
-      ;
-    }
+    void add_cylinder(Cylinder const & cylinder) { cylinders.push_back(cylinder); }
 
     void add_pov(Pov const & p) { pov = p; }
 
-    // Métodos para agregar materiales
     void add_material_matte(Matte const & matte, std::string const & line_content) {
       if (material_index.contains(matte.get_name())) {
         parse::throw_material_exists(matte.get_name(), line_content);
       }
-      // Añadimos matte en vector mattes
       std::size_t const new_index      = mattes.size();
       material_index[matte.get_name()] = new_index * 10 + 0;
       mattes.push_back(matte);
@@ -69,7 +64,6 @@ namespace render {
       if (material_index.contains(metal.get_name())) {
         parse::throw_material_exists(metal.get_name(), line_content);
       }
-      // Añadimos metal en vector metals
       std::size_t const new_index      = metals.size();
       material_index[metal.get_name()] = new_index * 10 + 1;
       metals.push_back(metal);
@@ -79,13 +73,11 @@ namespace render {
       if (material_index.contains(refractive.get_name())) {
         parse::throw_material_exists(refractive.get_name(), line_content);
       }
-      // Añadimos refractive en vector refractives
       std::size_t const new_index           = refractives.size();
       material_index[refractive.get_name()] = new_index * 10 + 2;
       refractives.push_back(refractive);
     }
 
-    // Setters
     void set_samples_per_pixel(int s) { samples_per_pixel = s; }
 
     void set_max_depth(int d) { max_depth = d; }
@@ -102,7 +94,6 @@ namespace render {
 
     void set_pov(Pov & p) { pov = p; }
 
-    // Getters
     [[nodiscard]] Pixel get_pixel_color(int f, int c, std::mt19937_64 & rng,
                                         std::mt19937_64 & m_rng);
 
@@ -146,14 +137,10 @@ namespace render {
     std::vector<Sphere> spheres;
     std::vector<Cylinder> cylinders;
     render::Pov pov{
-      /*pos*/ {0, 0, -10},
-      /*tgt*/
+      {0, 0, -10},
       {0, 0,   0},
-      /*up*/
       {0, 1,   0},
-      /*fov*/
-      90.0,
-      /*img*/ Pov::compute_image_size(1'920, 16, 9)
+      90.0, Pov::compute_image_size(1'920, 16, 9)
     };
     std::vector<Metal> metals;
     std::vector<Matte> mattes;
@@ -171,4 +158,4 @@ namespace render {
 
 }  // namespace render
 
-#endif  // RENDER_SCENE_HPP
+#endif

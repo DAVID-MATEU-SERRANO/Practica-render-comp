@@ -78,18 +78,16 @@ namespace render {
 
   void Scene::find_closest_intersection(Ray & ray) {
     double closest_distance = std::numeric_limits<double>::max();
-    bool found_intersection = false;
 
     Point closest_point;
     Vector closest_normal;
     t_material closest_material(Matte{"none", Color(1.0, 1.0, 1.0)});
 
     // Test intersections with all scene objects (spheres and cylinders)
-    found_intersection = test_sphere_intersections(ray, closest_distance, closest_point,
-                                                   closest_normal, closest_material) or
-                         found_intersection;
-    found_intersection = test_cylinder_intersections(ray, closest_distance, closest_point,
-                                                     closest_normal, closest_material) or
+    bool found_intersection = test_sphere_intersections(ray, closest_distance, closest_point,
+                                                        closest_normal, closest_material);
+    found_intersection      = test_cylinder_intersections(ray, closest_distance, closest_point,
+                                                          closest_normal, closest_material) or
                          found_intersection;
     if (found_intersection) {
       // Closest intersection data
@@ -116,10 +114,8 @@ namespace render {
     for (int ray_counter = 0; ray_counter < samples_per_pixel; ++ray_counter) {
       double const rx = dist(rng);
       double const ry = dist(rng);
-      Point const q   = pov.get_proyection_window()
-                          .get_origin()
-                          .add(dx.dot(static_cast<double>(c + rx)))
-                          .add(dy.dot(static_cast<double>(f + ry)));
+      Point const q =
+          pov.get_proyection_window().get_origin().add(dx.dot(c + rx)).add(dy.dot(f + ry));
       Point current_origin     = pov.get_camera_position();
       Vector current_direction = q.substract(pov.get_camera_position()).normalized();
       Color ray_color(1.0, 1.0, 1.0);
@@ -132,6 +128,11 @@ namespace render {
         ray_color = ray_color.multiply(ray.get_intersection_color());
 
         if (ray.get_intersection_distance() == -1.0) {
+          break;
+        }
+
+        if (depth == max_depth - 1) {
+          ray_color = Color(0.0, 0.0, 0.0);
           break;
         }
 

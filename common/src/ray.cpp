@@ -100,11 +100,9 @@ namespace render {
     point_intersection = origin.add(direction.dot(intersection_distance));
     normal_vector = point_intersection.substract(sphere.get_center()).dot(1 / sphere.get_radius());
 
-    // Calcular front_face
     double dot_product = normal_vector.dot(direction);
     front_face_out     = (dot_product < 0);
 
-    // Ajustar normal si es necesario
     if (!front_face_out) {
       normal_vector = normal_vector.dot(-1);
     }
@@ -148,7 +146,7 @@ namespace render {
       return false;
     }
 
-    normal_vector = point_to_center.perpendicular_component(a_hat).normalized();
+    normal_vector = point_to_center.perpendicular_component(a_hat);
 
     double dot_product = normal_vector.dot(direction);
     front_face_out     = (dot_product < 0);
@@ -273,7 +271,7 @@ namespace render {
 
   void Ray::refractive_color_contribution(Refractive const & refractive, bool front_face) {
     Vector u_hat = direction.normalized();
-    Vector n_hat = normal_vector.normalized();
+    Vector n_hat = normal_vector;
 
     double cos_theta = std::min(-u_hat.dot(n_hat), 1.0);
     double sin_theta = std::sqrt(1.0 - cos_theta * cos_theta);

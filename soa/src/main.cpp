@@ -1,4 +1,5 @@
 #include "../../common/include/config.hpp"
+#include "../../common/include/pov.hpp"
 #include "../../common/include/render.hpp"
 #include "../../common/include/scene.hpp"
 #include <fstream>
@@ -14,10 +15,14 @@ int main(int argc, char * argv[]) {
     std::cerr << "Usage: " << arguments[0] << " <config_file> <output_file>\n";
     return 1;
   }
-  std::ifstream in(arguments[1]);
-  std::ifstream file(arguments[2]);
-  if (!in or !file) {
-    std::cerr << "Error al abrir archivos\n";
+  std::ifstream file(arguments[1]);
+  if (!file) {
+    std::cerr << " No se pudo abrir config.txt\n";
+    return 1;
+  }
+  std::ifstream in(arguments[2]);
+  if (!in) {
+    std::cerr << "No se pudo abrir scene.txt\n";
     return 1;
   }
   Scene scene;
@@ -25,11 +30,10 @@ int main(int argc, char * argv[]) {
   int image_height = scene.get_pov().get_image_height();
   int image_width  = scene.get_pov().get_image_width();
   std::size_t total_pixels =
-      static_cast<std::size_t>(image_height) * static_cast<std::size_t>(image_width);
+      static_cast<std::size_t>(image_width) * static_cast<std::size_t>(image_height);
   std::vector<uint8_t> R(total_pixels);
   std::vector<uint8_t> G(total_pixels);
   std::vector<uint8_t> B(total_pixels);
-  // Creación del archivo PPM
   std::ofstream ppm_file(arguments[3]);
   ppm_file << "P3\n" << image_width << " " << image_height << "\n255\n";
 

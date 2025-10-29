@@ -30,7 +30,7 @@ int main(int argc, char * argv[]) {
   int image_height = scene.get_pov().get_image_height();
   int image_width  = scene.get_pov().get_image_width();
   std::size_t total_pixels =
-      static_cast<std::size_t>(image_height) * static_cast<std::size_t>(image_width);
+      static_cast<std::size_t>(image_width) * static_cast<std::size_t>(image_height);
   std::vector<Pixel> pixels(total_pixels);
   std::ofstream ppm_file(arguments[3]);
   ppm_file << "P3\n" << image_width << " " << image_height << "\n255\n";

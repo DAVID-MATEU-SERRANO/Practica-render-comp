@@ -16,7 +16,7 @@ target_sources(common
         src/render.cpp
         src/scene.cpp
         src/sphere.cpp
-        src/utils.cpp
+        src/util.cpp
         src/vector.cpp
 )
 

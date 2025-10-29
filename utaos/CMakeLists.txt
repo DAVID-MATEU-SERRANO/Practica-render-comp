@@ -1,8 +1,9 @@
 set(COMMON_SRC_FILES 
-  #"${CMAKE_SOURCE_DIR}/aos/src/file1.cpp"
+  "${CMAKE_SOURCE_DIR}/aos/src/main.cpp"
 )
 
-set(CURRENT_DIR_SRC_FILES 
+set(CURRENT_DIR_SRC_FILES
+  # AÑADIR TESTS AQUI
   "${CMAKE_CURRENT_SOURCE_DIR}/test_vector.cpp"
 )
 

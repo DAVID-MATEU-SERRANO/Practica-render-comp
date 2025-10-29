@@ -9,7 +9,7 @@ using namespace render;
 
 int main(int argc, char * argv[]) {
   std::vector<std::string> arguments(argv, argv + argc);
-  if (argc != 3) {
+  if (argc != 4) {
     std::cerr << "Error: Invalid number of arguments: " << (argc - 1) << "\n";
     std::cerr << "Usage: " << arguments[0] << " <config_file> <output_file>\n";
     return 1;

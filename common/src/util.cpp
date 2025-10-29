@@ -1,5 +1,5 @@
-#include "../include/parse_exception.hpp"
 #include "../include/util.hpp"
+#include "../include/parse_exception.hpp"
 #include <exception>
 #include <stdexcept>
 

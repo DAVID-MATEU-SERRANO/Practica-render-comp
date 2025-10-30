@@ -1,13 +1,17 @@
 #ifndef RENDER_COLOR_HPP
 #define RENDER_COLOR_HPP
 
+#include <stdexcept>
+
 namespace render {
 
   class Color {
   public:
-    Color() : r(0.0), g(0.0), b(0.0) { }
-
-    Color(double r, double g, double b) : r(r), g(g), b(b) { }
+    Color(double r, double g, double b) : r(r), g(g), b(b) {
+      if (r < 0.0 or r > 1.0 or g < 0.0 or g > 1.0 or b < 0.0 or b > 1.0) {
+        throw std::out_of_range("Error rgb values less than 0 or more than 1\n");
+      }
+    }
 
     [[nodiscard]] double get_r() const;
     [[nodiscard]] double get_g() const;

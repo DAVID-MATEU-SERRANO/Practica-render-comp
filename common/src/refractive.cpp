@@ -9,9 +9,6 @@ namespace render {
   }
 
   double Refractive::get_refraction_index() const {
-    if (refraction_index < 1.0) {
-      throw std::runtime_error("Error: Invalid refractive index");
-    }
     return refraction_index;
   }
 

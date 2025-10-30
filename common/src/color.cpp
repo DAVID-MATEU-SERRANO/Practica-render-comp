@@ -1,27 +1,17 @@
 #include "../include/color.hpp"
 #include <cmath>
-#include <stdexcept>
 
 namespace render {
 
   double Color::get_r() const {
-    if (r < 0 or r > 1) {
-      throw std::runtime_error("Error: Invalid color parameters");
-    }
     return r;
   }
 
   double Color::get_g() const {
-    if (g < 0 or g > 1) {
-      throw std::runtime_error("Error: Invalid color parameters");
-    }
     return g;
   }
 
   double Color::get_b() const {
-    if (b < 0 or b > 1) {
-      throw std::runtime_error("Error: Invalid color parameters");
-    }
     return b;
   }
 

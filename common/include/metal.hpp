@@ -10,7 +10,11 @@ namespace render {
   class Metal {
   public:
     Metal(std::string name, Color reflectance, double difusion_factor)
-        : name{std::move(name)}, reflectance(reflectance), difusion_factor(difusion_factor) { }
+        : name{std::move(name)}, reflectance(reflectance), difusion_factor(difusion_factor) {
+      if (difusion_factor < 0.0) {
+        throw std::out_of_range("Error: difusion factor less than 0\n");
+      }
+    }
 
     [[nodiscard]] std::string get_name() const;
     [[nodiscard]] Color get_reflectance() const;

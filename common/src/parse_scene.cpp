@@ -71,9 +71,13 @@ namespace render { namespace {
     double const g = parse::util::to_double(tokens[2]);
     double const b = parse::util::to_double(tokens[3]);
 
-    Color const reflectance(r, g, b);
-    render::Matte const matte(tokens[0], reflectance);
-    scene.add_material_matte(matte, line_content);
+    try {
+      Color const reflectance(r, g, b);
+      render::Matte const matte(tokens[0], reflectance);
+      scene.add_material_matte(matte, line_content);
+    } catch (std::out_of_range const & e) {
+      parse::throw_invalid_parameters("matte", line_content);
+    }
   }
 
   void parse_metal_line(std::vector<std::string> const & tokens, Scene & scene,
@@ -85,14 +89,13 @@ namespace render { namespace {
     double const b         = parse::util::to_double(tokens[3]);
     double const diffusion = parse::util::to_double(tokens[4]);
 
-    Color const reflectance(r, g, b);
-
-    if (diffusion < 0.0) {
+    try {
+      Color const reflectance(r, g, b);
+      render::Metal const metal(tokens[0], reflectance, diffusion);
+      scene.add_material_metal(metal, line_content);
+    } catch (std::out_of_range const & e) {
       parse::throw_invalid_parameters("metal", line_content);
     }
-
-    render::Metal const metal(tokens[0], reflectance, diffusion);
-    scene.add_material_metal(metal, line_content);
   }
 
   void parse_refractive_line(std::vector<std::string> const & tokens, Scene & scene,

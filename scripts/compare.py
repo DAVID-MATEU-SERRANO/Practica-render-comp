@@ -116,9 +116,9 @@ def main():
     print(f"Error cuadrático medio (MSE): {mse}")
     
     if max_diff < 150 and mse < 10:
-        print("Resultado: aceptable")
+        print("Resultado: Aceptable")
     else:
-        print("Resultado: NO aceptable")
+        print("Resultado: No aceptable")
 
 if __name__ == "__main__":
     main()

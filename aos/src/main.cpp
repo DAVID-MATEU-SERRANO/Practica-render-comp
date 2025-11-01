@@ -1,4 +1,3 @@
-#include "../../common/include/config.hpp"
 #include "../../common/include/pov.hpp"
 #include "../../common/include/render.hpp"
 #include "../../common/include/scene.hpp"

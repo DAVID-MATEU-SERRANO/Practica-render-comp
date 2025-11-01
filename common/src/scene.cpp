@@ -84,8 +84,8 @@ namespace render {
 
   void Scene::find_closest_intersection(Ray & ray, bool & front_face_out) {
     double closest_distance = std::numeric_limits<double>::max();
-    Point closest_point;
-    Vector closest_normal;
+    Point closest_point(0.0, 0.0, 0.0);
+    Vector closest_normal(0.0, 0.0, 0.0);
     t_material closest_material(Matte{"none", Color(1.0, 1.0, 1.0)});
     bool closest_front_face = true;
 

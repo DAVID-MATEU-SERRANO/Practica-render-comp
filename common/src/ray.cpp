@@ -1,7 +1,6 @@
 #include "../include/ray.hpp"
 #include "../include/color.hpp"
 #include "../include/cylinder.hpp"
-#include "../include/matte.hpp"
 #include "../include/metal.hpp"
 #include "../include/point.hpp"
 #include "../include/refractive.hpp"
@@ -48,7 +47,7 @@ namespace render {
     front_face_out     = (dot_product < 0);
 
     if (!front_face_out) {
-      normal_vector = normal_vector.dot(-1);
+      normal_vector.dot_in_place(-1);
     }
     return true;
   }
@@ -96,7 +95,7 @@ namespace render {
     front_face_out     = (dot_product < 0);
 
     if (!front_face_out) {
-      normal_vector = normal_vector.dot(-1);
+      normal_vector.dot_in_place(-1);
     }
     return true;
   }
@@ -125,7 +124,7 @@ namespace render {
     front_face_out     = (dot_product < 0);
 
     if (!front_face_out) {
-      normal_vector = normal_vector.dot(-1);
+      normal_vector.dot_in_place(-1);
     }
     return true;
   }
@@ -154,7 +153,7 @@ namespace render {
     front_face_out     = (dot_product < 0);
 
     if (!front_face_out) {
-      normal_vector = normal_vector.dot(-1);
+      normal_vector.dot_in_place(-1);
     }
     return true;
   }

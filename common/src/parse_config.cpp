@@ -105,11 +105,10 @@ namespace {  // ----------- helpers "privados"-----------
   bool handle_camera_position(std::string_view key, std::string_view val,
                               std::string const & lineforprint, render::Pov & pov) {
     std::array<double, 3> v{};
-    render::Point position{};
     if (key == "camera_position") {
       ensure_token_count_exact(val, 3, lineforprint, "camera_position");
       parse_three_doubles(std::string(val), v, lineforprint, "camera_position");
-      position = render::Point(v[0], v[1], v[2]);
+      render::Point position(v[0], v[1], v[2]);
       pov.set_camera_position(position);
       return true;
     }
@@ -120,11 +119,10 @@ namespace {  // ----------- helpers "privados"-----------
   bool handle_camera_target(std::string_view key, std::string_view val,
                             std::string const & lineforprint, render::Pov & pov) {
     std::array<double, 3> v{};
-    render::Point target{};
     if (key == "camera_target") {
       ensure_token_count_exact(val, 3, lineforprint, "camera_target");
       parse_three_doubles(std::string(val), v, lineforprint, "camera_target");
-      target = render::Point(v[0], v[1], v[2]);
+      render::Point target(v[0], v[1], v[2]);
       pov.set_camera_target(target);
       return true;
     }
@@ -134,11 +132,10 @@ namespace {  // ----------- helpers "privados"-----------
   bool handle_north(std::string_view key, std::string_view val, std::string const & lineforprint,
                     render::Pov & pov) {
     std::array<double, 3> v{};
-    render::Vector north{};
     if (key == "camera_north") {
       ensure_token_count_exact(val, 3, lineforprint, "camera_north");
       parse_three_doubles(std::string(val), v, lineforprint, "camera_north");
-      north = render::Vector(v[0], v[1], v[2]);
+      render::Vector north(v[0], v[1], v[2]);
       pov.set_camera_north(north);
       return true;
     }

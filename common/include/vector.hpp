@@ -7,8 +7,6 @@ namespace render {
 
   class Vector {
   public:
-    Vector() : x{0.0}, y{0.0}, z{0.0} { }
-
     Vector(double cx, double cy, double cz) : x{cx}, y{cy}, z{cz} { }
 
     // Getters
@@ -33,16 +31,20 @@ namespace render {
 
     [[nodiscard]] Vector dot(double scalar) const { return {x * scalar, y * scalar, z * scalar}; }
 
+    // Version que modifica el propio vector y así no crea una copia innecesaria
+    Vector & dot_in_place(double scalar) {
+      x = x * scalar;
+      y = y * scalar;
+      z = z * scalar;
+      return *this;
+    }
+
     [[nodiscard]] double dot(Vector const & other) const {
       return x * other.x + y * other.y + z * other.z;
     }
 
     [[nodiscard]] Vector cross(Vector const & other) const {
       return {y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x};
-    }
-
-    [[nodiscard]] Vector add_number(double value) const {
-      return {x + value, y + value, z + value};
     }
 
   private:

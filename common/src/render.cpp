@@ -1,6 +1,7 @@
 #include "../include/render.hpp"
 #include "../include/parse_config.hpp"
 #include "../include/parse_scene.hpp"
+#include "../include/scene.hpp"
 #include <fstream>
 
 namespace render {

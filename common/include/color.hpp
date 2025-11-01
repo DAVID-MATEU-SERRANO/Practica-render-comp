@@ -55,10 +55,10 @@ namespace render {
 
     // En este tampoco se crea color temporal
     Color & apply_gamma_correction(double gamma) {
-      double inv_gamma = 1.0 / gamma;
-      r                = std::pow(r, inv_gamma);
-      g                = std::pow(g, inv_gamma);
-      b                = std::pow(b, inv_gamma);
+      double const inv_gamma = 1.0 / gamma;
+      r                      = std::pow(r, inv_gamma);
+      g                      = std::pow(g, inv_gamma);
+      b                      = std::pow(b, inv_gamma);
       return *this;
     }
 

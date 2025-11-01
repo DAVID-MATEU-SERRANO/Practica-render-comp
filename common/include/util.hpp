@@ -139,8 +139,8 @@ namespace parse::util {
   // ✅ Mover to_double del .cpp al .hpp
   inline double to_double(std::string const & token) {
     try {
-      size_t pos   = 0;
-      double value = std::stod(token, &pos);
+      size_t pos         = 0;
+      double const value = std::stod(token, &pos);
       return value;
     } catch (std::exception const & e) {
       throw std::runtime_error("Conversion error: not a valid double");

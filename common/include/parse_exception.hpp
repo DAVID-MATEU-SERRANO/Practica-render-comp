@@ -1,7 +1,6 @@
 #ifndef PARSE_EXCEPTION_HPP
 #define PARSE_EXCEPTION_HPP
 
-#include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>

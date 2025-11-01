@@ -2,15 +2,20 @@
 #include "../include/color.hpp"
 #include "../include/point.hpp"
 #include "../include/pov.hpp"
+#include "../include/scene.hpp"
 #include "../include/util.hpp"
 #include "../include/vector.hpp"
 
 #include <array>
+#include <cctype>
+#include <cstddef>
 #include <regex>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <tuple>
+#include <utility>
 
 using parse::util::expect_positive;
 using parse::util::parse_three_doubles;
@@ -57,7 +62,7 @@ namespace {  // ----------- helpers "privados"-----------
       ++j;  // saltar separación
     }
     if (j < n) {
-      std::string extra = s.substr(j);  // <-- restarle a la línea la posición j
+      std::string const extra = s.substr(j);  // <-- restarle a la línea la posición j
       std::ostringstream oss;
       oss << "Extra data after configuration value for key:" << " " << "[" << key << "]" << "\n"
           << "Extra: \"" << extra << "\"\n";
@@ -108,7 +113,7 @@ namespace {  // ----------- helpers "privados"-----------
     if (key == "camera_position") {
       ensure_token_count_exact(val, 3, lineforprint, "camera_position");
       parse_three_doubles(std::string(val), v, lineforprint, "camera_position");
-      render::Point position(v[0], v[1], v[2]);
+      render::Point const position(v[0], v[1], v[2]);
       pov.set_camera_position(position);
       return true;
     }
@@ -122,7 +127,7 @@ namespace {  // ----------- helpers "privados"-----------
     if (key == "camera_target") {
       ensure_token_count_exact(val, 3, lineforprint, "camera_target");
       parse_three_doubles(std::string(val), v, lineforprint, "camera_target");
-      render::Point target(v[0], v[1], v[2]);
+      render::Point const target(v[0], v[1], v[2]);
       pov.set_camera_target(target);
       return true;
     }
@@ -135,7 +140,7 @@ namespace {  // ----------- helpers "privados"-----------
     if (key == "camera_north") {
       ensure_token_count_exact(val, 3, lineforprint, "camera_north");
       parse_three_doubles(std::string(val), v, lineforprint, "camera_north");
-      render::Vector north(v[0], v[1], v[2]);
+      render::Vector const north(v[0], v[1], v[2]);
       pov.set_camera_north(north);
       return true;
     }
@@ -164,7 +169,7 @@ namespace {  // ----------- helpers "privados"-----------
                      render::Scene & scene) {
     if (key == "samples_per_pixel") {
       ensure_token_count_exact(val, 1, lineforprint, "samples_per_pixel");
-      int samples_per_pixel = to_int(std::string(val), lineforprint, "samples_per_pixel");
+      int const samples_per_pixel = to_int(std::string(val), lineforprint, "samples_per_pixel");
       expect_positive(samples_per_pixel, lineforprint, "samples_per_pixel");
       scene.set_samples_per_pixel(samples_per_pixel);
       return true;
@@ -172,7 +177,7 @@ namespace {  // ----------- helpers "privados"-----------
 
     if (key == "max_depth") {
       ensure_token_count_exact(val, 1, lineforprint, "max_depth");
-      int max_depth = to_int(std::string(val), lineforprint, "max_depth");
+      int const max_depth = to_int(std::string(val), lineforprint, "max_depth");
       expect_positive(max_depth, lineforprint, "max_depth");
       scene.set_max_depth(max_depth);
       return true;
@@ -180,7 +185,7 @@ namespace {  // ----------- helpers "privados"-----------
 
     if (key == "gamma") {
       ensure_token_count_exact(val, 1, lineforprint, "gamma");
-      double gamma = to_double_config(std::string(val), lineforprint, "gamma");
+      double const gamma = to_double_config(std::string(val), lineforprint, "gamma");
       if (gamma <= 0.0) {
         std::ostringstream oss;
         oss << "Invalid value for key: \"" << "[" << key << ":" << "]\"" << "\n"
@@ -200,7 +205,7 @@ namespace {  // ----------- helpers "privados"-----------
       ensure_token_count_exact(val, 3, lineforprint, "background_dark_color");
       parse_three_doubles(std::string(val), colors, lineforprint, "background_dark");
       validate_rgb_config(colors, lineforprint, key);
-      render::Color color(colors[0], colors[1], colors[2]);
+      render::Color const color(colors[0], colors[1], colors[2]);
       scene.set_background_dark_color(color);
       return true;
     }
@@ -208,7 +213,7 @@ namespace {  // ----------- helpers "privados"-----------
       ensure_token_count_exact(val, 3, lineforprint, "background_light_color");
       parse_three_doubles(std::string(val), colors, lineforprint, "background_light_color");
       validate_rgb_config(colors, lineforprint, key);
-      render::Color color(colors[0], colors[1], colors[2]);
+      render::Color const color(colors[0], colors[1], colors[2]);
       scene.set_background_light_color(color);
       return true;
     }
@@ -313,7 +318,7 @@ namespace parse {
       }
     }
 
-    render::ImageSize isz =
+    render::ImageSize const isz =
         render::Pov::compute_image_size(parsed_image_width, parsed_ar_w, parsed_ar_h);
     // aquí puedes usar `isz` para construir el Pov o asignarlo según tu diseño
     // ej: pov = render::Pov(position, target, north, cfg.field_of_view, isz);

@@ -1,12 +1,12 @@
 #include "../include/pov.hpp"
 #include <cmath>
-#define _USE_MATH_DEFINES
+#include <numbers>
 
 namespace render {
 
   ImageSize Pov::compute_image_size(int image_width, int aspect_ratio_w, int aspect_ratio_h) {
-    double ratio     = static_cast<double>(aspect_ratio_h) / static_cast<double>(aspect_ratio_w);
-    int image_height = static_cast<int>(std::floor(image_width * ratio));
+    double const ratio = static_cast<double>(aspect_ratio_h) / static_cast<double>(aspect_ratio_w);
+    int const image_height = static_cast<int>(std::floor(image_width * ratio));
     return ImageSize{image_width, image_height};
   }
 
@@ -15,7 +15,7 @@ namespace render {
   }
 
   [[nodiscard]] double Pov::pw_height() const {
-    return 2.0 * pw_focal_distance() * std::tan((field_of_view * M_PI / 180.0) / 2.0);
+    return 2.0 * pw_focal_distance() * std::tan((field_of_view * std::numbers::pi / 180.0) / 2.0);
   }
 
   [[nodiscard]] double Pov::pw_width() const {
@@ -40,12 +40,12 @@ namespace render {
   }
 
   [[nodiscard]] Point Pov::pw_origin() const {
-    Vector focal_vec = pw_focal_vector();
-    Vector p_h       = pw_horizontal_vector();
-    Vector p_v       = pw_vertical_vector();
+    Vector const focal_vec = pw_focal_vector();
+    Vector const p_h       = pw_horizontal_vector();
+    Vector const p_v       = pw_vertical_vector();
 
-    Vector delta_x = p_h.dot(1.0 / image_size.image_width);
-    Vector delta_y = p_v.dot(1.0 / image_size.image_height);
+    Vector const delta_x = p_h.dot(1.0 / image_size.image_width);
+    Vector const delta_y = p_v.dot(1.0 / image_size.image_height);
 
     return camera_position.substract(focal_vec)
         .substract(p_h.add(p_v).dot(0.5))

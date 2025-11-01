@@ -6,6 +6,7 @@
 #include "../include/parse_exception.hpp"
 #include "../include/point.hpp"
 #include "../include/refractive.hpp"
+#include "../include/scene.hpp"
 #include "../include/sphere.hpp"
 #include "../include/util.hpp"
 #include "../include/vector.hpp"
@@ -71,9 +72,13 @@ namespace render { namespace {
     double const g = parse::util::to_double(tokens[2]);
     double const b = parse::util::to_double(tokens[3]);
 
-    Color const reflectance(r, g, b);
-    render::Matte const matte(tokens[0], reflectance);
-    scene.add_material_matte(matte, line_content);
+    try {
+      Color const reflectance(r, g, b);
+      render::Matte const matte(tokens[0], reflectance);
+      scene.add_material_matte(matte, line_content);
+    } catch (std::runtime_error const & e) {
+      parse::throw_invalid_parameters("matte", line_content);
+    }
   }
 
   void parse_metal_line(std::vector<std::string> const & tokens, Scene & scene,
@@ -85,28 +90,26 @@ namespace render { namespace {
     double const b         = parse::util::to_double(tokens[3]);
     double const diffusion = parse::util::to_double(tokens[4]);
 
-    Color const reflectance(r, g, b);
-
-    if (diffusion < 0.0) {
+    try {
+      Color const reflectance(r, g, b);
+      render::Metal const metal(tokens[0], reflectance, diffusion);
+      scene.add_material_metal(metal, line_content);
+    } catch (std::runtime_error const & e) {
       parse::throw_invalid_parameters("metal", line_content);
     }
-
-    render::Metal const metal(tokens[0], reflectance, diffusion);
-    scene.add_material_metal(metal, line_content);
   }
 
   void parse_refractive_line(std::vector<std::string> const & tokens, Scene & scene,
                              std::string const & line_content) {
     parse::util::expect_token_count(tokens, 2, line_content, "refractive");
 
-    double const refraction_index = parse::util::to_double(tokens[1]);
-
-    if (refraction_index <= 0.0) {
+    try {
+      double const refraction_index = parse::util::to_double(tokens[1]);
+      render::Refractive const refractive(tokens[0], refraction_index);
+      scene.add_material_refractive(refractive, line_content);
+    } catch (std::runtime_error const & e) {
       parse::throw_invalid_parameters("refractive", line_content);
     }
-
-    render::Refractive const refractive(tokens[0], refraction_index);
-    scene.add_material_refractive(refractive, line_content);
   }
 
   void parse_sphere_line(std::vector<std::string> const & tokens, Scene & scene,
@@ -118,10 +121,6 @@ namespace render { namespace {
     double const cz                   = parse::util::to_double(tokens[2]);
     double const radius               = parse::util::to_double(tokens[3]);
     std::string const & material_name = tokens[4];
-
-    if (radius < 0.0) {
-      parse::throw_invalid_parameters("sphere", line_content);
-    }
 
     auto & material_array_index = scene.get_material_index();
     auto it                     = material_array_index.contains(material_name);
@@ -136,17 +135,30 @@ namespace render { namespace {
     render::Point const center(cx, cy, cz);
 
     if (material_type == 0) {
-      auto material = get_material_from_code<render::Matte>(scene, code);
-      render::Sphere const s(center, radius, material);
-      scene.add_sphere(s);
+      try {
+        auto material = get_material_from_code<render::Matte>(scene, code);
+        render::Sphere const s(center, radius, material);
+        scene.add_sphere(s);
+      } catch (std::runtime_error const & e) {
+        parse::throw_invalid_parameters("sphere", line_content);
+      }
+
     } else if (material_type == 1) {
-      auto material = get_material_from_code<render::Metal>(scene, code);
-      render::Sphere const s(center, radius, material);
-      scene.add_sphere(s);
+      try {
+        auto material = get_material_from_code<render::Metal>(scene, code);
+        render::Sphere const s(center, radius, material);
+        scene.add_sphere(s);
+      } catch (std::runtime_error const & e) {
+        parse::throw_invalid_parameters("sphere", line_content);
+      }
     } else {
-      auto material = get_material_from_code<render::Refractive>(scene, code);
-      render::Sphere const s(center, radius, material);
-      scene.add_sphere(s);
+      try {
+        auto material = get_material_from_code<render::Refractive>(scene, code);
+        render::Sphere const s(center, radius, material);
+        scene.add_sphere(s);
+      } catch (std::runtime_error const & e) {
+        parse::throw_invalid_parameters("sphere", line_content);
+      }
     }
   }
 
@@ -157,8 +169,7 @@ namespace render { namespace {
     std::string material_name;
   };
 
-  CylinderParams parse_cylinder_geometry(std::vector<std::string> const & t,
-                                         std::string const & lineforprint) {
+  CylinderParams parse_cylinder_geometry(std::vector<std::string> const & t) {
     double const cx                   = parse::util::to_double(t[0]);
     double const cy                   = parse::util::to_double(t[1]);
     double const cz                   = parse::util::to_double(t[2]);
@@ -168,14 +179,6 @@ namespace render { namespace {
     double const az                   = parse::util::to_double(t[6]);
     std::string const & material_name = t[7];
 
-    if (radius <= 0.0) {
-      parse::throw_invalid_parameters("cylinder", lineforprint);
-    }
-
-    if (ax == 0.0 and ay == 0.0 and az == 0.0) {
-      parse::throw_invalid_parameters("cylinder (null axis)", lineforprint);
-    }
-
     return {render::Point(cx, cy, cz), render::Vector(ax, ay, az), radius, material_name};
   }
 
@@ -183,7 +186,7 @@ namespace render { namespace {
                            std::string const & line_content) {
     parse::util::expect_token_count(tokens, 8, line_content, "cylinder");
 
-    CylinderParams const params = parse_cylinder_geometry(tokens, line_content);
+    CylinderParams const params = parse_cylinder_geometry(tokens);
 
     auto & material_array_index = scene.get_material_index();
     auto it                     = material_array_index.contains(params.material_name);
@@ -196,17 +199,30 @@ namespace render { namespace {
     int const material_type = static_cast<int>(code % 10);
 
     if (material_type == 0) {
-      auto material = get_material_from_code<render::Matte>(scene, code);
-      render::Cylinder const c(params.center, params.radius, params.direction, material);
-      scene.add_cylinder(c);
+      try {
+        auto material = get_material_from_code<render::Matte>(scene, code);
+        render::Cylinder const c(params.center, params.radius, params.direction, material);
+        scene.add_cylinder(c);
+      } catch (std::runtime_error const & e) {
+        parse::throw_invalid_parameters("cylinder", line_content);
+      }
+
     } else if (material_type == 1) {
-      auto material = get_material_from_code<render::Metal>(scene, code);
-      render::Cylinder const c(params.center, params.radius, params.direction, material);
-      scene.add_cylinder(c);
+      try {
+        auto material = get_material_from_code<render::Metal>(scene, code);
+        render::Cylinder const c(params.center, params.radius, params.direction, material);
+        scene.add_cylinder(c);
+      } catch (std::runtime_error const & e) {
+        parse::throw_invalid_parameters("cylinder", line_content);
+      }
     } else {
-      auto material = get_material_from_code<render::Refractive>(scene, code);
-      render::Cylinder const c(params.center, params.radius, params.direction, material);
-      scene.add_cylinder(c);
+      try {
+        auto material = get_material_from_code<render::Refractive>(scene, code);
+        render::Cylinder const c(params.center, params.radius, params.direction, material);
+        scene.add_cylinder(c);
+      } catch (std::runtime_error const & e) {
+        parse::throw_invalid_parameters("cylinder", line_content);
+      }
     }
   }
 

@@ -17,8 +17,8 @@ namespace render {
   }
 
   Vector Vector::perpendicular_component(Vector const & other) const {
-    Vector unit_axis  = other.normalized();
-    double projection = this->dot(unit_axis);
+    Vector const unit_axis  = other.normalized();
+    double const projection = this->dot(unit_axis);
     return this->substract(unit_axis.dot(projection));
   }
 

@@ -1,6 +1,7 @@
 #include "../include/ray.hpp"
 #include "../include/color.hpp"
 #include "../include/cylinder.hpp"
+#include "../include/matte.hpp"
 #include "../include/metal.hpp"
 #include "../include/point.hpp"
 #include "../include/refractive.hpp"
@@ -25,9 +26,9 @@ namespace render {
     if (discriminant < 0) {
       return false;
     }
-    double final_discriminant = std::sqrt(discriminant);
-    double const t1           = (-b - final_discriminant) / (2 * a);
-    double const t2           = (-b + final_discriminant) / (2 * a);
+    double const final_discriminant = std::sqrt(discriminant);
+    double const t1                 = (-b - final_discriminant) / (2 * a);
+    double const t2                 = (-b + final_discriminant) / (2 * a);
 
     if (t1 < 1e-3 and t2 < 1e-3) {
       return false;
@@ -43,8 +44,8 @@ namespace render {
     point_intersection = origin.add(direction.dot(intersection_distance));
     normal_vector = point_intersection.substract(sphere.get_center()).dot(1 / sphere.get_radius());
 
-    double dot_product = normal_vector.dot(direction);
-    front_face_out     = (dot_product < 0);
+    double const dot_product = normal_vector.dot(direction);
+    front_face_out           = (dot_product < 0);
 
     if (!front_face_out) {
       normal_vector.dot_in_place(-1);
@@ -67,9 +68,9 @@ namespace render {
     if (discriminant < 0) {
       return false;
     }
-    double final_discriminant = std::sqrt(discriminant);
-    double const t1           = (-b - final_discriminant) / (2 * a);
-    double const t2           = (-b + final_discriminant) / (2 * a);
+    double const final_discriminant = std::sqrt(discriminant);
+    double const t1                 = (-b - final_discriminant) / (2 * a);
+    double const t2                 = (-b + final_discriminant) / (2 * a);
     if (t1 < 1e-3 and t2 < 1e-3) {
       return false;
     }
@@ -83,16 +84,16 @@ namespace render {
 
     point_intersection = origin.add(direction.dot(intersection_distance));
 
-    Vector point_to_center   = point_intersection.substract(cylinder.get_center());
-    double height_projection = point_to_center.dot(a_hat);
+    Vector const point_to_center   = point_intersection.substract(cylinder.get_center());
+    double const height_projection = point_to_center.dot(a_hat);
     if (std::abs(height_projection) > (cylinder.get_height() / 2)) {
       return false;
     }
 
     normal_vector = point_to_center.perpendicular_component(a_hat);
 
-    double dot_product = normal_vector.dot(direction);
-    front_face_out     = (dot_product < 0);
+    double const dot_product = normal_vector.dot(direction);
+    front_face_out           = (dot_product < 0);
 
     if (!front_face_out) {
       normal_vector.dot_in_place(-1);
@@ -120,8 +121,8 @@ namespace render {
       return false;
     }
 
-    double dot_product = normal_vector.dot(direction);
-    front_face_out     = (dot_product < 0);
+    double const dot_product = normal_vector.dot(direction);
+    front_face_out           = (dot_product < 0);
 
     if (!front_face_out) {
       normal_vector.dot_in_place(-1);
@@ -149,8 +150,8 @@ namespace render {
       return false;
     }
 
-    double dot_product = normal_vector.dot(direction);
-    front_face_out     = (dot_product < 0);
+    double const dot_product = normal_vector.dot(direction);
+    front_face_out           = (dot_product < 0);
 
     if (!front_face_out) {
       normal_vector.dot_in_place(-1);
@@ -213,11 +214,11 @@ namespace render {
   }
 
   void Ray::refractive_color_contribution(Refractive const & refractive, bool front_face) {
-    Vector u_hat = direction.normalized();
-    Vector n_hat = normal_vector;
+    Vector const u_hat = direction.normalized();
+    Vector const n_hat = normal_vector;
 
-    double cos_theta = std::min(-u_hat.dot(n_hat), 1.0);
-    double sin_theta = std::sqrt(1.0 - cos_theta * cos_theta);
+    double const cos_theta = std::min(-u_hat.dot(n_hat), 1.0);
+    double const sin_theta = std::sqrt(1.0 - cos_theta * cos_theta);
 
     double corrected_refraction_index = refractive.get_refraction_index();
 
@@ -228,10 +229,10 @@ namespace render {
     if (corrected_refraction_index * sin_theta > 1.0) {
       reflected_direction = u_hat.substract(n_hat.dot(2.0 * u_hat.dot(n_hat)));
     } else {
-      Vector u                   = u_hat.add(n_hat.dot(cos_theta)).dot(corrected_refraction_index);
-      double u_magnitude_squared = u.dot(u);
-      Vector v                   = n_hat.dot(-std::sqrt(1.0 - u_magnitude_squared));
-      reflected_direction        = u.add(v);
+      Vector const u = u_hat.add(n_hat.dot(cos_theta)).dot(corrected_refraction_index);
+      double const u_magnitude_squared = u.dot(u);
+      Vector const v                   = n_hat.dot(-std::sqrt(1.0 - u_magnitude_squared));
+      reflected_direction              = u.add(v);
     }
 
     reflected_direction = reflected_direction.normalized();

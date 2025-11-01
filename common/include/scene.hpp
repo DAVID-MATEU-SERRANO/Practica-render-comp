@@ -109,17 +109,16 @@ namespace render {
     void add_pov(Pov const & p) { pov = p; }
 
     void add_material_matte(Matte const & matte, std::string const & line_content) {
-      if (material_index.find(matte.get_name()) != material_index.end()) {
+      if (material_index.contains(matte.get_name())) {
         parse::throw_material_exists(matte.get_name(), line_content);
       }
-
       std::size_t const new_index      = mattes.size();
       material_index[matte.get_name()] = new_index * 10 + 0;
       mattes.push_back(matte);
     }
 
     void add_material_metal(Metal const & metal, std::string const & line_content) {
-      if (material_index.find(metal.get_name()) != material_index.end()) {
+      if (material_index.contains(metal.get_name())) {
         parse::throw_material_exists(metal.get_name(), line_content);
       }
       std::size_t const new_index      = metals.size();
@@ -128,7 +127,7 @@ namespace render {
     }
 
     void add_material_refractive(Refractive const & refractive, std::string const & line_content) {
-      if (material_index.find(refractive.get_name()) != material_index.end()) {
+      if (material_index.contains(refractive.get_name())) {
         parse::throw_material_exists(refractive.get_name(), line_content);
       }
       std::size_t const new_index           = refractives.size();

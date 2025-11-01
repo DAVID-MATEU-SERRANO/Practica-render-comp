@@ -2,17 +2,10 @@ add_library(common STATIC)
 
 target_sources(common 
     PRIVATE
-        src/color.cpp
-        src/cylinder.cpp
-        src/matte.cpp
-        src/metal.cpp
         src/parse_config.cpp
         src/parse_scene.cpp
-        src/point.cpp
         src/pov.cpp
-        src/proyection_window.cpp
         src/ray.cpp
-        src/refractive.cpp
         src/render.cpp
         src/scene.cpp
         src/sphere.cpp

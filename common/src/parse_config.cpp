@@ -1,6 +1,5 @@
 #include "../include/parse_config.hpp"
 #include "../include/color.hpp"
-#include "../include/config.hpp"
 #include "../include/point.hpp"
 #include "../include/pov.hpp"
 #include "../include/util.hpp"

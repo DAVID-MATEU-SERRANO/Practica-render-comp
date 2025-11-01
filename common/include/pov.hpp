@@ -14,19 +14,16 @@ namespace render {
     int image_height = 9;
   };
 
-  // Clase usada para el punto de vista
   class Pov {
   public:
-    // Constructor por defecto (valores sacados de Config por defecto)
+    // Default values
     Pov()
         : camera_position{0.0, 0.0, -10.0}, camera_target{0.0, 0.0, 0.0},
           camera_north{0.0, 1.0, 0.0}, field_of_view{60.0},
           image_size{800, static_cast<int>(std::lround(800.0 * 9.0 / 16.0))}, ray_seed{19},
           proyection_window{Proyection_window(pw_focal_vector(), pw_focal_distance(), pw_height(),
                                               pw_width(), pw_horizontal_vector(),
-                                              pw_vertical_vector(), pw_origin())} {
-      // proyection_window constructed already — no need to call recompute_proyection_window()
-    }
+                                              pw_vertical_vector(), pw_origin())} { }
 
     // (existing ctor remains)
     Pov(Point camera_position, Point camera_target, Vector camera_north, double field_of_view,
@@ -37,50 +34,47 @@ namespace render {
                                               pw_width(), pw_horizontal_vector(),
                                               pw_vertical_vector(), pw_origin())} { }
 
-    // Getters para los atributos
-    [[nodiscard]] Point get_camera_position() const;
-    [[nodiscard]] Point get_camera_target() const;
-    [[nodiscard]] Vector get_camera_north() const;
-    [[nodiscard]] double get_field_of_view() const;
-    [[nodiscard]] int get_image_height() const;
-    [[nodiscard]] int get_image_width() const;
-    [[nodiscard]] std::uint64_t get_ray_seed() const;
-    [[nodiscard]] Proyection_window get_proyection_window() const;
+    // Getters
+    [[nodiscard]] Point get_camera_position() const { return camera_position; }
+
+    [[nodiscard]] Point get_camera_target() const { return camera_target; }
+
+    [[nodiscard]] Vector get_camera_north() const { return camera_north; }
+
+    [[nodiscard]] double get_field_of_view() const { return field_of_view; }
+
+    [[nodiscard]] int get_image_height() const { return image_size.image_height; }
+
+    [[nodiscard]] int get_image_width() const { return image_size.image_width; }
+
+    [[nodiscard]] std::uint64_t get_ray_seed() const { return ray_seed; }
+
+    [[nodiscard]] Proyection_window get_proyection_window() const { return proyection_window; }
 
     // Setters
     void set_camera_position(Point const & p) {
       camera_position = p;
-      proyection_window =
-          Proyection_window(pw_focal_vector(), pw_focal_distance(), pw_height(), pw_width(),
-                            pw_horizontal_vector(), pw_vertical_vector(), pw_origin());
+      recompute_proyection_window();
     }
 
     void set_camera_target(Point const & t) {
       camera_target = t;
-      proyection_window =
-          Proyection_window(pw_focal_vector(), pw_focal_distance(), pw_height(), pw_width(),
-                            pw_horizontal_vector(), pw_vertical_vector(), pw_origin());
+      recompute_proyection_window();
     }
 
     void set_camera_north(Vector const & n) {
       camera_north = n;
-      proyection_window =
-          Proyection_window(pw_focal_vector(), pw_focal_distance(), pw_height(), pw_width(),
-                            pw_horizontal_vector(), pw_vertical_vector(), pw_origin());
+      recompute_proyection_window();
     }
 
     void set_field_of_view(double f) {
       field_of_view = f;
-      proyection_window =
-          Proyection_window(pw_focal_vector(), pw_focal_distance(), pw_height(), pw_width(),
-                            pw_horizontal_vector(), pw_vertical_vector(), pw_origin());
+      recompute_proyection_window();
     }
 
     void set_image_size(ImageSize const & s) {
       image_size = s;
-      proyection_window =
-          Proyection_window(pw_focal_vector(), pw_focal_distance(), pw_height(), pw_width(),
-                            pw_horizontal_vector(), pw_vertical_vector(), pw_origin());
+      recompute_proyection_window();
     }
 
     void set_ray_seed(std::uint64_t seed) { ray_seed = seed; }
@@ -88,16 +82,52 @@ namespace render {
     [[nodiscard]] static ImageSize compute_image_size(int image_width, int aspect_ratio_w,
                                                       int aspect_ratio_h);
 
-    // Calculos ventana proyección
-    [[nodiscard]] Vector pw_focal_vector() const;
-    [[nodiscard]] double pw_focal_distance() const;
-    [[nodiscard]] double pw_height() const;
-    [[nodiscard]] double pw_width() const;
-    [[nodiscard]] Vector pw_director_vector_u() const;
-    [[nodiscard]] Vector pw_director_vector_v() const;
-    [[nodiscard]] Vector pw_horizontal_vector() const;
-    [[nodiscard]] Vector pw_vertical_vector() const;
-    [[nodiscard]] Point pw_origin() const;
+    // Proyection window
+    [[nodiscard]] Vector pw_focal_vector() const {
+      return camera_position.substract(camera_target);
+    }
+
+    [[nodiscard]] double pw_focal_distance() const {
+      return camera_position.substract(camera_target).magnitude();
+    }
+
+    [[nodiscard]] double pw_height() const {
+      return 2.0 * pw_focal_distance() * std::tan((field_of_view * M_PI / 180.0) / 2.0);
+    }
+
+    [[nodiscard]] double pw_width() const {
+      return pw_height() * (static_cast<double>(image_size.image_width) /
+                            (static_cast<double>(image_size.image_height)));
+    }
+
+    [[nodiscard]] Vector pw_director_vector_u() const {
+      return (camera_north.cross(pw_focal_vector().normalized())).normalized();
+    }
+
+    [[nodiscard]] Vector pw_director_vector_v() const {
+      return pw_focal_vector().normalized().cross(pw_director_vector_u());
+    }
+
+    [[nodiscard]] Vector pw_horizontal_vector() const {
+      return pw_director_vector_u().dot(pw_width());
+    }
+
+    [[nodiscard]] Vector pw_vertical_vector() const {
+      return pw_director_vector_v().dot(-1.0).dot(pw_height());
+    }
+
+    [[nodiscard]] Point pw_origin() const {
+      Vector focal_vec = pw_focal_vector();
+      Vector p_h       = pw_horizontal_vector();
+      Vector p_v       = pw_vertical_vector();
+
+      Vector delta_x = p_h.dot(1.0 / image_size.image_width);
+      Vector delta_y = p_v.dot(1.0 / image_size.image_height);
+
+      return camera_position.substract(focal_vec)
+          .substract(p_h.add(p_v).dot(0.5))
+          .add(delta_x.add(delta_y).dot(0.5));
+    }
 
   private:
     Point camera_position;

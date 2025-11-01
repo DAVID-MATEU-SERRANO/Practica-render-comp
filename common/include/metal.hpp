@@ -12,9 +12,12 @@ namespace render {
     Metal(std::string name, Color reflectance, double difusion_factor)
         : name{std::move(name)}, reflectance(reflectance), difusion_factor(difusion_factor) { }
 
-    [[nodiscard]] std::string get_name() const;
-    [[nodiscard]] Color get_reflectance() const;
-    [[nodiscard]] double get_difusion_factor() const;
+    // Getters
+    [[nodiscard]] std::string get_name() const { return name; }
+
+    [[nodiscard]] Color get_reflectance() const { return reflectance; }
+
+    [[nodiscard]] double get_difusion_factor() const { return difusion_factor; }
 
   private:
     std::string name;

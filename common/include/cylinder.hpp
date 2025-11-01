@@ -16,15 +16,25 @@ namespace render {
   class Cylinder {
   public:
     Cylinder(Point vec_center, double radius, Vector vec, t_material material)
-        : vec_center{vec_center}, radius{radius}, vec_edge{vec}, material(std::move(material)) { }
+        : vec_center{vec_center}, radius{radius}, vec_edge{vec}, material(std::move(material)) {
+      if (radius < 0.0) {
+        throw std::runtime_error("Error: Invalid cylinder radius");
+      }
+      if (vec_edge.magnitude() == 0.0) {
+        throw std::runtime_error("Error: Invalid cylinder edge vector");
+      }
+    }
 
-    // [[nodiscard]] sirve para si haces operaciones y no se usan se eliminen (de momento las
-    // dejamos pero no se si van a hacer falta)
-    [[nodiscard]] Point get_center() const;
-    [[nodiscard]] Vector get_edge() const;
-    [[nodiscard]] double get_radius() const;
-    [[nodiscard]] double get_height() const;
-    [[nodiscard]] t_material get_material() const;
+    // Getters
+    [[nodiscard]] Point get_center() const { return vec_center; }
+
+    [[nodiscard]] Vector get_edge() const { return vec_edge.normalized(); }
+
+    [[nodiscard]] double get_radius() const { return radius; }
+
+    [[nodiscard]] double get_height() const { return vec_edge.magnitude(); }
+
+    [[nodiscard]] t_material get_material() const { return material; }
 
   private:
     Point vec_center;

@@ -20,21 +20,39 @@ namespace render {
           intersection_material(Matte("default", Color(1.0, 1.0, 1.0))),
           intersection_color(intersection_color), reflected_direction(0.0, 0.0, 0.0) { }
 
-    [[nodiscard]] Point const & get_origin() const;
-    [[nodiscard]] Vector const & get_direction() const;
-    [[nodiscard]] Point const & get_point_intersection() const;
-    [[nodiscard]] Vector const & get_normal_vector() const;
-    [[nodiscard]] double get_intersection_distance() const;
-    [[nodiscard]] t_material const & get_intersection_material() const;
-    [[nodiscard]] Color const & get_intersection_color() const;
-    [[nodiscard]] Vector const & get_reflected_direction() const;
+    // ✅ Getters
+    [[nodiscard]] Point const & get_origin() const { return origin; }
 
-    void set_point_intersection(Point const & point);
-    void set_normal_vector(Vector const & normal);
-    void set_intersection_distance(double distance);
-    void set_intersection_material(t_material const & material);
-    void set_intersection_color(Color const & color);
-    void set_reflected_direction(Vector const & direction);
+    [[nodiscard]] Vector const & get_direction() const { return direction; }
+
+    [[nodiscard]] Point const & get_point_intersection() const { return point_intersection; }
+
+    [[nodiscard]] Vector const & get_normal_vector() const { return normal_vector; }
+
+    [[nodiscard]] double get_intersection_distance() const { return intersection_distance; }
+
+    [[nodiscard]] t_material const & get_intersection_material() const {
+      return intersection_material;
+    }
+
+    [[nodiscard]] Color const & get_intersection_color() const { return intersection_color; }
+
+    [[nodiscard]] Vector const & get_reflected_direction() const { return reflected_direction; }
+
+    // ✅ Setters
+    void set_point_intersection(Point const & point) { point_intersection = point; }
+
+    void set_normal_vector(Vector const & normal) { normal_vector = normal; }
+
+    void set_intersection_distance(double distance) { intersection_distance = distance; }
+
+    void set_intersection_material(t_material const & material) {
+      intersection_material = material;
+    }
+
+    void set_intersection_color(Color const & color) { intersection_color = color; }
+
+    void set_reflected_direction(Vector const & direction) { reflected_direction = direction; }
 
     bool sphere_intersection(Sphere const & sphere, bool & front_face_out);
     bool cylinder_side_intersection(Cylinder const & cylinder, bool & front_face_out);

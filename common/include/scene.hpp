@@ -37,6 +37,63 @@ namespace render {
           background_dark_color{background_dark_color},
           background_light_color{background_light_color} { }
 
+    // Getters
+    [[nodiscard]] Pixel get_pixel_color(int f, int c, std::mt19937_64 & rng,
+                                        std::mt19937_64 & m_rng);
+
+    [[nodiscard]] Pov & get_pov() { return pov; }
+
+    [[nodiscard]] Pov const & get_pov() const { return pov; }
+
+    [[nodiscard]] std::map<std::string, std::size_t> & get_material_index() {
+      return material_index;
+    }
+
+    [[nodiscard]] int get_samples_per_pixel() const { return samples_per_pixel; }
+
+    [[nodiscard]] int get_max_depth() const { return max_depth; }
+
+    [[nodiscard]] std::uint64_t get_material_rng_seed() const { return material_rng_seed; }
+
+    [[nodiscard]] std::uint64_t get_rays_rng_seed() const { return rays_rng_seed; }
+
+    [[nodiscard]] Color const & get_background_dark_color() const { return background_dark_color; }
+
+    [[nodiscard]] Color const & get_background_light_color() const {
+      return background_light_color;
+    }
+
+    [[nodiscard]] double get_gamma() const { return gamma; }
+
+    [[nodiscard]] std::vector<render::Matte> const & get_mattes() const { return mattes; }
+
+    [[nodiscard]] std::vector<render::Metal> const & get_metals() const { return metals; }
+
+    [[nodiscard]] std::vector<render::Refractive> const & get_refractives() const {
+      return refractives;
+    }
+
+    [[nodiscard]] std::vector<Sphere> const & get_spheres() const { return spheres; }
+
+    [[nodiscard]] std::vector<Cylinder> const & get_cylinders() const { return cylinders; }
+
+    // Setters
+    void set_samples_per_pixel(int s) { samples_per_pixel = s; }
+
+    void set_max_depth(int d) { max_depth = d; }
+
+    void set_material_rng_seed(uint64_t s) { material_rng_seed = s; }
+
+    void set_rays_rng_seed(uint64_t s) { rays_rng_seed = s; }
+
+    void set_background_dark_color(Color const & c) { background_dark_color = c; }
+
+    void set_background_light_color(Color const & c) { background_light_color = c; }
+
+    void set_gamma(double g) { gamma = g; }
+
+    void set_pov(Pov & p) { pov = p; }
+
     bool test_sphere_intersections(Ray & ray, double & closest_distance, Point & closest_point,
                                    Vector & closest_normal, t_material & closest_material,
                                    bool & closest_front_face);
@@ -77,61 +134,6 @@ namespace render {
       material_index[refractive.get_name()] = new_index * 10 + 2;
       refractives.push_back(refractive);
     }
-
-    void set_samples_per_pixel(int s) { samples_per_pixel = s; }
-
-    void set_max_depth(int d) { max_depth = d; }
-
-    void set_material_rng_seed(uint64_t s) { material_rng_seed = s; }
-
-    void set_rays_rng_seed(uint64_t s) { rays_rng_seed = s; }
-
-    void set_background_dark_color(Color const & c) { background_dark_color = c; }
-
-    void set_background_light_color(Color const & c) { background_light_color = c; }
-
-    void set_gamma(double g) { gamma = g; }
-
-    void set_pov(Pov & p) { pov = p; }
-
-    [[nodiscard]] Pixel get_pixel_color(int f, int c, std::mt19937_64 & rng,
-                                        std::mt19937_64 & m_rng);
-
-    [[nodiscard]] Pov & get_pov() { return pov; }
-
-    [[nodiscard]] Pov const & get_pov() const { return pov; }
-
-    [[nodiscard]] std::map<std::string, std::size_t> & get_material_index() {
-      return material_index;
-    }
-
-    [[nodiscard]] int get_samples_per_pixel() const { return samples_per_pixel; }
-
-    [[nodiscard]] int get_max_depth() const { return max_depth; }
-
-    [[nodiscard]] std::uint64_t get_material_rng_seed() const { return material_rng_seed; }
-
-    [[nodiscard]] std::uint64_t get_rays_rng_seed() const { return rays_rng_seed; }
-
-    [[nodiscard]] Color const & get_background_dark_color() const { return background_dark_color; }
-
-    [[nodiscard]] Color const & get_background_light_color() const {
-      return background_light_color;
-    }
-
-    [[nodiscard]] double get_gamma() const { return gamma; }
-
-    [[nodiscard]] std::vector<render::Matte> const & get_mattes() const { return mattes; }
-
-    [[nodiscard]] std::vector<render::Metal> const & get_metals() const { return metals; }
-
-    [[nodiscard]] std::vector<render::Refractive> const & get_refractives() const {
-      return refractives;
-    }
-
-    [[nodiscard]] std::vector<Sphere> const & get_spheres() const { return spheres; }
-
-    [[nodiscard]] std::vector<Cylinder> const & get_cylinders() const { return cylinders; }
 
   public:
     std::vector<Sphere> spheres;

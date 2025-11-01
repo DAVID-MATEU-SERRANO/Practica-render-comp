@@ -5,7 +5,6 @@ set(COMMON_SRC_FILES
   "${CMAKE_SOURCE_DIR}/common/src/ray.cpp"
   "${CMAKE_SOURCE_DIR}/common/src/render.cpp"
   "${CMAKE_SOURCE_DIR}/common/src/scene.cpp"
-  "${CMAKE_SOURCE_DIR}/common/src/util.cpp"
   "${CMAKE_SOURCE_DIR}/common/src/vector.cpp"
 )
 

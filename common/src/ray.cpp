@@ -15,62 +15,6 @@
 
 namespace render {
 
-  Point const & Ray::get_origin() const {
-    return origin;
-  }
-
-  Vector const & Ray::get_direction() const {
-    return direction;
-  }
-
-  Point const & Ray::get_point_intersection() const {
-    return point_intersection;
-  }
-
-  Vector const & Ray::get_normal_vector() const {
-    return normal_vector;
-  }
-
-  double Ray::get_intersection_distance() const {
-    return intersection_distance;
-  }
-
-  t_material const & Ray::get_intersection_material() const {
-    return intersection_material;
-  }
-
-  Color const & Ray::get_intersection_color() const {
-    return intersection_color;
-  }
-
-  Vector const & Ray::get_reflected_direction() const {
-    return reflected_direction;
-  }
-
-  void Ray::set_point_intersection(Point const & point) {
-    point_intersection = point;
-  }
-
-  void Ray::set_normal_vector(Vector const & normal) {
-    normal_vector = normal;
-  }
-
-  void Ray::set_intersection_distance(double distance) {
-    intersection_distance = distance;
-  }
-
-  void Ray::set_intersection_material(t_material const & material) {
-    intersection_material = material;
-  }
-
-  void Ray::set_intersection_color(Color const & color) {
-    intersection_color = color;
-  }
-
-  void Ray::set_reflected_direction(Vector const & direction) {
-    reflected_direction = direction;
-  }
-
   bool Ray::sphere_intersection(Sphere const & sphere, bool & front_face_out) {
     Vector const rc = sphere.get_center().substract(origin);
     double const a  = direction.dot(direction);

@@ -16,15 +16,16 @@ namespace render {
   public:
     Sphere(Point sphere_center, double radius, t_material material)
         : sphere_center{sphere_center}, radius{radius}, material(std::move(material)) {
-      // Introducir validaciones si es necesario, Falta incluir atributo que sea material
+      if (radius < 0.0) {
+        throw std::runtime_error("Error: Invalid sphere parameters");
+      }
     }
 
-    // [[nodiscard]] sirve para si haces operaciones y no se usan se eliminen (de momento las
-    // dejamos pero no se si van a hacer falta)
+    [[nodiscard]] double get_radius() const { return radius; }
 
-    [[nodiscard]] double get_radius() const;
-    [[nodiscard]] Point get_center() const;
-    [[nodiscard]] t_material get_material() const;
+    [[nodiscard]] Point get_center() const { return sphere_center; }
+
+    [[nodiscard]] t_material get_material() const { return material; }
 
   private:
     Point sphere_center;

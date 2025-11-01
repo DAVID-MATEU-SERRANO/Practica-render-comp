@@ -8,7 +8,6 @@ target_sources(common
         src/ray.cpp
         src/render.cpp
         src/scene.cpp
-        src/sphere.cpp
         src/util.cpp
         src/vector.cpp
 )

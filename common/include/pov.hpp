@@ -87,47 +87,14 @@ namespace render {
       return camera_position.substract(camera_target);
     }
 
-    [[nodiscard]] double pw_focal_distance() const {
-      return camera_position.substract(camera_target).magnitude();
-    }
-
-    [[nodiscard]] double pw_height() const {
-      return 2.0 * pw_focal_distance() * std::tan((field_of_view * M_PI / 180.0) / 2.0);
-    }
-
-    [[nodiscard]] double pw_width() const {
-      return pw_height() * (static_cast<double>(image_size.image_width) /
-                            (static_cast<double>(image_size.image_height)));
-    }
-
-    [[nodiscard]] Vector pw_director_vector_u() const {
-      return (camera_north.cross(pw_focal_vector().normalized())).normalized();
-    }
-
-    [[nodiscard]] Vector pw_director_vector_v() const {
-      return pw_focal_vector().normalized().cross(pw_director_vector_u());
-    }
-
-    [[nodiscard]] Vector pw_horizontal_vector() const {
-      return pw_director_vector_u().dot(pw_width());
-    }
-
-    [[nodiscard]] Vector pw_vertical_vector() const {
-      return pw_director_vector_v().dot(-1.0).dot(pw_height());
-    }
-
-    [[nodiscard]] Point pw_origin() const {
-      Vector focal_vec = pw_focal_vector();
-      Vector p_h       = pw_horizontal_vector();
-      Vector p_v       = pw_vertical_vector();
-
-      Vector delta_x = p_h.dot(1.0 / image_size.image_width);
-      Vector delta_y = p_v.dot(1.0 / image_size.image_height);
-
-      return camera_position.substract(focal_vec)
-          .substract(p_h.add(p_v).dot(0.5))
-          .add(delta_x.add(delta_y).dot(0.5));
-    }
+    [[nodiscard]] double pw_focal_distance() const;
+    [[nodiscard]] double pw_height() const;
+    [[nodiscard]] double pw_width() const;
+    [[nodiscard]] Vector pw_director_vector_u() const;
+    [[nodiscard]] Vector pw_director_vector_v() const;
+    [[nodiscard]] Vector pw_horizontal_vector() const;
+    [[nodiscard]] Vector pw_vertical_vector() const;
+    [[nodiscard]] Point pw_origin() const;
 
   private:
     Point camera_position;

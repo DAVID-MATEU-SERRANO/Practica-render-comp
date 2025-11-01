@@ -7,13 +7,11 @@ namespace render {
 
   class Color {
   public:
-    Color() : r(0.0), g(0.0), b(0.0) {
+    Color(double r, double g, double b) : r(r), g(g), b(b) {
       if (r < 0.0 or r > 1.0 or g < 0.0 or g > 1.0 or b < 0.0 or b > 1.0) {
         throw std::runtime_error("Error: Invalid color parameters");
       }
     }
-
-    Color(double r, double g, double b) : r(r), g(g), b(b) { }
 
     // Getters
     [[nodiscard]] double get_r() const { return r; }
@@ -22,21 +20,46 @@ namespace render {
 
     [[nodiscard]] double get_b() const { return b; }
 
+    // Operators
     [[nodiscard]] Color multiply(double factor) const {
       return {r * factor, g * factor, b * factor};
     }
 
-    // Operators
-    [[nodiscard]] Color multiply(Color const & other) const {
-      return {r * other.r, g * other.g, b * other.b};
+    // Esta versión del multiply es para cuando no quieras crear un objeto color temporal
+    Color & multiply_in_place(double factor) {
+      r *= factor;
+      g *= factor;
+      b *= factor;
+      return *this;
+    }
+
+    // Sobrecarga del método que no crea color temporal
+    Color & multiply_in_place(Color const & other) {
+      r *= other.r;
+      g *= other.g;
+      b *= other.b;
+      return *this;
     }
 
     [[nodiscard]] Color add(Color const & other) const {
       return {r + other.r, g + other.g, b + other.b};
     }
 
-    [[nodiscard]] Color apply_gamma_correction(double gamma) const {
-      return {std::pow(r, 1.0 / gamma), std::pow(g, 1.0 / gamma), std::pow(b, 1.0 / gamma)};
+    // Versión de la suma que no crea color temporal
+    Color & add_in_place(Color const & other) {
+      r += other.r;
+      g += other.g;
+      b += other.b;
+      return *this;
+    }
+
+    // En este tampoco se crea color temporal
+    Color & apply_gamma_correction(double gamma) {
+      double inv_gamma = 1.0 / gamma;
+      r                = std::pow(r, inv_gamma);
+      g                = std::pow(g, inv_gamma);
+      b                = std::pow(b, inv_gamma);
+      return *this;
     }
 
   private:

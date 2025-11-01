@@ -129,7 +129,7 @@ namespace render {
         find_closest_intersection(ray, front_face);
         ray.color_contribution(background_dark_color, background_light_color, m_rng, front_face);
 
-        ray_color = ray_color.multiply(ray.get_intersection_color());
+        ray_color.multiply_in_place(ray.get_intersection_color());
 
         if (ray.get_intersection_distance() == -1.0) {
           break;
@@ -143,10 +143,10 @@ namespace render {
         current_origin    = ray.get_point_intersection();
         current_direction = ray.get_reflected_direction().normalized();
       }
-      accumulated_color = accumulated_color.add(ray_color);
+      accumulated_color.add_in_place(ray_color);
     }
-    accumulated_color = accumulated_color.multiply(1.0 / static_cast<double>(samples_per_pixel));
-    accumulated_color = accumulated_color.apply_gamma_correction(gamma);
+    accumulated_color.multiply_in_place(1.0 / static_cast<double>(samples_per_pixel));
+    accumulated_color.apply_gamma_correction(gamma);
     return {static_cast<std::uint8_t>(255.0 * accumulated_color.get_r()),
             static_cast<std::uint8_t>(255.0 * accumulated_color.get_g()),
             static_cast<std::uint8_t>(255.0 * accumulated_color.get_b())};

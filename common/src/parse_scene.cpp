@@ -124,13 +124,13 @@ namespace render { namespace {
     }
 
     auto & material_array_index = scene.get_material_index();
-    auto it                     = material_array_index.contains(material_name);
-    if (!it) {
+    auto it                     = material_array_index.find(material_name);
+    if (it == material_array_index.end()) {
       parse::throw_material_not_found(material_name, line_content);
     }
 
     // Obtener material
-    std::size_t const code  = material_array_index.at(material_name);
+    std::size_t const code  = it->second;
     int const material_type = static_cast<int>(code % 10);
 
     render::Point const center(cx, cy, cz);
@@ -186,13 +186,13 @@ namespace render { namespace {
     CylinderParams const params = parse_cylinder_geometry(tokens, line_content);
 
     auto & material_array_index = scene.get_material_index();
-    auto it                     = material_array_index.contains(params.material_name);
+    auto it                     = material_array_index.find(params.material_name);
 
-    if (!it) {
+    if (it == material_array_index.end()) {
       parse::throw_material_not_found(params.material_name, line_content);
     }
 
-    std::size_t const code  = material_array_index.at(params.material_name);
+    std::size_t const code  = it->second;
     int const material_type = static_cast<int>(code % 10);
 
     if (material_type == 0) {

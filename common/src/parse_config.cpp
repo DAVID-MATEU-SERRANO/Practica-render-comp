@@ -200,20 +200,18 @@ namespace {  // ----------- helpers "privados"-----------
                          std::string const & lineforprint, render::Scene & scene) {
     std::array<double, 3> colors{};
     if (key == "background_dark_color") {
-      render::Color color;
       ensure_token_count_exact(val, 3, lineforprint, "background_dark_color");
       parse_three_doubles(std::string(val), colors, lineforprint, "background_dark");
       validate_rgb_config(colors, lineforprint, key);
-      color = render::Color(colors[0], colors[1], colors[2]);
+      render::Color color(colors[0], colors[1], colors[2]);
       scene.set_background_dark_color(color);
       return true;
     }
     if (key == "background_light_color") {
-      render::Color color;
       ensure_token_count_exact(val, 3, lineforprint, "background_light_color");
       parse_three_doubles(std::string(val), colors, lineforprint, "background_light_color");
       validate_rgb_config(colors, lineforprint, key);
-      color = render::Color(colors[0], colors[1], colors[2]);
+      render::Color color(colors[0], colors[1], colors[2]);
       scene.set_background_light_color(color);
       return true;
     }

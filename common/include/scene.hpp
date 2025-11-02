@@ -5,12 +5,12 @@
 #include "../include/cylinder.hpp"
 #include "../include/matte.hpp"
 #include "../include/metal.hpp"
+#include "../include/parse_exception.hpp"
 #include "../include/pov.hpp"
 #include "../include/ray.hpp"
 #include "../include/refractive.hpp"
 #include "../include/sphere.hpp"
 #include "../include/vector.hpp"
-#include "point.hpp"
 #include <map>
 #include <sys/types.h>
 #include <utility>
@@ -18,31 +18,24 @@
 
 namespace render {
 
-  using t_material = std::variant<Matte, Metal, Refractive>;
-
   struct Pixel {
     std::uint8_t r;
     std::uint8_t g;
     std::uint8_t b;
   };
 
-  struct SphereSoA {
-    std::vector<Point> center;  // centro
-    std::vector<double> radius;
-    std::vector<t_material> material;
-  };
-
-  struct CylinderSoA {
-    std::vector<Point> center;  // base
-    std::vector<double> radius;
-    std::vector<Vector> direccion;  // dirección
-    std::vector<t_material> material;
-    std::vector<double> height;
-  };
-
   class Scene {
   public:
     Scene() = default;
+
+    Scene(std::vector<Sphere> spheres, std::vector<Cylinder> cylinders, Pov pov,
+          int samples_per_pixel, int max_depth, uint64_t material_rng_seed, uint64_t rays_rng_seed,
+          Color background_dark_color, Color background_light_color)
+        : spheres{std::move(spheres)}, cylinders{std::move(cylinders)}, pov{pov},
+          samples_per_pixel{samples_per_pixel}, max_depth{max_depth},
+          material_rng_seed{material_rng_seed}, rays_rng_seed{rays_rng_seed},
+          background_dark_color{background_dark_color},
+          background_light_color{background_light_color} { }
 
     // Getters
 
@@ -78,9 +71,9 @@ namespace render {
       return refractives;
     }
 
-    [[nodiscard]] struct SphereSoA const & get_spheres() const { return spheres; }
+    [[nodiscard]] std::vector<Sphere> const & get_spheres() const { return spheres; }
 
-    [[nodiscard]] struct CylinderSoA const & get_cylinders() const { return cylinders; }
+    [[nodiscard]] std::vector<Cylinder> const & get_cylinders() const { return cylinders; }
 
     // Setters
     void set_samples_per_pixel(int s) { samples_per_pixel = s; }
@@ -114,9 +107,9 @@ namespace render {
 
     // add
 
-    void add_sphere(Sphere const & sphere);
+    void add_sphere(Sphere const & sphere) { spheres.push_back(sphere); }
 
-    void add_cylinder(Cylinder const & cylinder);
+    void add_cylinder(Cylinder const & cylinder) { cylinders.push_back(cylinder); }
 
     void add_pov(Pov const & p) { pov = p; }
 
@@ -127,8 +120,8 @@ namespace render {
     void add_material_refractive(Refractive const & refractive, std::string const & line_content);
 
   private:
-    struct SphereSoA spheres;
-    struct CylinderSoA cylinders;
+    std::vector<Sphere> spheres;
+    std::vector<Cylinder> cylinders;
     render::Pov pov;
     std::vector<Metal> metals;
     std::vector<Matte> mattes;

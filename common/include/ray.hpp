@@ -16,11 +16,11 @@ namespace render {
   public:
     Ray(Point const & origin, Vector const & direction, Color intersection_color)
         : origin(origin), direction(direction), point_intersection(0.0, 0.0, 0.0),
-          normal_vector(0.0, 0.0, 0.0), intersection_distance(),
+          normal_vector(0.0, 0.0, 0.0),
           intersection_material(Matte("default", Color(1.0, 1.0, 1.0))),
           intersection_color(intersection_color), reflected_direction(0.0, 0.0, 0.0) { }
 
-    // ✅ Getters
+    // Getters
     [[nodiscard]] Point const & get_origin() const { return origin; }
 
     [[nodiscard]] Vector const & get_direction() const { return direction; }
@@ -39,7 +39,7 @@ namespace render {
 
     [[nodiscard]] Vector const & get_reflected_direction() const { return reflected_direction; }
 
-    // ✅ Setters
+    // Setters
     void set_point_intersection(Point const & point) { point_intersection = point; }
 
     void set_normal_vector(Vector const & normal) { normal_vector = normal; }

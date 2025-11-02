@@ -22,6 +22,7 @@ set(CURRENT_DIR_SRC_FILES
   "${CMAKE_CURRENT_SOURCE_DIR}/test_parse_scene.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/test_refractive.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/test_sphere.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/test_ray.cpp"
 )
 
 add_unit_test_target(

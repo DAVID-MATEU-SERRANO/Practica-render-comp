@@ -11,7 +11,7 @@
 
 namespace parse::util {
 
-  // ✅ TODAS las funciones inline (son helpers pequeños)
+  // TODAS las funciones inline (son helpers pequeños)
 
   inline std::string trim(std::string const & s) {
     size_t i = 0, j = s.size();
@@ -136,7 +136,7 @@ namespace parse::util {
     }
   }
 
-  // ✅ Mover to_double del .cpp al .hpp
+  // Mover to_double del .cpp al .hpp
   inline double to_double(std::string const & token) {
     try {
       size_t pos         = 0;

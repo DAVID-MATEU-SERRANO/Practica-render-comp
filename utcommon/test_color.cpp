@@ -7,7 +7,7 @@ namespace {
 
   // Caso de prueba función miembro: constructor con inicialización correcta
   TEST(test_color, constructor_valid_inicialization) {
-    render::Color color(0.5, 0.5, 0.5);
+    render::Color const color(0.5, 0.5, 0.5);
     EXPECT_DOUBLE_EQ(color.get_r(), 0.5);
     EXPECT_DOUBLE_EQ(color.get_g(), 0.5);
     EXPECT_DOUBLE_EQ(color.get_b(), 0.5);

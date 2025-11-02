@@ -5,6 +5,7 @@
 #include "../include/pov.hpp"
 #include "../include/ray.hpp"
 #include "../include/vector.hpp"
+#include "parse_exception.hpp"
 #include <cstdint>
 #include <limits>
 #include <random>
@@ -16,19 +17,28 @@ namespace render {
                                         bool & closest_front_face) {
     bool found_intersection = false;
 
-    for (auto const & sphere : spheres) {
+    std::size_t n = spheres.center.size();
+    for (std::size_t i = 0; i < n; ++i) {
       bool front_face = false;
-      if (ray.sphere_intersection(sphere, front_face) and ray.get_intersection_distance() >= 1e-3) {
+
+      // Creamos un objeto Sphere temporal a partir de los arrays SOA
+      Sphere temp_sphere(spheres.center[i], spheres.radius[i], spheres.material[i]);
+
+      // Usamos la función de intersección que espera un Sphere
+      if (ray.sphere_intersection(temp_sphere, front_face) &&
+          ray.get_intersection_distance() >= 1e-3)
+      {
         if (ray.get_intersection_distance() < closest_distance) {
           closest_distance   = ray.get_intersection_distance();
           closest_point      = ray.get_point_intersection();
           closest_normal     = ray.get_normal_vector();
-          closest_material   = sphere.get_material();
+          closest_material   = temp_sphere.get_material();
           closest_front_face = front_face;
           found_intersection = true;
         }
       }
     }
+
     return found_intersection;
   }
 
@@ -37,48 +47,56 @@ namespace render {
                                           t_material & closest_material,
                                           bool & closest_front_face) {
     bool found_intersection = false;
+    std::size_t n           = cylinders.center.size();
 
-    for (auto const & cylinder : cylinders) {
+    for (std::size_t i = 0; i < n; ++i) {
+      // Crear objeto temporal ligero
+      Cylinder temp(cylinders.center[i], cylinders.radius[i], cylinders.direccion[i],
+                    cylinders.material[i]);
+
       bool front_face = true;
-      if (ray.cylinder_side_intersection(cylinder, front_face) and
+
+      if (ray.cylinder_side_intersection(temp, front_face) &&
           ray.get_intersection_distance() >= 1e-3)
       {
         if (ray.get_intersection_distance() < closest_distance) {
           closest_distance   = ray.get_intersection_distance();
           closest_point      = ray.get_point_intersection();
           closest_normal     = ray.get_normal_vector();
-          closest_material   = cylinder.get_material();
+          closest_material   = temp.get_material();
           closest_front_face = front_face;
           found_intersection = true;
         }
       }
 
-      if (ray.cylinder_upper_base_intersection(cylinder, front_face) and
+      // Repetir para upper_base y lower_base
+      if (ray.cylinder_upper_base_intersection(temp, front_face) &&
           ray.get_intersection_distance() >= 1e-3)
       {
         if (ray.get_intersection_distance() < closest_distance) {
           closest_distance   = ray.get_intersection_distance();
           closest_point      = ray.get_point_intersection();
           closest_normal     = ray.get_normal_vector();
-          closest_material   = cylinder.get_material();
+          closest_material   = temp.get_material();
           closest_front_face = front_face;
           found_intersection = true;
         }
       }
 
-      if (ray.cylinder_lower_base_intersection(cylinder, front_face) and
+      if (ray.cylinder_lower_base_intersection(temp, front_face) &&
           ray.get_intersection_distance() >= 1e-3)
       {
         if (ray.get_intersection_distance() < closest_distance) {
           closest_distance   = ray.get_intersection_distance();
           closest_point      = ray.get_point_intersection();
           closest_normal     = ray.get_normal_vector();
-          closest_material   = cylinder.get_material();
+          closest_material   = temp.get_material();
           closest_front_face = front_face;
           found_intersection = true;
         }
       }
     }
+
     return found_intersection;
   }
 
@@ -180,6 +198,20 @@ namespace render {
     std::size_t const new_index           = refractives.size();
     material_index[refractive.get_name()] = new_index * 10 + 2;
     refractives.push_back(refractive);
+  }
+
+  void Scene::add_sphere(Sphere const & sphere) {
+    spheres.center.push_back(sphere.get_center());
+    spheres.radius.push_back(sphere.get_radius());
+    spheres.material.push_back(sphere.get_material());
+  }
+
+  void Scene::add_cylinder(Cylinder const & cylinder) {
+    cylinders.center.push_back(cylinder.get_center());   // base o centro inferior
+    cylinders.direccion.push_back(cylinder.get_edge());  // eje/dirección
+    cylinders.radius.push_back(cylinder.get_radius());
+    cylinders.material.push_back(cylinder.get_material());
+    cylinders.height.push_back(cylinder.get_height());
   }
 
 }  // namespace render

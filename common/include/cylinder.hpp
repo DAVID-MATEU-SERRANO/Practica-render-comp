@@ -28,7 +28,7 @@ namespace render {
     // Getters
     [[nodiscard]] Point get_center() const { return vec_center; }
 
-    [[nodiscard]] Vector get_edge() const { return vec_edge.normalized(); }
+    [[nodiscard]] Vector get_edge() const { return vec_edge; }
 
     [[nodiscard]] double get_radius() const { return radius; }
 

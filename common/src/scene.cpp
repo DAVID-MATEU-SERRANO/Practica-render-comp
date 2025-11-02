@@ -1,5 +1,6 @@
 #include "../include/scene.hpp"
 #include "../include/color.hpp"
+#include "../include/cylinder.hpp"
 #include "../include/matte.hpp"
 #include "../include/metal.hpp"
 #include "../include/parse_exception.hpp"
@@ -34,45 +35,47 @@ namespace render {
     return found_intersection;
   }
 
+  bool Scene::update_closest_hit(Ray const & ray, Cylinder const & cylinder,
+                                 IntersectionInfo & info, bool front_face) {
+    // Comprobar si la intersección actual es más cercana que la registrada
+    if (ray.get_intersection_distance() < info.closest_distance) {
+      // Actualizar todos los campos de la intersección más cercana
+      info.closest_distance   = ray.get_intersection_distance();
+      info.closest_point      = ray.get_point_intersection();
+      info.closest_normal     = ray.get_normal_vector();
+      info.closest_material   = cylinder.get_material();
+      info.closest_front_face = front_face;
+
+      return true;  // Éxito: La intersección fue actualizada
+    }
+    return false;  // No se actualizó
+  }
+
   bool Scene::test_cylinder_intersections(Ray & ray, IntersectionInfo & info) {
     bool found_intersection = false;
     for (auto const & cylinder : cylinders) {
-      bool front_face = true;
+      bool front_face  = true;
+      bool current_hit = false;
+
       if (ray.cylinder_side_intersection(cylinder, front_face) and
           ray.get_intersection_distance() >= 1e-3)
       {
-        if (ray.get_intersection_distance() < info.closest_distance) {
-          info.closest_distance   = ray.get_intersection_distance();
-          info.closest_point      = ray.get_point_intersection();
-          info.closest_normal     = ray.get_normal_vector();
-          info.closest_material   = cylinder.get_material();
-          info.closest_front_face = front_face;
-          found_intersection      = true;
-        }
+        current_hit        = update_closest_hit(ray, cylinder, info, front_face);
+        found_intersection = found_intersection or current_hit;
       }
+
       if (ray.cylinder_upper_base_intersection(cylinder, front_face) and
           ray.get_intersection_distance() >= 1e-3)
       {
-        if (ray.get_intersection_distance() < info.closest_distance) {
-          info.closest_distance   = ray.get_intersection_distance();
-          info.closest_point      = ray.get_point_intersection();
-          info.closest_normal     = ray.get_normal_vector();
-          info.closest_material   = cylinder.get_material();
-          info.closest_front_face = front_face;
-          found_intersection      = true;
-        }
+        current_hit        = update_closest_hit(ray, cylinder, info, front_face);
+        found_intersection = found_intersection or current_hit;
       }
+
       if (ray.cylinder_lower_base_intersection(cylinder, front_face) and
           ray.get_intersection_distance() >= 1e-3)
       {
-        if (ray.get_intersection_distance() < info.closest_distance) {
-          info.closest_distance   = ray.get_intersection_distance();
-          info.closest_point      = ray.get_point_intersection();
-          info.closest_normal     = ray.get_normal_vector();
-          info.closest_material   = cylinder.get_material();
-          info.closest_front_face = front_face;
-          found_intersection      = true;
-        }
+        current_hit        = update_closest_hit(ray, cylinder, info, front_face);
+        found_intersection = found_intersection or current_hit;
       }
     }
     return found_intersection;

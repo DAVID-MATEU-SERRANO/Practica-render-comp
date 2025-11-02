@@ -9,6 +9,7 @@
 #include <array>
 #include <cctype>
 #include <cstddef>
+#include <istream>
 #include <regex>
 #include <sstream>
 #include <stdexcept>
@@ -240,13 +241,11 @@ namespace parse {
   void parse_config_stream(std::istream & in, render::Scene & scene) {
     std::string line;
     std::string lineforprint;
-
     render::Pov pov;
     bool needs_image_update = false;
     int parsed_image_width  = 1'920;
     int parsed_ar_w         = 16;
     int parsed_ar_h         = 9;
-
     std::regex const config_line_regex(R"(^\s*([A-Za-z_]+):\s*(.*?)\s*$)");
     std::smatch match;
 
@@ -260,7 +259,6 @@ namespace parse {
       try {
         std::string key;
         std::string val;
-
         if (std::regex_match(line, match, config_line_regex)) {
           key = match[1].str();
           val = match[2].str();
@@ -270,7 +268,6 @@ namespace parse {
               << "Line: \"" << lineforprint << "\"";
           throw std::runtime_error(oss.str());
         }
-
         bool handled         = false;
         auto [ok_ar, aw, ah] = handle_image_aspect_ratio(key, val, lineforprint);
         if (ok_ar) {
@@ -279,23 +276,19 @@ namespace parse {
           handled            = true;
           needs_image_update = true;
         }
-
         auto [ok_w, w] = handle_image_width(key, val, lineforprint);
         if (ok_w) {
           parsed_image_width = w;
           handled            = true;
           needs_image_update = true;
         }
-
         handled = handle_camera_position(key, val, lineforprint, pov) or handled;
         handled = handle_camera_target(key, val, lineforprint, pov) or handled;
         handled = handle_fov(key, val, lineforprint, pov) or handled;
         handled = handle_north(key, val, lineforprint, pov) or handled;
-
         handled = handle_render(key, val, lineforprint, scene) or handled;
         handled = handle_background(key, val, lineforprint, scene) or handled;
         handled = handle_seeds(key, val, lineforprint, scene) or handled;
-
         if (!handled) {
           std::ostringstream oss;
           oss << "Unknown configuration key: \"" << "[" << key << ":" << "]\"" << "\n";
@@ -310,7 +303,6 @@ namespace parse {
           render::Pov::compute_image_size(parsed_image_width, parsed_ar_w, parsed_ar_h);
       pov.set_image_size(isz);
     }
-
     scene.set_pov(pov);
   }
 

@@ -55,6 +55,9 @@ namespace render {
 
     // En este tampoco se crea color temporal
     Color & apply_gamma_correction(double gamma) {
+      if (gamma <= 0.0) {
+        throw std::runtime_error("Error: Invalid gamma value");
+      }
       double const inv_gamma = 1.0 / gamma;
       r                      = std::pow(r, inv_gamma);
       g                      = std::pow(g, inv_gamma);

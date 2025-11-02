@@ -4,6 +4,8 @@
 
 namespace render {
 
+  constexpr double PI = std::numbers::pi;
+
   ImageSize Pov::compute_image_size(int image_width, int aspect_ratio_w, int aspect_ratio_h) {
     double const ratio = static_cast<double>(aspect_ratio_h) / static_cast<double>(aspect_ratio_w);
     int const image_height = static_cast<int>(std::floor(image_width * ratio));
@@ -15,7 +17,7 @@ namespace render {
   }
 
   [[nodiscard]] double Pov::pw_height() const {
-    return 2.0 * pw_focal_distance() * std::tan((field_of_view * std::numbers::pi / 180.0) / 2.0);
+    return 2.0 * pw_focal_distance() * std::tan((field_of_view * PI / 180.0) / 2.0);
   }
 
   [[nodiscard]] double Pov::pw_width() const {

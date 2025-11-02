@@ -104,6 +104,8 @@ namespace render {
     // Raytracing
 
     bool test_sphere_intersections(Ray & ray, IntersectionInfo & info);
+    static bool update_closest_hit(Ray const & ray, Cylinder const & cylinder,
+                                   IntersectionInfo & info, bool front_face);
     bool test_cylinder_intersections(Ray & ray, IntersectionInfo & info);
     void find_closest_intersection(Ray & ray, bool & front_face_out);
 

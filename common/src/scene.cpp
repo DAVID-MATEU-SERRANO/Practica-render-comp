@@ -152,4 +152,33 @@ namespace render {
             static_cast<std::uint8_t>(255.0 * accumulated_color.get_b())};
   }
 
+  // add
+  void Scene::add_material_matte(Matte const & matte, std::string const & line_content) {
+    if (material_index.contains(matte.get_name())) {
+      parse::throw_material_exists(matte.get_name(), line_content);
+    }
+    std::size_t const new_index      = mattes.size();
+    material_index[matte.get_name()] = new_index * 10 + 0;
+    mattes.push_back(matte);
+  }
+
+  void Scene::add_material_metal(Metal const & metal, std::string const & line_content) {
+    if (material_index.contains(metal.get_name())) {
+      parse::throw_material_exists(metal.get_name(), line_content);
+    }
+    std::size_t const new_index      = metals.size();
+    material_index[metal.get_name()] = new_index * 10 + 1;
+    metals.push_back(metal);
+  }
+
+  void Scene::add_material_refractive(Refractive const & refractive,
+                                      std::string const & line_content) {
+    if (material_index.contains(refractive.get_name())) {
+      parse::throw_material_exists(refractive.get_name(), line_content);
+    }
+    std::size_t const new_index           = refractives.size();
+    material_index[refractive.get_name()] = new_index * 10 + 2;
+    refractives.push_back(refractive);
+  }
+
 }  // namespace render

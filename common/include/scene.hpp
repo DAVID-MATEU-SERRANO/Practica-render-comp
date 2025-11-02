@@ -38,8 +38,6 @@ namespace render {
           background_light_color{background_light_color} { }
 
     // Getters
-    [[nodiscard]] Pixel get_pixel_color(int f, int c, std::mt19937_64 & rng,
-                                        std::mt19937_64 & m_rng);
 
     [[nodiscard]] Pov & get_pov() { return pov; }
 
@@ -94,6 +92,8 @@ namespace render {
 
     void set_pov(Pov & p) { pov = p; }
 
+    // Raytracing
+
     bool test_sphere_intersections(Ray & ray, double & closest_distance, Point & closest_point,
                                    Vector & closest_normal, t_material & closest_material,
                                    bool & closest_front_face);
@@ -102,48 +102,27 @@ namespace render {
                                      bool & closest_front_face);
     void find_closest_intersection(Ray & ray, bool & front_face_out);
 
+    [[nodiscard]] Pixel get_pixel_color(int f, int c, std::mt19937_64 & rng,
+                                        std::mt19937_64 & m_rng);
+
+    // add
+
     void add_sphere(Sphere const & sphere) { spheres.push_back(sphere); }
 
     void add_cylinder(Cylinder const & cylinder) { cylinders.push_back(cylinder); }
 
     void add_pov(Pov const & p) { pov = p; }
 
-    void add_material_matte(Matte const & matte, std::string const & line_content) {
-      if (material_index.contains(matte.get_name())) {
-        parse::throw_material_exists(matte.get_name(), line_content);
-      }
-      std::size_t const new_index      = mattes.size();
-      material_index[matte.get_name()] = new_index * 10 + 0;
-      mattes.push_back(matte);
-    }
+    void add_material_matte(Matte const & matte, std::string const & line_content);
 
-    void add_material_metal(Metal const & metal, std::string const & line_content) {
-      if (material_index.contains(metal.get_name())) {
-        parse::throw_material_exists(metal.get_name(), line_content);
-      }
-      std::size_t const new_index      = metals.size();
-      material_index[metal.get_name()] = new_index * 10 + 1;
-      metals.push_back(metal);
-    }
+    void add_material_metal(Metal const & metal, std::string const & line_content);
 
-    void add_material_refractive(Refractive const & refractive, std::string const & line_content) {
-      if (material_index.contains(refractive.get_name())) {
-        parse::throw_material_exists(refractive.get_name(), line_content);
-      }
-      std::size_t const new_index           = refractives.size();
-      material_index[refractive.get_name()] = new_index * 10 + 2;
-      refractives.push_back(refractive);
-    }
+    void add_material_refractive(Refractive const & refractive, std::string const & line_content);
 
-  public:
+  private:
     std::vector<Sphere> spheres;
     std::vector<Cylinder> cylinders;
-    render::Pov pov{
-      {0, 0, -10},
-      {0, 0,   0},
-      {0, 1,   0},
-      90.0, Pov::compute_image_size(1'920, 16, 9)
-    };
+    render::Pov pov;
     std::vector<Metal> metals;
     std::vector<Matte> mattes;
     std::vector<Refractive> refractives;

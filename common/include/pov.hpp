@@ -10,8 +10,8 @@
 namespace render {
 
   struct ImageSize {
-    int image_width  = 16;
-    int image_height = 9;
+    int image_width  = 1'920;
+    int image_height = 1'080;
   };
 
   class Pov {
@@ -19,8 +19,7 @@ namespace render {
     // Default values
     Pov()
         : camera_position{0.0, 0.0, -10.0}, camera_target{0.0, 0.0, 0.0},
-          camera_north{0.0, 1.0, 0.0}, field_of_view{60.0},
-          image_size{800, static_cast<int>(std::lround(800.0 * 9.0 / 16.0))}, ray_seed{19},
+          camera_north{0.0, 1.0, 0.0}, field_of_view{90.0}, image_size{}, ray_seed{19},
           proyection_window{Proyection_window(pw_focal_vector(), pw_focal_distance(), pw_height(),
                                               pw_width(), pw_horizontal_vector(),
                                               pw_vertical_vector(), pw_origin())} { }

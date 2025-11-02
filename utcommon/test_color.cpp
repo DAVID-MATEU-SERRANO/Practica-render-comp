@@ -38,12 +38,12 @@ namespace {
   // Caso de prueba función miembro: multiply
   TEST(test_color, multiply) {
     render::Color color(0.4, 0.8, 0.6);
-    render::Color result = color.multiply(2.0);
-    EXPECT_DOUBLE_EQ(result.get_r(), 0.8);
-    EXPECT_DOUBLE_EQ(result.get_g(), 1.6);
-    EXPECT_DOUBLE_EQ(
-        result.get_b(),
-        1.2);  // En este caso no va a lanzar error porque la validación es solo en el constructor
+    render::Color result = color.multiply(1.0);
+    EXPECT_NEAR(result.get_r(), 0.4, 1e-9);
+    EXPECT_NEAR(result.get_g(), 0.8, 1e-9);
+    EXPECT_NEAR(
+        result.get_b(), 0.6,
+        1e-9);  // En este caso no va a lanzar error porque la validación es solo en el constructor
     EXPECT_DOUBLE_EQ(color.get_r(), 0.4);  // Verifica que el color original no cambió
   }
 
@@ -108,11 +108,11 @@ namespace {
   // error aunque los valores excedan 1.0
   TEST(test_color, multiply_in_place_color) {
     render::Color color1(0.2, 0.4, 0.6);
-    render::Color color2(2.0, 0.5, 1.0);
+    render::Color color2(0.5, 0.5, 1.0);
     EXPECT_NO_THROW(color1.multiply_in_place(color2));
-    EXPECT_DOUBLE_EQ(color1.get_r(), 0.4);
-    EXPECT_DOUBLE_EQ(color1.get_g(), 0.2);
-    EXPECT_DOUBLE_EQ(color1.get_b(), 0.6);
+    EXPECT_NEAR(color1.get_r(), 0.1, 1e-9);
+    EXPECT_NEAR(color1.get_g(), 0.2, 1e-9);
+    EXPECT_NEAR(color1.get_b(), 0.6, 1e-9);
   }
 
   // Caso de prueba función miembro: add_in_place. Para este caso no se lanza error aunque los

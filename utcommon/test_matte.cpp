@@ -20,9 +20,17 @@ namespace {
 
   // Caso de prueba función miembro: constructor con inicialización inválida (color fuera de rango)
   TEST(test_matte, constructor_invalid_initialization_out_of_range) {
-    render::Color invalid_color(1.5, 0.5, 0.5);
     std::string name = "matte_invalid";
-    EXPECT_THROW({ render::Matte matte(name, invalid_color); }, std::runtime_error);
+    EXPECT_THROW(
+        {
+          // Crear el Color inválido (Lanza excepción)
+          render::Color invalid_color(1.5, 0.5, 0.5);
+
+          // Intentar construir Matte (Esta línea nunca se alcanzará si el color falla)
+          render::Matte matte(name, invalid_color);
+          (void) matte;  // Silenciar nodiscard/unused
+        },
+        std::runtime_error);
   }
 
 }  // namespace

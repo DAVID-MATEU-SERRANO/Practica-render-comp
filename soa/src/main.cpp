@@ -8,6 +8,15 @@
 #include <string>
 #include <vector>
 
+namespace render {
+
+  inline std::size_t compute_soa_index(int f, int c, int image_width) {
+    return static_cast<std::size_t>(f) * static_cast<std::size_t>(image_width) +
+           static_cast<std::size_t>(c);
+  }
+
+}  // namespace render
+
 using namespace render;
 
 int main(int argc, char * argv[]) {

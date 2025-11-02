@@ -122,37 +122,28 @@ namespace render {
       double const radius               = parse::util::to_double(tokens[3]);
       std::string const & material_name = tokens[4];
       auto & material_array_index       = scene.get_material_index();
-      auto it                           = material_array_index.contains(material_name);
-      if (!it) {
+      if (!material_array_index.contains(material_name)) {
         parse::throw_material_not_found(material_name, line_content);
       }
       std::size_t const code  = material_array_index.at(material_name);  // Obtenemos material
       int const material_type = static_cast<int>(code % 10);
       render::Point const center(cx, cy, cz);
-      if (material_type == 0) {
-        try {
+      try {
+        if (material_type == 0) {
           auto material = get_material_from_code<render::Matte>(scene, code);
           render::Sphere const s(center, radius, material);
           scene.add_sphere(s);
-        } catch (std::runtime_error const & e) {
-          parse::throw_invalid_parameters("sphere", line_content);
-        }
-      } else if (material_type == 1) {
-        try {
+        } else if (material_type == 1) {
           auto material = get_material_from_code<render::Metal>(scene, code);
           render::Sphere const s(center, radius, material);
           scene.add_sphere(s);
-        } catch (std::runtime_error const & e) {
-          parse::throw_invalid_parameters("sphere", line_content);
-        }
-      } else {
-        try {
+        } else {
           auto material = get_material_from_code<render::Refractive>(scene, code);
           render::Sphere const s(center, radius, material);
           scene.add_sphere(s);
-        } catch (std::runtime_error const & e) {
-          parse::throw_invalid_parameters("sphere", line_content);
         }
+      } catch (std::runtime_error const & e) {
+        parse::throw_invalid_parameters("sphere", line_content);
       }
     }
 

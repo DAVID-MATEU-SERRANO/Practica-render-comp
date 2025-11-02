@@ -16,7 +16,7 @@ namespace render {
   public:
     Sphere(Point sphere_center, double radius, t_material material)
         : sphere_center{sphere_center}, radius{radius}, material(std::move(material)) {
-      if (radius < 0.0) {
+      if (radius <= 0.0) {
         throw std::runtime_error("Error: Invalid sphere parameters");
       }
     }

@@ -111,15 +111,16 @@ namespace render {
     std::uniform_real_distribution<double> dist(-0.5, 0.5);
     Color accumulated_color(0.0, 0.0, 0.0);
 
-    Vector const dx = pov.pw_horizontal_vector().dot(1.0 / pov.get_image_width());
-    Vector const dy = pov.pw_vertical_vector().dot(1.0 / pov.get_image_height());
+    Vector const dx     = pov.pw_horizontal_vector().dot(1.0 / pov.get_image_width());
+    Vector const dy     = pov.pw_vertical_vector().dot(1.0 / pov.get_image_height());
+    Point initial_point = pov.get_camera_position();
 
     for (int ray_counter = 0; ray_counter < samples_per_pixel; ++ray_counter) {
       double const rx = dist(rng);
       double const ry = dist(rng);
       Point const q =
           pov.get_proyection_window().get_origin().add(dx.dot(c + rx)).add(dy.dot(f + ry));
-      Point current_origin     = pov.get_camera_position();
+      Point current_origin     = initial_point;
       Vector current_direction = q.substract(pov.get_camera_position()).normalized();
       Color ray_color(1.0, 1.0, 1.0);
 

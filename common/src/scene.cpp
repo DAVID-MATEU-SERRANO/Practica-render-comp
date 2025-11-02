@@ -1,81 +1,77 @@
 #include "../include/scene.hpp"
 #include "../include/color.hpp"
 #include "../include/matte.hpp"
+#include "../include/metal.hpp"
+#include "../include/parse_exception.hpp"
 #include "../include/point.hpp"
 #include "../include/pov.hpp"
 #include "../include/ray.hpp"
+#include "../include/refractive.hpp"
 #include "../include/vector.hpp"
+#include <cstddef>
 #include <cstdint>
-#include <limits>
 #include <random>
+#include <string>
 
 namespace render {
 
-  bool Scene::test_sphere_intersections(Ray & ray, double & closest_distance, Point & closest_point,
-                                        Vector & closest_normal, t_material & closest_material,
-                                        bool & closest_front_face) {
+  bool Scene::test_sphere_intersections(Ray & ray, IntersectionInfo & info) {
     bool found_intersection = false;
 
     for (auto const & sphere : spheres) {
       bool front_face = false;
       if (ray.sphere_intersection(sphere, front_face) and ray.get_intersection_distance() >= 1e-3) {
-        if (ray.get_intersection_distance() < closest_distance) {
-          closest_distance   = ray.get_intersection_distance();
-          closest_point      = ray.get_point_intersection();
-          closest_normal     = ray.get_normal_vector();
-          closest_material   = sphere.get_material();
-          closest_front_face = front_face;
-          found_intersection = true;
+        if (ray.get_intersection_distance() < info.closest_distance) {
+          info.closest_distance   = ray.get_intersection_distance();
+          info.closest_point      = ray.get_point_intersection();
+          info.closest_normal     = ray.get_normal_vector();
+          info.closest_material   = sphere.get_material();
+          info.closest_front_face = front_face;
+          found_intersection      = true;
         }
       }
     }
     return found_intersection;
   }
 
-  bool Scene::test_cylinder_intersections(Ray & ray, double & closest_distance,
-                                          Point & closest_point, Vector & closest_normal,
-                                          t_material & closest_material,
-                                          bool & closest_front_face) {
+  bool Scene::test_cylinder_intersections(Ray & ray, IntersectionInfo & info) {
     bool found_intersection = false;
-
     for (auto const & cylinder : cylinders) {
       bool front_face = true;
       if (ray.cylinder_side_intersection(cylinder, front_face) and
           ray.get_intersection_distance() >= 1e-3)
       {
-        if (ray.get_intersection_distance() < closest_distance) {
-          closest_distance   = ray.get_intersection_distance();
-          closest_point      = ray.get_point_intersection();
-          closest_normal     = ray.get_normal_vector();
-          closest_material   = cylinder.get_material();
-          closest_front_face = front_face;
-          found_intersection = true;
+        if (ray.get_intersection_distance() < info.closest_distance) {
+          info.closest_distance   = ray.get_intersection_distance();
+          info.closest_point      = ray.get_point_intersection();
+          info.closest_normal     = ray.get_normal_vector();
+          info.closest_material   = cylinder.get_material();
+          info.closest_front_face = front_face;
+          found_intersection      = true;
         }
       }
-
       if (ray.cylinder_upper_base_intersection(cylinder, front_face) and
           ray.get_intersection_distance() >= 1e-3)
       {
-        if (ray.get_intersection_distance() < closest_distance) {
-          closest_distance   = ray.get_intersection_distance();
-          closest_point      = ray.get_point_intersection();
-          closest_normal     = ray.get_normal_vector();
-          closest_material   = cylinder.get_material();
-          closest_front_face = front_face;
-          found_intersection = true;
+        if (ray.get_intersection_distance() < info.closest_distance) {
+          info.closest_distance   = ray.get_intersection_distance();
+          info.closest_point      = ray.get_point_intersection();
+          info.closest_normal     = ray.get_normal_vector();
+          info.closest_material   = cylinder.get_material();
+          info.closest_front_face = front_face;
+          found_intersection      = true;
         }
       }
-
       if (ray.cylinder_lower_base_intersection(cylinder, front_face) and
           ray.get_intersection_distance() >= 1e-3)
       {
-        if (ray.get_intersection_distance() < closest_distance) {
-          closest_distance   = ray.get_intersection_distance();
-          closest_point      = ray.get_point_intersection();
-          closest_normal     = ray.get_normal_vector();
-          closest_material   = cylinder.get_material();
-          closest_front_face = front_face;
-          found_intersection = true;
+        if (ray.get_intersection_distance() < info.closest_distance) {
+          info.closest_distance   = ray.get_intersection_distance();
+          info.closest_point      = ray.get_point_intersection();
+          info.closest_normal     = ray.get_normal_vector();
+          info.closest_material   = cylinder.get_material();
+          info.closest_front_face = front_face;
+          found_intersection      = true;
         }
       }
     }
@@ -83,24 +79,17 @@ namespace render {
   }
 
   void Scene::find_closest_intersection(Ray & ray, bool & front_face_out) {
-    double closest_distance = std::numeric_limits<double>::max();
-    Point closest_point(0.0, 0.0, 0.0);
-    Vector closest_normal(0.0, 0.0, 0.0);
-    t_material closest_material(Matte{"none", Color(1.0, 1.0, 1.0)});
-    bool closest_front_face = true;
+    IntersectionInfo info;
 
-    bool found_intersection = test_sphere_intersections(
-        ray, closest_distance, closest_point, closest_normal, closest_material, closest_front_face);
-    found_intersection =
-        test_cylinder_intersections(ray, closest_distance, closest_point, closest_normal,
-                                    closest_material, closest_front_face) or
-        found_intersection;
+    bool found_intersection = test_sphere_intersections(ray, info);
+    found_intersection      = test_cylinder_intersections(ray, info) or found_intersection;
+
     if (found_intersection) {
-      ray.set_intersection_distance(closest_distance);
-      ray.set_point_intersection(closest_point);
-      ray.set_normal_vector(closest_normal);
-      ray.set_intersection_material(closest_material);
-      front_face_out = closest_front_face;
+      ray.set_intersection_distance(info.closest_distance);
+      ray.set_point_intersection(info.closest_point);
+      ray.set_normal_vector(info.closest_normal);
+      ray.set_intersection_material(info.closest_material);
+      front_face_out = info.closest_front_face;
     } else {
       ray.set_intersection_distance(-1.0);
       front_face_out = true;
@@ -110,10 +99,9 @@ namespace render {
   Pixel Scene::get_pixel_color(int f, int c, std::mt19937_64 & rng, std::mt19937_64 & m_rng) {
     std::uniform_real_distribution<double> dist(-0.5, 0.5);
     Color accumulated_color(0.0, 0.0, 0.0);
-
-    Vector const dx     = pov.pw_horizontal_vector().dot(1.0 / pov.get_image_width());
-    Vector const dy     = pov.pw_vertical_vector().dot(1.0 / pov.get_image_height());
-    Point initial_point = pov.get_camera_position();
+    Vector const dx           = pov.pw_horizontal_vector().dot(1.0 / pov.get_image_width());
+    Vector const dy           = pov.pw_vertical_vector().dot(1.0 / pov.get_image_height());
+    Point const initial_point = pov.get_camera_position();
 
     for (int ray_counter = 0; ray_counter < samples_per_pixel; ++ray_counter) {
       double const rx = dist(rng);
@@ -129,9 +117,7 @@ namespace render {
         bool front_face = true;
         find_closest_intersection(ray, front_face);
         ray.color_contribution(background_dark_color, background_light_color, m_rng, front_face);
-
         ray_color.multiply_in_place(ray.get_intersection_color());
-
         if (ray.get_intersection_distance() == -1.0) {
           break;
         }
@@ -140,7 +126,6 @@ namespace render {
           ray_color = Color(0.0, 0.0, 0.0);
           break;
         }
-
         current_origin    = ray.get_point_intersection();
         current_direction = ray.get_reflected_direction().normalized();
       }

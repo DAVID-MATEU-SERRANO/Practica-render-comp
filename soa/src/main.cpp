@@ -1,8 +1,11 @@
 #include "../../common/include/pov.hpp"
 #include "../../common/include/render.hpp"
 #include "../../common/include/scene.hpp"
+#include <cstdint>
 #include <fstream>
 #include <iostream>
+#include <random>
+#include <string>
 #include <vector>
 
 using namespace render;
@@ -26,9 +29,9 @@ int main(int argc, char * argv[]) {
   }
   Scene scene;
   load_scene_from_files(scene, in, file);
-  int image_height = scene.get_pov().get_image_height();
-  int image_width  = scene.get_pov().get_image_width();
-  std::size_t total_pixels =
+  int const image_height = scene.get_pov().get_image_height();
+  int const image_width  = scene.get_pov().get_image_width();
+  std::size_t const total_pixels =
       static_cast<std::size_t>(image_width) * static_cast<std::size_t>(image_height);
   std::vector<uint8_t> R(total_pixels);
   std::vector<uint8_t> G(total_pixels);
@@ -41,9 +44,10 @@ int main(int argc, char * argv[]) {
 
   for (int f = 0; f < image_height; ++f) {
     for (int c = 0; c < image_width; ++c) {
-      Pixel pixel       = scene.get_pixel_color(f, c, rng, m_rng);
-      std::size_t index = static_cast<std::size_t>(f) * static_cast<std::size_t>(image_width) +
-                          static_cast<std::size_t>(c);
+      Pixel const pixel = scene.get_pixel_color(f, c, rng, m_rng);
+      std::size_t const index =
+          static_cast<std::size_t>(f) * static_cast<std::size_t>(image_width) +
+          static_cast<std::size_t>(c);
       R[index] = pixel.r;
       G[index] = pixel.g;
       B[index] = pixel.b;

@@ -62,9 +62,7 @@ namespace render {
         2.0 * (rc.perpendicular_component(a_hat).dot(direction.perpendicular_component(a_hat)));
     double const c = (rc.perpendicular_component(a_hat)).dot(rc.perpendicular_component(a_hat)) -
                      std::pow(cylinder.get_radius(), 2);
-
     double const discriminant = b * b - 4 * a * c;
-
     if (discriminant < 0) {
       return false;
     }
@@ -82,19 +80,15 @@ namespace render {
       intersection_distance = t2;
     }
 
-    point_intersection = origin.add(direction.dot(intersection_distance));
-
+    point_intersection             = origin.add(direction.dot(intersection_distance));
     Vector const point_to_center   = point_intersection.substract(cylinder.get_center());
     double const height_projection = point_to_center.dot(a_hat);
     if (std::abs(height_projection) > (cylinder.get_height() / 2)) {
       return false;
     }
-
-    normal_vector = point_to_center.perpendicular_component(a_hat);
-
+    normal_vector            = point_to_center.perpendicular_component(a_hat);
     double const dot_product = normal_vector.dot(direction);
     front_face_out           = (dot_product < 0);
-
     if (!front_face_out) {
       normal_vector.dot_in_place(-1);
     }

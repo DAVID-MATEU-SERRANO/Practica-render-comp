@@ -5,7 +5,6 @@
 #include "../include/cylinder.hpp"
 #include "../include/matte.hpp"
 #include "../include/metal.hpp"
-#include "../include/parse_exception.hpp"
 #include "../include/pov.hpp"
 #include "../include/ray.hpp"
 #include "../include/refractive.hpp"
@@ -22,6 +21,16 @@ namespace render {
     std::uint8_t r;
     std::uint8_t g;
     std::uint8_t b;
+  };
+
+  struct IntersectionInfo {
+    double closest_distance = std::numeric_limits<double>::max();
+    Point closest_point{0.0, 0.0, 0.0};
+    Vector closest_normal{0.0, 0.0, 0.0};
+    t_material closest_material{
+      Matte{"none", Color(1.0, 1.0, 1.0)}
+    };
+    bool closest_front_face = true;
   };
 
   class Scene {
@@ -94,12 +103,8 @@ namespace render {
 
     // Raytracing
 
-    bool test_sphere_intersections(Ray & ray, double & closest_distance, Point & closest_point,
-                                   Vector & closest_normal, t_material & closest_material,
-                                   bool & closest_front_face);
-    bool test_cylinder_intersections(Ray & ray, double & closest_distance, Point & closest_point,
-                                     Vector & closest_normal, t_material & closest_material,
-                                     bool & closest_front_face);
+    bool test_sphere_intersections(Ray & ray, IntersectionInfo & info);
+    bool test_cylinder_intersections(Ray & ray, IntersectionInfo & info);
     void find_closest_intersection(Ray & ray, bool & front_face_out);
 
     [[nodiscard]] Pixel get_pixel_color(int f, int c, std::mt19937_64 & rng,

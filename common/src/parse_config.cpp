@@ -99,7 +99,7 @@ namespace {  // ----------- helpers "privados"-----------
     if (key == "image_width") {
       ensure_token_count_exact(val, 1, lineforprint, "image_width");
       // Convert the value to int, validate and store into cfg
-      int w = to_int(std::string(val), lineforprint, "image_width");
+      int const w = to_int(std::string(val), lineforprint, "image_width");
       expect_positive(w, lineforprint, "image_width");
       return {true, w};
     }
@@ -150,7 +150,7 @@ namespace {  // ----------- helpers "privados"-----------
                   render::Pov & pov) {
     if (key == "field_of_view") {
       ensure_token_count_exact(val, 1, lineforprint, "field_of_view");
-      double fov = to_double_config(std::string(val), lineforprint, "field_of_view");
+      double const fov = to_double_config(std::string(val), lineforprint, "field_of_view");
       if (fov <= 0.0 or fov >= 180.0) {
         std::ostringstream oss;
         oss << "Invalid value for key: \"" << "[" << key << ":" << "]\"" << "\n"

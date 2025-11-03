@@ -1,6 +1,5 @@
 #include "../../common/include/logic.hpp"
 #include "../../common/include/pov.hpp"
-#include "../../common/include/render.hpp"
 #include "../../common/include/scene.hpp"
 #include "../include/image_aos.hpp"
 #include <cstddef>

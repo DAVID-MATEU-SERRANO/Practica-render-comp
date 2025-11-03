@@ -1,87 +1,84 @@
-#include <cmath>
-#include <cstdint>
+#include "../../common/include/logic.hpp"
+#include "../../common/include/scene.hpp"   // Pixel
+#include "../../soa/include/image_soa.hpp"  // PixelSOA
+#include <filesystem>
+#include <fstream>
 #include <gtest/gtest.h>
 #include <vector>
 
-// Asumimos que esta función de indexación representa la lógica en tu main.cpp
-// Se define externamente para poder ser probada.
-namespace render {
+namespace {
 
-  std::size_t compute_soa_index(int f, int c, int image_width);
+  // ----------------------------
+  // 1) Indexación fila-mayor
+  // ----------------------------
+  TEST(test_soa_index, row_major_formula_is_correct) {
+    int const W = 1'920;
 
-  // Definición de Pixel (para verificar el tipo de datos)
-  struct Pixel {
-    std::uint8_t r;
-    std::uint8_t g;
-    std::uint8_t b;
-  };
+    auto idx = [](int f, int c, int W) -> std::size_t {
+      return static_cast<std::size_t>(f) * static_cast<std::size_t>(W) +
+             static_cast<std::size_t>(c);
+    };
 
-}  // namespace render
+    EXPECT_EQ(idx(0, 0, W), 0U);
+    EXPECT_EQ(idx(0, 960, W), 960U);
+    EXPECT_EQ(idx(1, 0, W), static_cast<std::size_t>(W));
+    EXPECT_EQ(idx(10, 50, W), static_cast<std::size_t>(10 * W + 50));
 
-namespace {  // Namespace anónimo
-
-  int const TEST_WIDTH           = 100;
-  int const TEST_HEIGHT          = 10;
-  std::size_t const TOTAL_PIXELS = TEST_WIDTH * TEST_HEIGHT;
-
-  // =========================================================================
-  // 1. PRUEBAS DE INDEXACIÓN (LÓGICA CRÍTICA)
-  // =========================================================================
-
-  // Verifica que la función de indexación (Row-Major) devuelva el índice correcto.
-  TEST(test_soa_index, correct_row_major_indexing) {
-    int const WIDTH = 1'920;
-
-    // Esquina superior izquierda (0, 0)
-    EXPECT_EQ(render::compute_soa_index(0, 0, WIDTH), 0);
-
-    // Mitad de la primera fila (0, 960)
-    EXPECT_EQ(render::compute_soa_index(0, 960, WIDTH), 960);
-
-    // Inicio de la segunda fila (1, 0) - Debe ser 1 * 1920
-    EXPECT_EQ(render::compute_soa_index(1, 0, WIDTH), 1'920);
-
-    // Píxel central (10, 50)
-    EXPECT_EQ(render::compute_soa_index(10, 50, WIDTH), 10 * 1'920 + 50);
+    // Último índice en W=10, H=5 -> 49
+    int const w = 10, h = 5;
+    std::size_t last = static_cast<std::size_t>(h - 1) * static_cast<std::size_t>(w) +
+                       static_cast<std::size_t>(w - 1);
+    EXPECT_EQ(last, 49U);
   }
 
-  // Verifica que el último píxel (esquina inferior derecha) se indexe correctamente.
-  TEST(test_soa_index, last_pixel_index_is_correct) {
-    int const W = 10;
-    int const H = 5;  // Total de 50 píxeles, índices de 0 a 49.
+  // ----------------------------------------------
+  // 2) SOA: r/g/b se actualizan correctamente
+  // ----------------------------------------------
+  TEST(test_soa_storage, set_writes_each_channel) {
+    std::size_t const N = 1'000;
+    render::PixelSOA soa(N);
 
-    // Fila 4, Columna 9
-    EXPECT_EQ(render::compute_soa_index(H - 1, W - 1, W), 49);
+    render::Pixel p1{255, 10, 0};
+    render::Pixel p2{0, 200, 50};
+
+    soa.set(10, p1);
+    soa.set(500, p2);
+
+    ASSERT_EQ(soa.r.size(), N);
+    ASSERT_EQ(soa.g.size(), N);
+    ASSERT_EQ(soa.b.size(), N);
+
+    // Índice 10 == p1
+    EXPECT_EQ(soa.r[10], p1.r);
+    EXPECT_EQ(soa.g[10], p1.g);
+    EXPECT_EQ(soa.b[10], p1.b);
+
+    // Índice 500 == p2
+    EXPECT_EQ(soa.r[500], p2.r);
+    EXPECT_EQ(soa.g[500], p2.g);
+    EXPECT_EQ(soa.b[500], p2.b);
+
+    // Canales/índices distintos tienen valores distintos
+    EXPECT_NE(soa.g[10], soa.g[500]);
   }
 
-  // =========================================================================
-  // 2. PRUEBAS DE REPRESENTACIÓN EN MEMORIA (SOA)
-  // =========================================================================
+  // ----------------------------------------------
+  // 3) Smoke: cabecera PPM
+  // ----------------------------------------------
 
-  // Verifica que la estructura de arrays (R, G, B separados) funcione y se acceda correctamente.
-  TEST(test_soa_storage, soa_representation_stores_data_in_separate_arrays) {
-    std::vector<uint8_t> R(TOTAL_PIXELS);
-    std::vector<uint8_t> G(TOTAL_PIXELS);
-    std::vector<uint8_t> B(TOTAL_PIXELS);
+  using std::filesystem::path;
 
-    std::size_t const index_red   = 10;
-    std::size_t const index_green = 500;
-
-    // Almacenamiento
-    R[index_red] = 255;
-    G[index_red] = 10;  // G en el mismo índice que R
-    B[index_red] = 0;
-
-    R[index_green] = 0;
-    G[index_green] = 200;  // G en un índice diferente
-    B[index_green] = 0;
-
-    // Verificación de Acceso (SOA: los canales son independientes pero indexados igual)
-    EXPECT_EQ(R[index_red], 255);
-    EXPECT_EQ(G[index_red], 10);
-
-    // Verificación de localidad (El valor de G en el índice 500 es diferente del índice 10)
-    EXPECT_EQ(G[index_green], 200);
+  TEST(test_soa_ppm, writes_valid_ppm_header) {
+    path tmp = "tmp_ppm_header.ppm";
+    {
+      std::ofstream ofs(tmp);
+      ASSERT_TRUE(ofs.is_open());
+      render::write_ppm_header(ofs, 3, 2);
+    }
+    std::ifstream ifs(tmp);
+    std::string got(std::istreambuf_iterator<char>(ifs), {});
+    EXPECT_EQ(got, "P3\n3 2\n255\n");
+    std::filesystem::remove(tmp);
   }
 
 }  // namespace

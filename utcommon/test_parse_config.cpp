@@ -10,11 +10,15 @@
 #include <sstream>
 #include <string>
 
-// Helper: ejecuta el parser sobre un string
-static void parse_into_scene(std::string const & cfg, render::Scene & scene) {
-  std::istringstream iss(cfg);
-  parse::parse_config_stream(iss, scene);
-}
+namespace {
+
+  // Helper: ejecuta el parser sobre un string
+  void parse_into_scene(std::string const & cfg, render::Scene & scene) {
+    std::istringstream iss(cfg);
+    parse::parse_config_stream(iss, scene);
+  }
+
+}  // namespace
 
 // =============== Tests de éxito ===============
 
@@ -129,8 +133,10 @@ TEST(parse_config, aspect_ratio_requires_two_positive_ints) {
 }
 
 TEST(parse_config, image_width_requires_one_positive_int_and_no_trailing_garbage) {
-  std::string ok = "image_width: 200\n"
-                   "camera_position: 0 0 0\n"
+  // OK: cámara válida + ratio para que compute_image_size se aplique
+  std::string ok = "aspect_ratio: 16 9\n"
+                   "image_width: 200\n"
+                   "camera_position: 0 0 1\n"
                    "camera_target: 0 0 0\n"
                    "camera_north: 0 1 0\n"
                    "field_of_view: 60\n";
@@ -173,10 +179,10 @@ TEST(parse_config, camera_position_target_north_require_three_doubles) {
 }
 
 TEST(parse_config, field_of_view_must_be_between_0_and_180) {
-  // 0 o >=180 son inválidos
+  // inválidos
   std::string bad1 = "aspect_ratio: 16 9\n"
                      "image_width: 100\n"
-                     "camera_position: 0 0 0\n"
+                     "camera_position: 0 0 1\n"
                      "camera_target: 0 0 0\n"
                      "camera_north: 0 1 0\n"
                      "field_of_view: 0\n";
@@ -185,20 +191,21 @@ TEST(parse_config, field_of_view_must_be_between_0_and_180) {
 
   std::string bad2 = "aspect_ratio: 16 9\n"
                      "image_width: 100\n"
-                     "camera_position: 0 0 0\n"
+                     "camera_position: 0 0 1\n"
                      "camera_target: 0 0 0\n"
                      "camera_north: 0 1 0\n"
                      "field_of_view: 180\n";
   render::Scene s2;
   EXPECT_THROW(parse_into_scene(bad2, s2), std::runtime_error);
 
-  // OK
+  // OK: cámara válida y FOV en rango
   std::string ok = "aspect_ratio: 16 9\n"
                    "image_width: 100\n"
-                   "camera_position: 0 0 0\n"
+                   "camera_position: 0 0 1\n"  // pos != target
                    "camera_target: 0 0 0\n"
-                   "camera_north: 0 1 0\n"
+                   "camera_north: 0 1 0\n"  // no colineal con forward
                    "field_of_view: 59.5\n";
+
   render::Scene s_ok;
   EXPECT_NO_THROW(parse_into_scene(ok, s_ok));
   EXPECT_NEAR(s_ok.get_pov().get_field_of_view(), 59.5, 1e-12);

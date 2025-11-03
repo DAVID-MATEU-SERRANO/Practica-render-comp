@@ -56,7 +56,7 @@ namespace {
     }
 
     size_t j = i;
-    while (j < n or is_space(s[j])) {
+    while (j < n and is_space(s[j])) {
       ++j;
     }
     if (j < n) {

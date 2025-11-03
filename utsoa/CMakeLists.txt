@@ -1,17 +1,27 @@
-set(COMMON_SRC_FILES 
-  "${CMAKE_SOURCE_DIR}/soa/src/main.cpp"
+cmake_minimum_required(VERSION 3.20)
+
+
+set(UTSOA_TESTS
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_soa.cpp
 )
 
-set(CURRENT_DIR_SRC_FILES 
-  # AÑADIR TESTS AQUI
-  "${CMAKE_CURRENT_SOURCE_DIR}/test_vector.cpp"
+add_executable(utsoa ${UTSOA_TESTS})
+
+target_link_libraries(utsoa
+  PRIVATE
+    common
+    GTest::gtest_main
 )
 
-# add_unit_test_target(
-#   TARGET_NAME utsoa
-#   SOURCE_FILES ${COMMON_SRC_FILES} ${CURRENT_DIR_SRC_FILES}
-#   LIBRARY_FILTER soa
-#   COVERAGE_DIR coverage-soa
-#   LIBRARY_TO_LINK common
-#   INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/soa/include
-# )
+target_include_directories(utsoa
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/soa/include
+    ${CMAKE_SOURCE_DIR}/common/include
+)
+
+include(GoogleTest)
+gtest_discover_tests(utsoa)
+
+set_target_properties(utsoa PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/utsoa/$<CONFIG>
+)

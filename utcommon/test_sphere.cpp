@@ -4,6 +4,7 @@
 #include "../common/include/sphere.hpp"
 #include <gtest/gtest.h>
 #include <stdexcept>
+#include <variant>
 
 namespace {
 

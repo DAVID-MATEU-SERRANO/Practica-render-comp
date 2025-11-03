@@ -168,21 +168,21 @@ namespace {
   bool handle_render(parse::KeyVal const & kv, render::Scene & scene) {
     if (kv.key == "samples_per_pixel") {
       ensure_token_count_exact(kv.val, 1, kv.lineforprint, "samples_per_pixel");
-      int v = to_int(kv.val, kv.lineforprint, "samples_per_pixel");
+      int const v = to_int(kv.val, kv.lineforprint, "samples_per_pixel");
       expect_positive(v, kv.lineforprint, "samples_per_pixel");
       scene.set_samples_per_pixel(v);
       return true;
     }
     if (kv.key == "max_depth") {
       ensure_token_count_exact(kv.val, 1, kv.lineforprint, "max_depth");
-      int v = to_int(kv.val, kv.lineforprint, "max_depth");
+      int const v = to_int(kv.val, kv.lineforprint, "max_depth");
       expect_positive(v, kv.lineforprint, "max_depth");
       scene.set_max_depth(v);
       return true;
     }
     if (kv.key == "gamma") {
       ensure_token_count_exact(kv.val, 1, kv.lineforprint, "gamma");
-      double g = to_double_config(kv.val, kv.lineforprint, "gamma");
+      double const g = to_double_config(kv.val, kv.lineforprint, "gamma");
       if (g <= 0.0) {
         std::ostringstream oss;
         oss << "Invalid value for key: " << "[" << kv.key << ":" << "]" << "\n"
@@ -239,8 +239,8 @@ namespace parse {
     ImageCfg img;
 
     while (std::getline(in, raw)) {
-      std::string & lineforprint = raw;
-      std::string line           = strip_comment_and_trim(raw);
+      std::string const & lineforprint = raw;
+      std::string const line           = strip_comment_and_trim(raw);
       if (line.empty()) {
         continue;
       }

@@ -18,13 +18,13 @@ namespace {
   // Caso de prueba: correcta inicialización del constructor
   TEST(test_proyection_window, constructor_initializes_all_members) {
     // Inicialización
-    render::Proyection_window pw(V_FOCAL, DISTANCE_FOCAL, HEIGHT, WIDTH, V_HORIZONTAL, V_VERTICAL,
+    render::Proyection_window const pw(V_FOCAL, DISTANCE_FOCAL, HEIGHT, WIDTH, V_HORIZONTAL, V_VERTICAL,
                                  P_ORIGIN);
 
     // Vectores y Puntos
-    render::Vector test_vf    = pw.get_focal_vector();
-    render::Vector test_vh    = pw.get_horizontal_vector();
-    render::Point test_origin = pw.get_origin();
+    render::Vector const test_vf    = pw.get_focal_vector();
+    render::Vector const test_vh    = pw.get_horizontal_vector();
+    render::Point const test_origin = pw.get_origin();
 
     // Verificación de focal_vector
     EXPECT_DOUBLE_EQ(test_vf.get_z(), -10.0);
@@ -44,10 +44,10 @@ namespace {
   // Caso de prueba: getters de vectores y puntos devuleven valor exacto
   TEST(test_proyection_window, getters_return_input_values) {
     // Inicialización con valores distintos a los de la prueba anterior
-    render::Proyection_window pw(V_VERTICAL, 5.0, 10.0, 50.0, V_FOCAL, V_FOCAL, P_ORIGIN);
+    render::Proyection_window const pw(V_VERTICAL, 5.0, 10.0, 50.0, V_FOCAL, V_FOCAL, P_ORIGIN);
 
     // Verificar que los vectores se asignaron a los campos correctos
-    render::Vector test_focal = pw.get_focal_vector();
+    render::Vector const test_focal = pw.get_focal_vector();
     EXPECT_DOUBLE_EQ(test_focal.get_y(),
                      -20.0);  // V_FOCAL es {0, 0, -10}. V_VERTICAL es {0, -20, 0}
                               // La inicialización es V_VERTICAL para focal_vector

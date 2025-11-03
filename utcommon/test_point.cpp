@@ -12,7 +12,7 @@ namespace {
 
   // Caso de prueba: correcta inicialización constructor
   TEST(test_point, constructor_and_getters_return_correct_values) {
-    render::Point point{10.5, -2.0, 0.0};
+    render::Point const point{10.5, -2.0, 0.0};
 
     EXPECT_DOUBLE_EQ(point.get_x(), 10.5);
     EXPECT_DOUBLE_EQ(point.get_y(), -2.0);
@@ -23,7 +23,7 @@ namespace {
 
   // Caso de prueba: suma de dos puntos
   TEST(test_point, add_point_returns_correct_vector) {
-    render::Vector result = P1.add(P2);  // {1+5, 2+1, 3+7} = {6, 3, 10}
+    render::Vector const result = P1.add(P2);  // {1+5, 2+1, 3+7} = {6, 3, 10}
 
     EXPECT_DOUBLE_EQ(result.get_x(), 6.0);
     EXPECT_DOUBLE_EQ(result.get_y(), 3.0);
@@ -43,7 +43,7 @@ namespace {
 
   // Caso de prueba: resta entre punto y vector
   TEST(test_point, substract_vector_returns_correct_point) {
-    render::Point result = P2.substract(V1);  // P2 - V1 = {5-2, 1-3, 7-4} = {3, -2, 3}
+    render::Point const result = P2.substract(V1);  // P2 - V1 = {5-2, 1-3, 7-4} = {3, -2, 3}
 
     EXPECT_DOUBLE_EQ(result.get_x(), 3.0);
     EXPECT_DOUBLE_EQ(result.get_y(), -2.0);
@@ -52,7 +52,7 @@ namespace {
 
   // Caso de prueba: suma entre punto y vector
   TEST(test_point, add_vector_returns_correct_point) {
-    render::Point result = P1.add(V1);  // P1 + V1 = {1+2, 2+3, 3+4} = {3, 5, 7}
+    render::Point const result = P1.add(V1);  // P1 + V1 = {1+2, 2+3, 3+4} = {3, 5, 7}
 
     EXPECT_DOUBLE_EQ(result.get_x(), 3.0);
     EXPECT_DOUBLE_EQ(result.get_y(), 5.0);

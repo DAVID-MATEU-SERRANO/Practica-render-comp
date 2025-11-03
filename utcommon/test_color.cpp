@@ -1,5 +1,7 @@
 #include "../common/include/color.hpp"
+#include <cmath>
 #include <gtest/gtest.h>
+#include <stdexcept>
 
 namespace {
 
@@ -37,8 +39,8 @@ namespace {
 
   // Caso de prueba función miembro: multiply
   TEST(test_color, multiply) {
-    render::Color color(0.4, 0.8, 0.6);
-    render::Color result = color.multiply(1.0);
+    render::Color const color(0.4, 0.8, 0.6);
+    render::Color const result = color.multiply(1.0);
     EXPECT_NEAR(result.get_r(), 0.4, 1e-9);
     EXPECT_NEAR(result.get_g(), 0.8, 1e-9);
     EXPECT_NEAR(
@@ -49,10 +51,10 @@ namespace {
 
   // Caso de error función miembro: multiply con factor negativo
   TEST(test_color, multiply_negative_factor) {
-    render::Color color(0.2, 0.4, 0.6);
+    render::Color const color(0.2, 0.4, 0.6);
     EXPECT_THROW(
         {
-          render::Color result = color.multiply(-1.0);
+          render::Color const result = color.multiply(-1.0);
           (void) result;
         },
         std::runtime_error);
@@ -60,10 +62,10 @@ namespace {
 
   // Caso de error función miembro: multiply con factor muy grande
   TEST(test_color, multiply_large_factor) {
-    render::Color color(0.2, 0.4, 0.6);
+    render::Color const color(0.2, 0.4, 0.6);
     EXPECT_THROW(
         {
-          render::Color result = color.multiply(10.0);
+          render::Color const result = color.multiply(10.0);
           (void) result;
         },
         std::runtime_error);
@@ -71,9 +73,9 @@ namespace {
 
   // Caso de prueba función miembro: add
   TEST(test_color, add) {
-    render::Color color1(0.2, 0.3, 0.4);
-    render::Color color2(0.5, 0.4, 0.3);
-    render::Color result = color1.add(color2);
+    render::Color const color1(0.2, 0.3, 0.4);
+    render::Color const color2(0.5, 0.4, 0.3);
+    render::Color const result = color1.add(color2);
     EXPECT_DOUBLE_EQ(result.get_r(), 0.7);
     EXPECT_DOUBLE_EQ(result.get_g(), 0.7);
     EXPECT_DOUBLE_EQ(result.get_b(), 0.7);
@@ -82,11 +84,11 @@ namespace {
 
   // Caso de error función miembro: add que excede el rango máximo
   TEST(test_color, add_exceeding_range) {
-    render::Color color1(0.8, 0.9, 1.0);
-    render::Color color2(0.5, 0.4, 0.3);
+    render::Color const color1(0.8, 0.9, 1.0);
+    render::Color const color2(0.5, 0.4, 0.3);
     EXPECT_THROW(
         {
-          render::Color result = color1.add(color2);
+          render::Color const result = color1.add(color2);
           (void) result;
         },
         std::runtime_error);
@@ -108,7 +110,7 @@ namespace {
   // error aunque los valores excedan 1.0
   TEST(test_color, multiply_in_place_color) {
     render::Color color1(0.2, 0.4, 0.6);
-    render::Color color2(0.5, 0.5, 1.0);
+    render::Color const color2(0.5, 0.5, 1.0);
     EXPECT_NO_THROW(color1.multiply_in_place(color2));
     EXPECT_NEAR(color1.get_r(), 0.1, 1e-9);
     EXPECT_NEAR(color1.get_g(), 0.2, 1e-9);
@@ -119,7 +121,7 @@ namespace {
   // valores excedan 1.0
   TEST(test_color, add_in_place) {
     render::Color color1(0.2, 0.3, 0.4);
-    render::Color color2(0.5, 0.4, 0.3);
+    render::Color const color2(0.5, 0.4, 0.3);
     color1.add_in_place(color2);
     EXPECT_DOUBLE_EQ(color1.get_r(), 0.7);
     EXPECT_DOUBLE_EQ(color1.get_g(), 0.7);

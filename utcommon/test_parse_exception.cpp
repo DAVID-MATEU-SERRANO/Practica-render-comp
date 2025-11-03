@@ -11,8 +11,8 @@ namespace {
 
   // Caso de prueba función miembro: constructor con inicialización correcta
   TEST(test_parse_exception, constructor_valid_initialization) {
-    std::string message = "Error parsing line";
-    ParseException ex(message, TEST_LINE);
+    std::string const message = "Error parsing line";
+    ParseException const ex(message, TEST_LINE);
     EXPECT_EQ(ex.what(), message);
     EXPECT_EQ(ex.get_line_content(), TEST_LINE);
   }

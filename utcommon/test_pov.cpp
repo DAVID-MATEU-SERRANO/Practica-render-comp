@@ -16,18 +16,18 @@ namespace {
   // Caso de prueba: cálculo altura
   TEST(test_pov, compute_image_size_standard_ratio) {
     // Escenario 1: Aspect Ratio 16:9. Width = 1600. Height = 1600 * (9/16) = 900
-    render::ImageSize size1 = render::Pov::compute_image_size(1'600, 16, 9);
+    render::ImageSize const size1 = render::Pov::compute_image_size(1'600, 16, 9);
     EXPECT_EQ(size1.image_width, 1'600);
     EXPECT_EQ(size1.image_height, 900);
 
     // Escenario 2: Aspect Ratio 4:3. Width = 800. Height = 800 * (3/4) = 600
-    render::ImageSize size2 = render::Pov::compute_image_size(800, 4, 3);
+    render::ImageSize const size2 = render::Pov::compute_image_size(800, 4, 3);
     EXPECT_EQ(size2.image_width, 800);
     EXPECT_EQ(size2.image_height, 600);
 
     // Escenario 3: Prueba con truncamiento (std::floor). AR 3:2. Width=100. Height = 100 * (2/3)
     // = 66.66 -> 66
-    render::ImageSize size3 = render::Pov::compute_image_size(100, 3, 2);
+    render::ImageSize const size3 = render::Pov::compute_image_size(100, 3, 2);
     EXPECT_EQ(size3.image_width, 100);
     EXPECT_EQ(size3.image_height, 66);
   }
@@ -41,8 +41,8 @@ namespace {
 
   // Caso de prueba: vector focal con FOV 90 grados
   TEST(test_pov, pw_focal_vector_is_correct) {
-    render::Pov pov          = create_base_pov(FOV_90);
-    render::Vector focal_vec = pov.pw_focal_vector();  // {0, 0, -10} - {0, 0, 0} = {0, 0, -10}
+    render::Pov const pov          = create_base_pov(FOV_90);
+    render::Vector const focal_vec = pov.pw_focal_vector();  // {0, 0, -10} - {0, 0, 0} = {0, 0, -10}
 
     EXPECT_DOUBLE_EQ(focal_vec.get_x(), 0.0);
     EXPECT_DOUBLE_EQ(focal_vec.get_y(), 0.0);
@@ -51,7 +51,7 @@ namespace {
 
   // Caso de prueba: distancia focal con FOV 90 grados
   TEST(test_pov, pw_focal_distance_is_correct) {
-    render::Pov pov = create_base_pov(FOV_90);
+    render::Pov const pov = create_base_pov(FOV_90);
     double distance = pov.pw_focal_distance();
 
     EXPECT_DOUBLE_EQ(distance, 10.0);  // ||{0, 0, -10}|| = 10
@@ -59,7 +59,7 @@ namespace {
 
   // Caso de prueba: altura y anchura de la ventana de proyección con FOV 90 grados
   TEST(test_pov, pw_height_and_width_are_correct_for_fov_90) {
-    render::Pov pov = create_base_pov(FOV_90);
+    render::Pov const pov = create_base_pov(FOV_90);
     EXPECT_DOUBLE_EQ(pov.pw_height(), 20.0);               // 2 * 10 * tan(90/2) = 20
     EXPECT_NEAR(pov.pw_width(), 35.55555555555556, 1e-9);  // 20 * (1920/1080) = 35.55...56
   }
@@ -68,8 +68,8 @@ namespace {
   // 90 grados
   TEST(test_pov, pw_horizontal_and_vertical_vectors_are_correct_for_fov_90) {
     render::Pov pov               = create_base_pov(FOV_90);
-    render::Vector horizontal_vec = pov.pw_horizontal_vector();
-    render::Vector vertical_vec   = pov.pw_vertical_vector();
+    render::Vector const horizontal_vec = pov.pw_horizontal_vector();
+    render::Vector const vertical_vec   = pov.pw_vertical_vector();
     double const pw_w             = pov.pw_width();
     double const pw_h             = pov.pw_height();
 
@@ -100,7 +100,7 @@ namespace {
   // Caso de prueba: get_origin devuelve el origen correcto
   TEST(test_pov, get_origin_returns_correct_origin) {
     render::Pov pov      = create_base_pov(FOV_90);
-    render::Point origin = pov.pw_origin();
+    render::Point const origin = pov.pw_origin();
 
     // Cálculo del origen esperado
     double const half_width  = pov.pw_width() / 2.0;

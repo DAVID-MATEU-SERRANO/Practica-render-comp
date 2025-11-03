@@ -6,6 +6,7 @@
 #include <utility>
 #include <variant>
 #include <vector>
+#include <stddef>
 
 // Aquí vamos a declarar los mocks y stub necesarios para hacer las pruebas
 
@@ -180,7 +181,7 @@ namespace {
   TEST(test_parser_materials, parse_matte_line_invalid_color_range_throws) {
     render::Scene scene;
     std::string const tag           = "matte";
-    std::vector<std::string> tokens = {"mat2", "0.0", "1.2", "0.5"};
+    std::vector<std::string> const tokens = {"mat2", "0.0", "1.2", "0.5"};
 
     EXPECT_THROW(
         { render::dispatch_scene_entity(tag, tokens, scene, TEST_LINE); }, parse::ParseException);
@@ -190,7 +191,7 @@ namespace {
   TEST(test_parser_materials, dispatch_metal_line_insufficient_tokens_throws) {
     render::Scene scene;
     std::string const tag           = "metal";
-    std::vector<std::string> tokens = {"met1", "0.5", "0.5", "0.5"};
+    std::vector<std::string> const tokens = {"met1", "0.5", "0.5", "0.5"};
 
     // Esperamos que util::expect_token_count falle.
     EXPECT_THROW(
@@ -202,7 +203,7 @@ namespace {
     render::Scene scene;
     // Tags y Tokens para: refractive: name 1.0 (1.0 es inválido)
     std::string const tag           = "refractive";
-    std::vector<std::string> tokens = {"ref_fail", "0.0"};
+    std::vector<std::string> const tokens = {"ref_fail", "0.0"};
 
     // Esperamos que el constructor de Refractive falle y relance ParseException.
     EXPECT_THROW(

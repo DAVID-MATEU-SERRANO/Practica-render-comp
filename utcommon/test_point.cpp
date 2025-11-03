@@ -32,7 +32,7 @@ namespace {
 
   // Caso de prueba: resta de dos puntos
   TEST(test_point, substract_point_returns_correct_vector) {
-    render::Vector result = P2.substract(P1);  // {5-1, 1-2, 7-3} = {4, -1, 4}
+    render::Vector const result = P2.substract(P1);  // {5-1, 1-2, 7-3} = {4, -1, 4}
 
     EXPECT_DOUBLE_EQ(result.get_x(), 4.0);
     EXPECT_DOUBLE_EQ(result.get_y(), -1.0);

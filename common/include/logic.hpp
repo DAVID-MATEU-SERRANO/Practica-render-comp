@@ -1,13 +1,14 @@
 #ifndef RENDER_LOGIC_HPP
 #define RENDER_LOGIC_HPP
 
-#include "../../common/include/render.hpp"
 #include "../../common/include/scene.hpp"
 #include <fstream>
 #include <string>
 #include <vector>
 
 namespace render {
+
+  bool load_scene_from_files(render::Scene & scene, std::ifstream & in, std::ifstream & file);
 
   void validate_arguments(int argc, std::vector<std::string> const & arguments);
 

@@ -7,7 +7,6 @@ target_sources(common
         src/pov.cpp
         src/ray.cpp
         src/logic.cpp
-        src/render.cpp
         src/scene.cpp
         src/vector.cpp
 )
@@ -15,6 +14,3 @@ target_sources(common
 target_include_directories(common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_link_libraries(common PUBLIC Microsoft.GSL::GSL)
-
-
-

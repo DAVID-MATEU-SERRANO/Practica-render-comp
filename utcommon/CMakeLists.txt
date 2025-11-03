@@ -3,7 +3,7 @@ set(COMMON_SRC_FILES
   "${CMAKE_SOURCE_DIR}/common/src/parse_scene.cpp"
   "${CMAKE_SOURCE_DIR}/common/src/pov.cpp"
   "${CMAKE_SOURCE_DIR}/common/src/ray.cpp"
-  "${CMAKE_SOURCE_DIR}/common/src/render.cpp"
+  "${CMAKE_SOURCE_DIR}/common/src/logic.cpp"
   "${CMAKE_SOURCE_DIR}/common/src/scene.cpp"
   "${CMAKE_SOURCE_DIR}/common/src/vector.cpp"
 )

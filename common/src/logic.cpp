@@ -1,4 +1,6 @@
 #include "../include/logic.hpp"
+#include "../include/parse_config.hpp"
+#include "../include/parse_scene.hpp"
 #include "../include/scene.hpp"
 #include <fstream>
 #include <iostream>
@@ -16,6 +18,13 @@ namespace render {
                                   arguments[0] +
                                   " <config_file> <scene_file> <output_file>");
     }
+  }
+
+  bool load_scene_from_files(render::Scene & scene, std::ifstream & in, std::ifstream & file) {
+    parse::parse_scene_stream(in, scene);
+
+    parse::parse_config_stream(file, scene);
+    return true;
   }
 
   Scene load_scene(std::string const & config_path, std::string const & scene_path) {

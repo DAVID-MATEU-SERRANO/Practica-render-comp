@@ -1,4 +1,4 @@
-#include "scene.hpp"
+#include "..//include/scene.hpp"
 #include <fstream>
 
 namespace render {

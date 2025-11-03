@@ -6,6 +6,7 @@ target_sources(common
         src/parse_scene.cpp
         src/pov.cpp
         src/ray.cpp
+        src/logic.cpp
         src/render.cpp
         src/scene.cpp
         src/vector.cpp

@@ -7,7 +7,7 @@
 namespace fs = std::filesystem;
 
 TEST(aos_smoke, writes_ppm_header_correctly) {
-  fs::path tmp = fs::temp_directory_path() / "aos_header_only.ppm";
+  fs::path const tmp = fs::temp_directory_path() / "aos_header_only.ppm";
   {
     std::ofstream out(tmp);
     ASSERT_TRUE(out.is_open());
